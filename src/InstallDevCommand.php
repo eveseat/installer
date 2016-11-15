@@ -80,6 +80,7 @@ class InstallDevCommand extends Command
         'api'           => 'https://github.com/eveseat/api.git',
         'console'       => 'https://github.com/eveseat/console.git',
         'eveapi'        => 'https://github.com/eveseat/eveapi.git',
+        'installer'     => 'https://github.com/eveseat/installer.git',
         'notifications' => 'https://github.com/eveseat/notifications.git',
         'services'      => 'https://github.com/eveseat/services.git',
         'web'           => 'https://github.com/eveseat/web.git'
