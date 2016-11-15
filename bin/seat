@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+
+// Search for the autoloader.
+if (file_exists(__DIR__ . '/../../autoload.php')) {
+
+    require __DIR__ . '/../../autoload.php';
+
+} elseif (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+
+    require __DIR__ . '/../vendor/autoload.php';
+
+} else {
+
+    require __DIR__ . '/vendor/autoload.php';
+}
+
+// Init the app.
+$app = new Symfony\Component\Console\Application('SeAT Installer', '@package_version@');
+
+// Add the commands.
+$app->add(new Seat\Installer\Console\InstallerCommand);
+$app->add(new \Seat\Installer\Console\InstallDevCommand);
+
+$app->run();
