@@ -18,7 +18,8 @@
         "guzzlehttp/guzzle": "~6.0",
         "symfony/console": "^3.1",
         "symfony/process": "^3.1",
-        "cpliakas/git-wrapper": "^1.7"
+        "cpliakas/git-wrapper": "^1.7",
+        "padraic/phar-updater": "^1.0"
     },
     "bin": [
         "seat"

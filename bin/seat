@@ -19,6 +19,7 @@ if (file_exists(__DIR__ . '/../../autoload.php')) {
 $app = new Symfony\Component\Console\Application('SeAT Installer', '@package_version@');
 
 // Add the commands.
+$app->add(new Seat\Installer\Console\SelfUpdateCommand);
 $app->add(new Seat\Installer\Console\InstallerCommand);
 $app->add(new \Seat\Installer\Console\InstallDevCommand);
 
