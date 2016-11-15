@@ -62,10 +62,17 @@ class SelfUpdateCommand extends Command
 
             $result = $updater->update();
 
-            if ($result)
-                $output->writeln('<info>Updated!</info>');
-            else
+            if ($result) {
+
+                $new = $updater->getNewVersion();
+                $old = $updater->getOldVersion();
+                $output->writeln('<info>Updated from ' . $old . ' to ' . $new . '!</info>');
+
+            } else {
+
                 $output->writeln('<comment>No update needed!</comment>');
+
+            }
 
         } catch (\Exception $e) {
 
