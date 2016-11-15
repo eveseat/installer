@@ -26,10 +26,21 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class SelfUpdateCommand
+ * @package Seat\Installer\Console
+ */
 class SelfUpdateCommand extends Command
 {
 
+    /**
+     * @var string
+     */
     protected $phar_url = 'https://raw.githubusercontent.com/eveseat/installer/master/dist/seat.phar';
+
+    /**
+     * @var string
+     */
     protected $phar_ver = 'https://raw.githubusercontent.com/eveseat/installer/master/dist/seat.phar.version';
 
     /**
