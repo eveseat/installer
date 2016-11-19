@@ -48,6 +48,7 @@ class InstallDevCommand extends Command
      */
     protected $executables = [
         'git'      => null,
+        'unzip'    => null,
         'composer' => null,
         'php'      => null,
     ];
@@ -222,7 +223,7 @@ class InstallDevCommand extends Command
     protected function check_php_extensions()
     {
 
-        $required_ext = ['intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom', 'xml'];
+        $required_ext = ['intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom', 'xml', 'zip'];
 
         foreach ($required_ext as $extention)
             if (!extension_loaded($extention))
