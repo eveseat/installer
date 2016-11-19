@@ -23,7 +23,9 @@ namespace Seat\Installer\Console;
 
 use GitWrapper\GitWrapper;
 use GuzzleHttp\Client;
+use Seat\Installer\Console\Exceptions\ComposerInstallException;
 use Seat\Installer\Console\Exceptions\ExecutableNotFoundException;
+use Seat\Installer\Console\Exceptions\MissingPhpExtentionExeption;
 use Seat\Installer\Console\Exceptions\NonEmptyDirectoryException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -119,6 +121,7 @@ class InstallDevCommand extends Command
 
         // Ensure that the packages, environment and paths are OK.
         $this->resolve_executables();
+        $this->check_php_extensions();
         $this->resolve_paths($input->getOption('destination'));
 
         // Get the main repo and prep packages dir.
@@ -212,6 +215,22 @@ class InstallDevCommand extends Command
     }
 
     /**
+     * Check that certain PHP extentions are available.
+     *
+     * @throws \Seat\Installer\Console\Exceptions\MissingPhpExtentionExeption
+     */
+    protected function check_php_extensions()
+    {
+
+        $required_ext = ['intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom', 'xml'];
+
+        foreach ($required_ext as $extention)
+            if (!extension_loaded($extention))
+                throw new MissingPhpExtentionExeption(
+                    'PHP Extention ' . $extention . ' not installed.');
+    }
+
+    /**
      * Clone a git repository to a path.
      *
      * @param string $repository
@@ -251,8 +270,14 @@ class InstallDevCommand extends Command
         // Output as it goes
         $process->wait(function ($type, $buffer) {
 
-            echo 'COMPOSER > ' . $buffer;
+            // Echo if there is something in the buffer to echo.
+            if (strlen($buffer) > 0)
+                echo 'COMPOSER > ' . $buffer . PHP_EOL;
         });
+
+        // Make sure composer installed fine.
+        if (!$process->isSuccessful())
+            throw new ComposerInstallException('Composer installation failed.');
 
         return;
 
