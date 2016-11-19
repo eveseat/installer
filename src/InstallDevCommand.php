@@ -105,7 +105,7 @@ class InstallDevCommand extends Command
             ->setDescription('Install a SeAT Development Instance')
             ->setHelp(
                 'This command allows you to install SeAT on your system, ' .
-                'ready to use for development purposed.');
+                'ready to use for development purposes.');
     }
 
     /**
@@ -245,6 +245,7 @@ class InstallDevCommand extends Command
         // Run the installation
         $process = new Process($this->executables['composer'] .
             ' install --no-ansi --no-progress --no-suggest');
+        $process->setTimeout(3600);
         $process->start();
 
         // Output as it goes
