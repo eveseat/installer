@@ -42,6 +42,16 @@ class InstallDevCommand extends Command
 {
 
     /**
+     * @var
+     */
+    protected $input;
+
+    /**
+     * @var
+     */
+    protected $output;
+
+    /**
      * Array of shell executable locations.
      *
      * @var array
@@ -120,6 +130,10 @@ class InstallDevCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
+        // Bind the input and output for later use in other methods.
+        $this->input = $input;
+        $this->output = $output;
+
         // Ensure that the packages, environment and paths are OK.
         $this->resolve_executables();
         $this->check_php_extensions();
@@ -176,6 +190,7 @@ class InstallDevCommand extends Command
             if (is_null($path))
                 throw new ExecutableNotFoundException('Cant find executable for ' . $exeutable);
 
+            $this->output->writeln('Using ' . $path . ' for ' . $exeutable);
             $this->executables[$exeutable] = $path;
         }
 
@@ -273,7 +288,7 @@ class InstallDevCommand extends Command
 
             // Echo if there is something in the buffer to echo.
             if (strlen($buffer) > 0)
-                echo 'COMPOSER > ' . $buffer . PHP_EOL;
+                $this->output->write('COMPOSER> ' . $buffer);
         });
 
         // Make sure composer installed fine.
