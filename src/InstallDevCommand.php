@@ -198,6 +198,22 @@ class InstallDevCommand extends Command
     }
 
     /**
+     * Check that certain PHP extentions are available.
+     *
+     * @throws \Seat\Installer\Console\Exceptions\MissingPhpExtentionExeption
+     */
+    protected function check_php_extensions()
+    {
+
+        $required_ext = ['intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom', 'xml', 'zip'];
+
+        foreach ($required_ext as $extention)
+            if (!extension_loaded($extention))
+                throw new MissingPhpExtentionExeption(
+                    'PHP Extention ' . $extention . ' not installed.');
+    }
+
+    /**
      * Make sure that the install path is not already taken.
      *
      * @param string $path
@@ -228,22 +244,6 @@ class InstallDevCommand extends Command
             $this->packages_directory;
 
         return;
-    }
-
-    /**
-     * Check that certain PHP extentions are available.
-     *
-     * @throws \Seat\Installer\Console\Exceptions\MissingPhpExtentionExeption
-     */
-    protected function check_php_extensions()
-    {
-
-        $required_ext = ['intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom', 'xml', 'zip'];
-
-        foreach ($required_ext as $extention)
-            if (!extension_loaded($extention))
-                throw new MissingPhpExtentionExeption(
-                    'PHP Extention ' . $extention . ' not installed.');
     }
 
     /**
