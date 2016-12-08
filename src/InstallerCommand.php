@@ -26,6 +26,7 @@ use Seat\Installer\Console\Utils\MySql;
 use Seat\Installer\Console\Utils\PackageInstaller;
 use Seat\Installer\Console\Utils\Requirements;
 use Seat\Installer\Console\Utils\Seat;
+use Seat\Installer\Console\Utils\Supervisor;
 use Seat\Installer\Console\Utils\Updates;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,6 +44,11 @@ class InstallerCommand extends Command
      * @var
      */
     protected $io;
+
+    /**
+     * @var
+     */
+    protected $mysql_credentials;
 
     /**
      * Setup the command
@@ -89,6 +95,8 @@ class InstallerCommand extends Command
         $this->installPackages();
 
         $this->installSeat();
+
+        $this->setupSupervisor();
 
     }
 
@@ -240,6 +248,9 @@ class InstallerCommand extends Command
             // Save the credentials that worked
             $mysql->saveCredentials();
 
+            // Get the creds from the mysql Object
+            $this->mysql_credentials = $mysql->getCredentials();
+
 
         } else {
 
@@ -251,6 +262,9 @@ class InstallerCommand extends Command
 
             // And save the credentials.
             $mysql->saveCredentials();
+
+            // Get the creds from the mysql Object
+            $this->mysql_credentials = $mysql->getCredentials();
 
         }
 
@@ -272,12 +286,26 @@ class InstallerCommand extends Command
 
     }
 
+    /**
+     * Install SeAT
+     */
     protected function installSeat()
     {
 
         $seat = new Seat($this->io);
         $seat->setPath('/var/www/seat');
         $seat->install();
+        $seat->configure($this->mysql_credentials);
+    }
+
+    /**
+     *
+     */
+    protected function setupSupervisor()
+    {
+
+        $supervisor = new Supervisor($this->io);
+        $supervisor->setup();
     }
 
 }

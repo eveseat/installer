@@ -115,6 +115,30 @@ class Requirements
     }
 
     /**
+     * @return bool
+     */
+    private function hasMinimumPhpVersion(): bool
+    {
+
+        return version_compare(PHP_VERSION, $this->phpversion) >= 0;
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasSupportedOs(): bool
+    {
+
+        $os = $this->getOperatingSystem();
+
+        return (
+            array_key_exists($os['os'], $this->supported_os) &&
+            in_array($os['version'], $this->supported_os[$os['os']])
+        );
+
+    }
+
+    /**
      * Check that the core PHP requirements are met.
      */
     public function checkPhpRequirements()
@@ -161,30 +185,6 @@ class Requirements
         }
 
         return !in_array(null, $this->php_extentions);
-
-    }
-
-    /**
-     * @return bool
-     */
-    private function hasMinimumPhpVersion(): bool
-    {
-
-        return version_compare(PHP_VERSION, $this->phpversion) >= 0;
-    }
-
-    /**
-     * @return bool
-     */
-    private function hasSupportedOs(): bool
-    {
-
-        $os = $this->getOperatingSystem();
-
-        return (
-            array_key_exists($os['os'], $this->supported_os) &&
-            in_array($os['version'], $this->supported_os[$os['os']])
-        );
 
     }
 

@@ -100,6 +100,15 @@ class MySql
     }
 
     /**
+     * @return array
+     */
+    public function getCredentials(): array
+    {
+
+        return $this->credentials;
+    }
+
+    /**
      * @param array $credentials
      */
     public function setCredentials(array $credentials)
@@ -107,15 +116,6 @@ class MySql
 
         $this->credentials = $credentials;
 
-    }
-
-    /**
-     * @return array
-     */
-    public function getCredentials(): array
-    {
-
-        return $this->credentials;
     }
 
     /**
@@ -147,17 +147,6 @@ class MySql
     }
 
     /**
-     * Save the current credentials to a json encoded file.
-     */
-    public function saveCredentials()
-    {
-
-        $fs = new Filesystem();
-        $fs->dumpFile($this->credentials_file, json_encode($this->credentials));
-
-    }
-
-    /**
      * @return array|mixed
      */
     public function readCredentialsFile()
@@ -168,17 +157,6 @@ class MySql
 
         return $this->credentials;
 
-    }
-
-    /**
-     * Generate a random password.
-     *
-     * @return string
-     */
-    private function generatePassword()
-    {
-
-        return sha1(random_bytes(32) . gethostname());
     }
 
     /**
@@ -244,6 +222,28 @@ EOF;
         // Make sure it ran fine.
         if (!$process->isSuccessful())
             throw new MySqlConfigurationException('MySQL configuration failed.');
+
+    }
+
+    /**
+     * Generate a random password.
+     *
+     * @return string
+     */
+    private function generatePassword()
+    {
+
+        return sha1(random_bytes(32) . gethostname());
+    }
+
+    /**
+     * Save the current credentials to a json encoded file.
+     */
+    public function saveCredentials()
+    {
+
+        $fs = new Filesystem();
+        $fs->dumpFile($this->credentials_file, json_encode($this->credentials));
 
     }
 
