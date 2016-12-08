@@ -22,37 +22,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Console\Utils;
 
 
-use Seat\Installer\Console\Exceptions\OsUpdateFailedException;
-use Seat\Installer\Console\Traits\DetectsOperatingSystem;
+use Seat\Installer\Console\Exceptions\SeatDownloadFailedException;
+use Seat\Installer\Console\Traits\FindsExecutables;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
 
 /**
- * Class Updates
+ * Class Seat
  * @package Seat\Installer\Console\Utils
  */
-class Updates
+class Seat
 {
 
-    use DetectsOperatingSystem;
+    use FindsExecutables;
 
     /**
-     * @var \Seat\Installer\Console\Utils\SymfonyStyle
+     * @var
      */
-    protected $io;
+    protected $path;
 
     /**
-     * @var array
-     */
-    protected $update_command = [
-        'ubuntu' => 'apt-get update && apt-get upgrade -y',
-        'centos' => 'yum update -y',
-    ];
-
-    /**
-     * Updates constructor.
+     * Seat constructor.
      *
      * @param \Symfony\Component\Console\Style\SymfonyStyle|null     $io
      * @param \Symfony\Component\Console\Input\InputInterface|null   $input
@@ -70,34 +62,45 @@ class Updates
     }
 
     /**
-     *
+     * @return mixed
      */
-    public function update()
+    public function getPath(): string
     {
 
-        $os = $this->getOperatingSystem();
-        $this->updateOsBasedOnType($os['os']);
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath(string $path)
+    {
+
+        $this->path = $path;
+    }
+
+    /**
+     * Install SeAT
+     */
+    public function install()
+    {
+
+        $this->download();
+
 
     }
 
     /**
-     * @param string $os
-     *
-     * @throws \Seat\Installer\Console\Exceptions\OsUpdateFailedException
+     * @throws \Seat\Installer\Console\Exceptions\SeatDownloadFailedException
      */
-    private function updateOsBasedOnType(string $os)
+    protected function download()
     {
 
-        // If we are on a debian based system, let apt know we
-        // dont want to do anything interactively.
-        if ($os == 'ubuntu' || $os == 'debian')
-            putenv('DEBIAN_FRONTEND=noninteractive');
-
-        // Prepare the command
-        $command = $this->update_command[$os];
+        $command = $this->findExecutable('composer') . ' create-project eveseat/seat ' .
+            $this->getPath() . ' --no-dev --no-ansi --no-progress';
 
         // Prepare and start the installation.
-        $this->io->text('Running OS update with: ' . $command);
+        $this->io->text('Running SeAT installation with: ' . $command);
         $process = new Process($command);
         $process->setTimeout(3600);
         $process->start();
@@ -107,12 +110,12 @@ class Updates
 
             // Echo if there is something in the buffer to echo.
             if (strlen($buffer) > 0)
-                $this->io->write('OS Update> ' . $buffer);
+                $this->io->write('SeAT Installation> ' . $buffer);
         });
 
-        // Make sure the update was ok
+        // Make sure composer installed fine.
         if (!$process->isSuccessful())
-            throw new OsUpdateFailedException('Failed to update the OS.');
+            throw new SeatDownloadFailedException('SeAT download failed.');
 
     }
 

@@ -65,6 +65,13 @@ class Requirements
     ];
 
     /**
+     * @var array
+     */
+    protected $php_extentions = [
+        'pdo_mysql' => null,
+    ];
+
+    /**
      * @var bool
      */
     private $requirements_ok = true;
@@ -104,6 +111,56 @@ class Requirements
             $this->requirements_ok = false;
             $this->io->error('Operating System is not supported by this installer');
         }
+
+    }
+
+    /**
+     * Check that the core PHP requirements are met.
+     */
+    public function checkPhpRequirements()
+    {
+
+        if (!$this->hasAllPhpExtentions()) {
+
+            $this->requirements_ok = false;
+
+            // Ask if we can try and install the needed package for
+            // the missing extension.
+            foreach ($this->php_extentions as $name => $loaded) {
+
+                if (!$loaded) {
+
+                    $this->io->error('Extention ' . $name . ' not loaded');
+
+                    if ($this->io->confirm('Would you like to try and install it?')) {
+
+                        $installer = new PackageInstaller($this->io);
+                        $installer->installNeededPackage($name);
+                    }
+                }
+            }
+
+            $this->io->success('PHP requirements check completed. You may need to rerun the script to continue.');
+        }
+
+
+    }
+
+    /**
+     * Check for any missinh PHP extentions.
+     *
+     * @return bool
+     */
+    private function hasAllPhpExtentions()
+    {
+
+        foreach ($this->php_extentions as $name => $loaded) {
+
+            if (extension_loaded($name))
+                $this->php_extentions[$name] = true;
+        }
+
+        return !in_array(null, $this->php_extentions);
 
     }
 

@@ -56,14 +56,44 @@ class PackageInstaller
      */
     protected $command_packages = [
         'ubuntu' => [
-            'unzip' => 'unzip',
-            'git'   => 'git',
+            'unzip'     => 'unzip',
+            'git'       => 'git',
+            'pdo_mysql' => 'php-mysql',
         ],
         'centos' => [
-            'unzip' => 'unzip',
-            'git'   => 'git',
+            'unzip'     => 'unzip',
+            'git'       => 'git',
+            'pdo_mysql' => 'php-mysql'
         ]
+    ];
 
+    /**
+     * @var array
+     */
+    protected $package_groups = [
+
+        // Ubuntu
+        'ubuntu' => [
+            'php'        => [
+                'php-cli', 'php-mcrypt', 'php-intl',
+                'php-mysql', 'php-curl', 'php-gd',
+                'php-mbstring', 'php-bz2', 'php-dom'
+            ],
+            'apache'     => [
+                'apache2', 'libapache2-mod-php'
+            ],
+            'redis'      => [
+                'redis-server'
+            ],
+            'supervisor' => [
+                'supervisor'
+            ]
+        ],
+
+        // CentOS
+        'centos' => [
+            'php' => []
+        ],
     ];
 
     /**
@@ -157,6 +187,25 @@ class PackageInstaller
         $this->installPackage($command);
 
         return;
+
+    }
+
+    /**
+     * @param string $group_name
+     *
+     * @throws \Seat\Installer\Console\Exceptions\PackageInstallationFailedException
+     */
+    public function installPackageGroup(string $group_name)
+    {
+
+        $this->io->text('Installing packages for package group: \'' . $group_name . '\'.');
+
+        if (!array_key_exists($group_name, $this->package_groups[$this->os['os']]))
+            throw new PackageInstallationFailedException('Unknown package group: ' . $group_name);
+
+        // Install the packages in the package group.
+        foreach ($this->package_groups[$this->os['os']][$group_name] as $package)
+            $this->installPackage($package);
 
     }
 

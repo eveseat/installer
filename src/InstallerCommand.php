@@ -23,7 +23,9 @@ namespace Seat\Installer\Console;
 
 use Seat\Installer\Console\Utils\Composer;
 use Seat\Installer\Console\Utils\MySql;
+use Seat\Installer\Console\Utils\PackageInstaller;
 use Seat\Installer\Console\Utils\Requirements;
+use Seat\Installer\Console\Utils\Seat;
 use Seat\Installer\Console\Utils\Updates;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -84,6 +86,10 @@ class InstallerCommand extends Command
 
         $this->configureMySql();
 
+        $this->installPackages();
+
+        $this->installSeat();
+
     }
 
     /**
@@ -106,6 +112,8 @@ class InstallerCommand extends Command
             'Ensure the OS is up to date.'
         ]);
 
+        $this->io->text('It may be needed to restart the installer sometimes to continue.');
+
         if ($this->io->confirm('Would like to continue with the installation?'))
             return true;
 
@@ -124,6 +132,7 @@ class InstallerCommand extends Command
         $requirements = new Requirements($this->io);
 
         $requirements->checkSoftwareRequirements();
+        $requirements->checkPhpRequirements();
         $requirements->checkAccessRequirements();
         $requirements->checkCommandRequirements();
 
@@ -181,14 +190,25 @@ class InstallerCommand extends Command
     protected function configureMySql()
     {
 
+        // Check that PDO is available first
+        if (!extension_loaded('pdo_mysql'))
+            $this->installer->installPackage('php-mysql');
+
         $mysql = new MySql($this->io);
 
-        // TODO: Finish this.
+        // Check if MySQL is already installed. If so, prompt for
+        // credentials to use.
         if ($mysql->isInstalled()) {
 
             $this->io->warning('MySQL appears to already be installed.');
             $this->io->text('Entering mode to get access details for SeAT to use. ' .
-                'It is recommended that you create a *new* database for SeAT.');
+                'It is recommended that you create a *new* database and MySQL user ' .
+                'for SeAT. The user must have the following MySQL privileges on the ' .
+                'SeAT database:');
+            $this->io->text('CREATE, LOCK TABLES, INDEX, INSERT, SELECT, UPDATE, DELETE, DROP, ALTER');
+            $this->io->text('A user can be created with the following SQL statement:');
+            $this->io->text('grant all on seat.* to seat@localhost identified by \'password\';');
+            $this->io->newLine();
 
             $connected = false;
 
@@ -196,7 +216,10 @@ class InstallerCommand extends Command
 
                 $this->io->text('Please provide database details:');
                 $username = $this->io->ask('Username');
-                $password = $this->io->askHidden('Password');
+                $password = $this->io->askHidden('Password', function ($input) {
+
+                    return $input;
+                });
                 $databse = $this->io->ask('Database');
 
                 $mysql->setCredentials([
@@ -209,13 +232,52 @@ class InstallerCommand extends Command
 
                 if (!$connected)
                     $this->io->error('Unable to connect to MySql. Please retry.');
+
             }
+
+            $this->io->success('Database connected!');
+
+            // Save the credentials that worked
+            $mysql->saveCredentials();
+
+
+        } else {
+
+            // MySQL is not installed. Do the installation.
+            $mysql->install();
+
+            // Configuration
+            $mysql->configure();
+
+            // And save the credentials.
+            $mysql->saveCredentials();
 
         }
 
-        $mysql->install();
 
+    }
 
+    /**
+     * Install the OS packages needed for SeAT
+     */
+    protected function installPackages()
+    {
+
+        $installer = new PackageInstaller($this->io);
+
+        $installer->installPackageGroup('php');
+        $installer->installPackageGroup('apache');
+        $installer->installPackageGroup('redis');
+        $installer->installPackageGroup('supervisor');
+
+    }
+
+    protected function installSeat()
+    {
+
+        $seat = new Seat($this->io);
+        $seat->setPath('/var/www/seat');
+        $seat->install();
     }
 
 }

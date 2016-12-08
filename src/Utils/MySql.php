@@ -22,10 +22,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Console\Utils;
 
 
+use PDO;
+use PDOException;
+use Seat\Installer\Console\Exceptions\MySqlConfigurationException;
 use Seat\Installer\Console\Traits\FindsExecutables;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
 /**
@@ -45,6 +49,11 @@ class MySql
         'password' => null,
         'database' => null,
     ];
+
+    /**
+     * @var string
+     */
+    protected $credentials_file = '/root/.seat-credentials';
 
     /**
      * MySql constructor.
@@ -101,23 +110,177 @@ class MySql
     }
 
     /**
-     * TODO: Work out how to get this to work. Maybe use PDO.
+     * @return array
+     */
+    public function getCredentials(): array
+    {
+
+        return $this->credentials;
+    }
+
+    /**
+     * Test that the current set of credentails work.
      *
      * @return bool
      */
     public function testCredentails()
     {
 
-        $command = 'mysql -u :username -p:password -e ";"';
-        $command = str_replace(':username', $this->credentials['username'], $command);
-        $command = str_replace(':password', $this->credentials['password'], $command);
-        $command = str_replace(':database', $this->credentials['database'], $command);
+        try {
 
-        $process = new Process($command);
+            new PDO('mysql:host=127.0.0.1;dbname=' . $this->credentials['database'],
+                $this->credentials['username'],
+                $this->credentials['password'],
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                ]);
+
+        } catch (PDOException $e) {
+
+            $this->io->error('Databse connection error. ' . $e->getMessage());
+
+            return false;
+        }
+
+        return true;
+
+    }
+
+    /**
+     * Save the current credentials to a json encoded file.
+     */
+    public function saveCredentials()
+    {
+
+        $fs = new Filesystem();
+        $fs->dumpFile($this->credentials_file, json_encode($this->credentials));
+
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function readCredentialsFile()
+    {
+
+        $credentials = file_get_contents($this->credentials_file);
+        $this->credentials = json_decode($credentials);
+
+        return $this->credentials;
+
+    }
+
+    /**
+     * Generate a random password.
+     *
+     * @return string
+     */
+    private function generatePassword()
+    {
+
+        return sha1(random_bytes(32) . gethostname());
+    }
+
+    /**
+     * Configure a new installation of MySQL.
+     */
+    public function configure()
+    {
+
+        $this->io->text('Securing MySQL installation');
+        $this->secureInstallation();
+
+        $this->io->text('Creating Database and adding user for SeAT');
+        $this->createUserAndDatabase();
+
+
+    }
+
+    /**
+     * @throws \Seat\Installer\Console\Exceptions\MySqlConfigurationException
+     */
+    private function secureInstallation()
+    {
+
+        // Generate passwords for the root MySQL user.
+        $this->credentials['root_password'] = $this->generatePassword();
+        $this->saveCredentials();
+
+        // The epect command to run:
+        $expect = <<<EOF
+SECURE_MYSQL=$(expect -c "
+set timeout 10
+spawn mysql_secure_installation
+
+expect \"Press y|Y for Yes, any other key for No:\"
+send \"n\r\"
+
+expect \"New password:\"
+send \"{$this->credentials['root_password']}\r\"
+expect \"Re-enter new password:\"
+send \"{$this->credentials['root_password']}\r\"
+
+expect \"Remove anonymous users? (Press y|Y for Yes, any other key for No) :\"
+send \"y\r\"
+
+expect \"Disallow root login remotely? (Press y|Y for Yes, any other key for No) :\"
+send \"y\r\"
+
+expect \"Remove test database and access to it? (Press y|Y for Yes, any other key for No) :\"
+send \"y\r\"
+
+expect \"Reload privilege tables now? (Press y|Y for Yes, any other key for No) :\"
+send \"y\r\"
+
+expect eof
+"); echo "\$SECURE_MYSQL"
+EOF;
+
+        // Prepare and start the mysql_secure_installation command.
+        $process = new Process($expect);
+        $process->setTimeout(3600);
         $process->run();
 
-        return $process->isSuccessful();
+        // Make sure it ran fine.
+        if (!$process->isSuccessful())
+            throw new MySqlConfigurationException('MySQL configuration failed.');
 
+    }
+
+    /**
+     * @throws \Seat\Installer\Console\Exceptions\MySqlConfigurationException
+     */
+    private function createUserAndDatabase()
+    {
+
+        // Create a password for the SeAT user.
+        $this->credentials['username'] = 'seat';
+        $this->credentials['database'] = 'seat';
+        $this->credentials['password'] = $this->generatePassword();
+        $this->saveCredentials();
+
+        try {
+
+            // Login as root to create the new user.
+            $handler = new PDO('mysql:host=localhost', 'root',
+                $this->credentials['root_password'], [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                ]);
+
+            echo "connected";
+
+            // Create the databse
+            $handler->exec('create database ' . $this->credentials['database'] . ';');
+
+            // Prepare the user.
+            $handler->exec('GRANT ALL ON ' . $this->credentials['database'] .
+                '.* to ' . $this->credentials['username'] . '@localhost IDENTIFIED BY \'' .
+                $this->credentials['password'] . '\';');
+
+        } catch (PDOException $e) {
+
+            throw new MySqlConfigurationException($e->getMessage());
+        }
     }
 
 }
