@@ -64,24 +64,6 @@ class Seat
     }
 
     /**
-     * @return mixed
-     */
-    public function getPath(): string
-    {
-
-        return $this->path;
-    }
-
-    /**
-     * @param string $path
-     */
-    public function setPath(string $path)
-    {
-
-        $this->path = $path;
-    }
-
-    /**
      * Install SeAT
      */
     public function install()
@@ -124,6 +106,24 @@ class Seat
         if (!$process->isSuccessful())
             throw new SeatDownloadFailedException('SeAT download failed.');
 
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPath(): string
+    {
+
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath(string $path)
+    {
+
+        $this->path = $path;
     }
 
     /**

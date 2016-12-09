@@ -21,10 +21,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Seat\Installer\Console\Utils;
 
-
+use Seat\Installer\Console\Exceptions\CrontabFailedException;
+use Seat\Installer\Console\Traits\FindsExecutables;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Process\Process;
 
 /**
  * Class Crontab
@@ -32,6 +34,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class Crontab
 {
+
+    use FindsExecutables;
 
     /**
      * Crontab constructor.
@@ -51,8 +55,38 @@ class Crontab
 
     }
 
+    /**
+     * @throws \Seat\Installer\Console\Exceptions\CrontabFailedException
+     */
     public function install()
     {
+
+        // Prepare to build a commands array,
+        $crontab = $this->findExecutable('crontab');
+        $tempfile = tempnam(sys_get_temp_dir(), 'cron');
+        $cron = "* * * * * /usr/bin/php /var/www/seat/artisan schedule:run 1>> /dev/null 2>&1";
+
+        // Setup commands for the crontab configuration
+        $commands = [
+            $crontab . ' -u www-data -l > ' . $tempfile,
+            'echo "' . $cron . '" >> ' . $tempfile,
+            $crontab . ' -u www-data ' . $tempfile,
+        ];
+
+        // Run the commands to configure.
+        foreach ($commands as $command) {
+
+            // Prepare and start the installation.
+            $this->io->text('Running crontab setup command: ' . $command);
+            $process = new Process($command);
+            $process->setTimeout(3600);
+            $process->run();
+
+            // Make sure crontab command ran fine. Its ok for the `-l` command
+            // to fail as this will exit with non zero when no crontab is present.
+            if (!$process->isSuccessful() && !strpos($command, '-l'))
+                throw new CrontabFailedException('Crontab installation failed.');
+        }
 
 
     }

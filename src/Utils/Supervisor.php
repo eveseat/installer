@@ -71,6 +71,8 @@ class Supervisor
     protected function writeConfig()
     {
 
+        $this->io->text('Writing the SeAT Supervisor configuration file');
+
         $config = <<<EOF
 [program:seat]
 command=/usr/bin/php /var/www/seat/artisan queue:work --queue=high,medium,low,default --tries 1 --timeout=86100

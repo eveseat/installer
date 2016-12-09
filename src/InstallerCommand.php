@@ -21,7 +21,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Seat\Installer\Console;
 
+use Seat\Installer\Console\Utils\Apache;
 use Seat\Installer\Console\Utils\Composer;
+use Seat\Installer\Console\Utils\Crontab;
 use Seat\Installer\Console\Utils\MySql;
 use Seat\Installer\Console\Utils\PackageInstaller;
 use Seat\Installer\Console\Utils\Requirements;
@@ -51,6 +53,20 @@ class InstallerCommand extends Command
     protected $mysql_credentials;
 
     /**
+     * @var
+     */
+    protected $webserver_choice;
+
+    /**
+     * @var array
+     */
+    protected $webserver_info = [
+        'apache' => [
+            'installer' => Apache::class,
+        ]
+    ];
+
+    /**
      * Setup the command
      */
     protected function configure()
@@ -74,12 +90,18 @@ class InstallerCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title('SeAT Installer');
 
+        // Ensure that we should continue.
         if (!$this->confirmContinue()) {
 
             $this->io->text('Installer stopped via user cancel.');
 
             return;
         }
+
+        // Which webserver are we going to use?
+        $this->webserver_choice = $this->io->choice('Which webserver do you want to use?', [
+            'apache', 'nginx'
+        ], 'apache');
 
         // Process requirements
         if (!$this->checkRequirements())
@@ -97,6 +119,13 @@ class InstallerCommand extends Command
         $this->installSeat();
 
         $this->setupSupervisor();
+
+        $this->setupCrontab();
+
+        $this->installWebserver();
+
+        $this->io->success('Installation complete!');
+        $this->io->text('Remember to set an admin password with \'php artisan seat:admin:reset\'');
 
     }
 
@@ -280,7 +309,6 @@ class InstallerCommand extends Command
         $installer = new PackageInstaller($this->io);
 
         $installer->installPackageGroup('php');
-        $installer->installPackageGroup('apache');
         $installer->installPackageGroup('redis');
         $installer->installPackageGroup('supervisor');
 
@@ -299,13 +327,40 @@ class InstallerCommand extends Command
     }
 
     /**
-     *
+     * Setup Supervisor
      */
     protected function setupSupervisor()
     {
 
         $supervisor = new Supervisor($this->io);
         $supervisor->setup();
+
+    }
+
+    /**
+     * Setup the Crontab
+     */
+    protected function setupCrontab()
+    {
+
+        $crontab = new Crontab($this->io);
+        $crontab->install();
+
+
+    }
+
+    /**
+     * Install and configure the chosen webserver.
+     */
+    protected function installWebserver()
+    {
+
+        $installer = $this->webserver_info[$this->webserver_choice]['installer'];
+        $installer = new $installer($this->io);
+        $installer->install();
+        $installer->harden();
+        $installer->configure();
+
     }
 
 }
