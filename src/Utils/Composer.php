@@ -27,7 +27,6 @@ use Seat\Installer\Exceptions\ComposerInstallException;
 use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Process;
 
 /**
  * Class Composer
@@ -81,9 +80,6 @@ class Composer extends AbstractUtil
         $this->io->text('Running Composer Installer');
         $this->runInstaller();
 
-        $this->io->text('Moving the installed executable');
-        $this->moveExecutable();
-
         $this->io->text('Checking that PATH is configured correctly');
         $this->checkPath();
 
@@ -130,38 +126,20 @@ class Composer extends AbstractUtil
     private function runInstaller()
     {
 
-        // Prepare and start the installation.
-        $process = new Process('php ' . $this->temp_filestore);
-        $process->setTimeout(3600);
-        $process->start();
+        // Prepare the installation command.
+        $command = $this->findExecutable('php') . ' ' . $this->temp_filestore .
+            ' --install-dir=' . $this->executable_path . ' --filename=composer';
 
-        // Output as it goes
-        $process->wait(function ($type, $buffer) {
-
-            // Echo if there is something in the buffer to echo.
-            if (strlen($buffer) > 0)
-                $this->io->write('Composer Installation> ' . $buffer);
-        });
+        // Run the install.
+        $success = $this->runCommandWithOutput($command, 'Composer Installation');
 
         // Make sure composer installed fine.
-        if (!$process->isSuccessful())
+        if (!$success)
             throw new ComposerInstallException('Composer installation failed.');
 
-    }
-
-    /**
-     * Move the installed composer binary.
-     */
-    private function moveExecutable()
-    {
-
+        // Cleanup the tempfile
         $fs = new Filesystem();
-        $fs->copy('composer.phar', $this->executable_path . '/composer');
-
-        // Cleanup while we at it.
-        $fs->remove([
-            'composer.phar', $this->temp_filestore
-        ]);
+        $fs->remove($this->temp_filestore);
 
     }
 

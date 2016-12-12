@@ -27,7 +27,6 @@ use Seat\Installer\Exceptions\SeatDownloadFailedException;
 use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Process;
 
 /**
  * Class Seat
@@ -68,22 +67,11 @@ class Seat extends AbstractUtil
         $command = $this->findExecutable('composer') . ' create-project eveseat/seat ' .
             $this->getPath() . ' --no-dev --no-ansi --no-progress';
 
-        // Prepare and start the installation.
-        $this->io->text('Running SeAT installation with: ' . $command);
-        $process = new Process($command);
-        $process->setTimeout(3600);
-        $process->start();
+        // Start the installation.
+        $success = $this->runCommandWithOutput($command, '');
 
-        // Output as it goes
-        $process->wait(function ($type, $buffer) {
-
-            // Echo if there is something in the buffer to echo.
-            if (strlen($buffer) > 0)
-                $this->io->write('SeAT Installation> ' . $buffer);
-        });
-
-        // Make sure composer installed fine.
-        if (!$process->isSuccessful())
+        // Make sure SeAT installed fine.
+        if (!$success)
             throw new SeatDownloadFailedException('SeAT download failed.');
 
     }
@@ -163,6 +151,7 @@ class Seat extends AbstractUtil
         // Prep the path to php artisan
         $artisan = $this->findExecutable('php') . ' ' . $this->getPath() . '/artisan';
 
+        // An array of commands that need to be run in order to setup SeAT
         $commands = [
             $artisan . ' vendor:publish',
             $artisan . ' migrate',
@@ -174,22 +163,11 @@ class Seat extends AbstractUtil
 
         foreach ($commands as $command) {
 
-            // Prepare and start the installation.
-            $this->io->text('Running SeAT command with: ' . $command);
-            $process = new Process($command);
-            $process->setTimeout(3600);
-            $process->start();
-
-            // Output as it goes
-            $process->wait(function ($type, $buffer) {
-
-                // Echo if there is something in the buffer to echo.
-                if (strlen($buffer) > 0)
-                    $this->io->write('SeAT Setup Command> ' . $buffer);
-            });
+            // Run the setup command
+            $success = $this->runCommandWithOutput($command, 'SeAT Setup Command');
 
             // Make sure composer installed fine.
-            if (!$process->isSuccessful())
+            if (!$success)
                 throw new PackageInstallationFailedException('Setup failed.');
 
         }

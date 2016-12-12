@@ -25,7 +25,6 @@ namespace Seat\Installer\Utils;
 use Seat\Installer\Exceptions\OsUpdateFailedException;
 use Seat\Installer\Traits\DetectsOperatingSystem;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
-use Symfony\Component\Process\Process;
 
 /**
  * Class Updates
@@ -71,22 +70,11 @@ class Updates extends AbstractUtil
         // Prepare the command
         $command = $this->update_command[$os];
 
-        // Prepare and start the installation.
-        $this->io->text('Running OS update with: ' . $command);
-        $process = new Process($command);
-        $process->setTimeout(3600);
-        $process->start();
-
-        // Output as it goes
-        $process->wait(function ($type, $buffer) {
-
-            // Echo if there is something in the buffer to echo.
-            if (strlen($buffer) > 0)
-                $this->io->write('OS Update> ' . $buffer);
-        });
+        // Start the installation.
+        $success = $this->runCommandWithOutput($command, 'OS Update');
 
         // Make sure the update was ok
-        if (!$process->isSuccessful())
+        if (!$success)
             throw new OsUpdateFailedException('Failed to update the OS.');
 
     }

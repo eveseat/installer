@@ -24,7 +24,6 @@ namespace Seat\Installer\Utils;
 use Seat\Installer\Exceptions\CrontabFailedException;
 use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
-use Symfony\Component\Process\Process;
 
 /**
  * Class Crontab
@@ -58,15 +57,12 @@ class Crontab extends AbstractUtil
         // Run the commands to configure.
         foreach ($commands as $command) {
 
-            // Prepare and start the installation.
-            $this->io->text('Running crontab setup command: ' . $command);
-            $process = new Process($command);
-            $process->setTimeout(3600);
-            $process->run();
+            // Run the command
+            $success = $this->runCommand($command);
 
             // Make sure crontab command ran fine. Its ok for the `-l` command
             // to fail as this will exit with non zero when no crontab is present.
-            if (!$process->isSuccessful() && !strpos($command, '-l'))
+            if (!$success && !strpos($command, '-l'))
                 throw new CrontabFailedException('Crontab installation failed.');
         }
 

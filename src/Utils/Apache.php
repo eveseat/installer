@@ -25,7 +25,6 @@ namespace Seat\Installer\Utils;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Seat\Installer\Utils\Interfaces\WebServer;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Process;
 
 /**
  * Class Apache
@@ -85,13 +84,11 @@ EOF;
 
         // Enable mod_rewrite
         $this->io->text('Enabling mod_rewrite');
-        $process = new Process('a2enmod rewrite');
-        $process->run();
+        $this->runCommand('a2enmod rewrite');
 
+        // Restart Apache
         $this->io->text('Restarting Apache');
-        $process = new Process('apachectl restart');
-        $process->run();
-
+        $this->runCommand('apachectl restart');
 
     }
 

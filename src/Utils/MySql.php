@@ -29,7 +29,6 @@ use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Traits\GeneratesPasswords;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Process;
 
 /**
  * Class MySql
@@ -195,13 +194,11 @@ expect eof
 "); echo "\$SECURE_MYSQL"
 EOF;
 
-        // Prepare and start the mysql_secure_installation command.
-        $process = new Process($expect);
-        $process->setTimeout(3600);
-        $process->run();
+        // Start the mysql_secure_installation command.
+        $success = $this->runCommandWithOutput($expect, 'MySQL Secure Installation');
 
         // Make sure it ran fine.
-        if (!$process->isSuccessful())
+        if (!$success)
             throw new MySqlConfigurationException('MySQL configuration failed.');
 
     }
@@ -237,8 +234,6 @@ EOF;
                 $this->credentials['root_password'], [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                 ]);
-
-            echo "connected";
 
             // Create the databse
             $handler->exec('create database ' . $this->credentials['database'] . ';');

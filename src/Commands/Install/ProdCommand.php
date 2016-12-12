@@ -107,8 +107,7 @@ class ProdCommand extends Command
         if (!$this->checkRequirements())
             return;
 
-        if (!$this->checkComposer())
-            return;
+        $this->checkComposer();
 
         $this->updateOs();
 
@@ -183,28 +182,18 @@ class ProdCommand extends Command
     }
 
     /**
-     * @return bool
+     * Ensures that composer is ready to use.
      */
-    protected function checkComposer(): bool
+    protected function checkComposer()
     {
 
         $this->io->text('Checking Composer installation');
 
         $composer = new Composer($this->io);
 
-        if (!$composer->hasComposer()) {
-
-            $this->io->error('Composer not found');
-
-            if ($this->io->confirm('Would you like to download and install composer?')) {
-
-                $composer->install();
-
-                return true;
-            }
-        }
-
-        return true;
+        // If we dont have composer, install it.
+        if (!$composer->hasComposer())
+            $composer->install();
     }
 
     /**

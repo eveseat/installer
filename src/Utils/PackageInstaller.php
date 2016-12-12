@@ -25,7 +25,6 @@ namespace Seat\Installer\Utils;
 use Seat\Installer\Exceptions\PackageInstallationFailedException;
 use Seat\Installer\Traits\DetectsOperatingSystem;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
-use Symfony\Component\Process\Process;
 
 /**
  * Class PackageInstaller
@@ -95,15 +94,20 @@ class PackageInstaller extends AbstractUtil
     ];
 
     /**
-     * PackageInstaller constructor.
+     * Get the OS we are on.
+     *
+     * @return array
      */
-    public function __construct()
+    public function getOs()
     {
 
-        $this->os = $this->getOperatingSystem();
+        if ($this->os)
+            return $this->os;
 
-        // Run the parents constructor to enable the $io property
-        parent::__construct();
+        $this->os = $this->getOperatingSystem()['os'];
+
+        return $this->os;
+
 
     }
 
@@ -129,28 +133,18 @@ class PackageInstaller extends AbstractUtil
 
         // If we are on a debian based system, let apt know we
         // dont want to do anything interactively.
-        if ($this->os['os'] == 'ubuntu' || $this->os['os'] == 'debian')
+        if ($this->getOs() == 'ubuntu' || $this->getOs() == 'debian')
             putenv('DEBIAN_FRONTEND=noninteractive');
 
         // Prepare the command to run.
-        $command = str_replace(':package', $package, $this->package_manager[$this->os['os']]);
+        $command = str_replace(
+            ':package', $package, $this->package_manager[$this->getOs()]);
 
-        // Prepare and start the installation.
-        $this->io->text('Running installation with: ' . $command);
-        $process = new Process($command);
-        $process->setTimeout(3600);
-        $process->start();
-
-        // Output as it goes
-        $process->wait(function ($type, $buffer) use ($package) {
-
-            // Echo if there is something in the buffer to echo.
-            if (strlen($buffer) > 0)
-                $this->io->write('Package Installation (' . $package . ')> ' . $buffer);
-        });
+        // Start the installation.
+        $success = $this->runCommandWithOutput($command, 'Package Installation (' . $package . ')');
 
         // Make sure composer installed fine.
-        if (!$process->isSuccessful())
+        if (!$success)
             throw new PackageInstallationFailedException($package . ' installation failed.');
 
     }
@@ -164,9 +158,9 @@ class PackageInstaller extends AbstractUtil
         $this->io->text('Attempting to install the package that provides \'' . $command . '\'');
 
         // Check if we know what package provides this command
-        if (array_key_exists($command, $this->command_packages[$this->os['os']])) {
+        if (array_key_exists($command, $this->command_packages[$this->getOs()])) {
 
-            $package = $this->command_packages[$this->os['os']][$command];
+            $package = $this->command_packages[$this->getOs()][$command];
             $this->io->text('Installing package \'' . $package . '\' for the command');
 
             $this->installPackage($package);
@@ -191,11 +185,11 @@ class PackageInstaller extends AbstractUtil
 
         $this->io->text('Installing packages for package group: \'' . $group_name . '\'.');
 
-        if (!array_key_exists($group_name, $this->package_groups[$this->os['os']]))
+        if (!array_key_exists($group_name, $this->package_groups[$this->getOs()]))
             throw new PackageInstallationFailedException('Unknown package group: ' . $group_name);
 
         // Install the packages in the package group.
-        foreach ($this->package_groups[$this->os['os']][$group_name] as $package)
+        foreach ($this->package_groups[$this->getOs()][$group_name] as $package)
             $this->installPackage($package);
 
     }

@@ -24,7 +24,6 @@ namespace Seat\Installer\Utils;
 
 use Seat\Installer\Exceptions\SupervisorFailedException;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
-use Symfony\Component\Process\Process;
 
 /**
  * Class Supervisor
@@ -80,14 +79,11 @@ EOF;
         // Prepare the command.
         $command = 'systemctl restart supervisor.service';
 
-        // Prepare and start the installation.
-        $this->io->text('Restarting supervisor with: ' . $command);
-        $process = new Process($command);
-        $process->setTimeout(3600);
-        $process->run();
+        // Run the restart
+        $success = $this->runCommand($command);
 
-        // Make sure composer installed fine.
-        if (!$process->isSuccessful())
+        // Make sure the restart went fine.
+        if (!$success)
             throw new SupervisorFailedException('Supervisor restart failed.');
 
     }
@@ -102,13 +98,10 @@ EOF;
         $command = 'systemctl enable supervisor.service';
 
         // Prepare and start the installation.
-        $this->io->text('Ensuring supervisor autostarts on boot with: ' . $command);
-        $process = new Process($command);
-        $process->setTimeout(3600);
-        $process->run();
+        $success = $this->runCommand($command);
 
-        // Make sure composer installed fine.
-        if (!$process->isSuccessful())
+        // Make sure the enable went fine
+        if (!$success)
             throw new SupervisorFailedException('Supervisor autostart setup failed.');
     }
 
