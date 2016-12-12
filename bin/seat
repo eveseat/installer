@@ -22,6 +22,7 @@ $app = new Symfony\Component\Console\Application('SeAT Installer', '@package_ver
 
 // Updaters
 $app->add(new \Seat\Installer\Commands\Update\SelfCommand);
+$app->add(new \Seat\Installer\Commands\Update\SeatCommand);
 
 // Installers
 $app->add(new \Seat\Installer\Commands\Install\ProdCommand);

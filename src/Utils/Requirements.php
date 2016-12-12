@@ -25,23 +25,16 @@ namespace Seat\Installer\Utils;
 use Seat\Installer\Traits\ChecksForRootUser;
 use Seat\Installer\Traits\DetectsOperatingSystem;
 use Seat\Installer\Traits\FindsExecutables;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Seat\Installer\Utils\Abstracts\AbstractUtil;
 
 /**
  * Class Requirements
  * @package Seat\Installer\Utils
  */
-class Requirements
+class Requirements extends AbstractUtil
 {
 
     use DetectsOperatingSystem, ChecksForRootUser, FindsExecutables;
-
-    /**
-     * @var \Symfony\Component\Console\Style\SymfonyStyle
-     */
-    protected $io;
 
     /**
      * @var string
@@ -75,24 +68,6 @@ class Requirements
      * @var bool
      */
     private $requirements_ok = true;
-
-    /**
-     * Requirements constructor.
-     *
-     * @param \Symfony\Component\Console\Style\SymfonyStyle     $io
-     * @param \Symfony\Component\Console\Input\InputInterface   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     */
-    public function __construct(
-        SymfonyStyle $io = null, InputInterface $input = null, OutputInterface $output = null)
-    {
-
-        if ($io)
-            $this->io = $io;
-        else
-            $this->io = new SymfonyStyle($input, $output);
-
-    }
 
     /**
      * Check the requirements for SeAT

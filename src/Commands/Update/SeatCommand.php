@@ -21,27 +21,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Seat\Installer\Commands\Update;
 
-use Humbug\SelfUpdate\Updater;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class UpdateSelfCommand
- * @package Seat\Installer
- */
-class SelfCommand extends Command
+class SeatCommand extends Command
 {
-
-    /**
-     * @var string
-     */
-    protected $phar_url = 'https://raw.githubusercontent.com/eveseat/installer/master/dist/seat.phar';
-
-    /**
-     * @var string
-     */
-    protected $phar_ver = 'https://raw.githubusercontent.com/eveseat/installer/master/dist/seat.phar.version';
 
     /**
      * Setup the command
@@ -50,8 +36,8 @@ class SelfCommand extends Command
     {
 
         $this
-            ->setName('update:self')
-            ->setDescription('Update this SeAT Installer');
+            ->setName('update:seat')
+            ->setDescription('Update a SeAT Installation');
 
     }
 

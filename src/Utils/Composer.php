@@ -25,9 +25,7 @@ namespace Seat\Installer\Utils;
 use GuzzleHttp\Client;
 use Seat\Installer\Exceptions\ComposerInstallException;
 use Seat\Installer\Traits\FindsExecutables;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
@@ -35,7 +33,7 @@ use Symfony\Component\Process\Process;
  * Class Composer
  * @package Seat\Installer\Utils
  */
-class Composer
+class Composer extends AbstractUtil
 {
 
     use FindsExecutables;
@@ -59,24 +57,6 @@ class Composer
      * @var string
      */
     protected $executable_path = '/usr/local/bin';
-
-    /**
-     * Composer constructor.
-     *
-     * @param \Symfony\Component\Console\Style\SymfonyStyle|null     $io
-     * @param \Symfony\Component\Console\Input\InputInterface|null   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-     */
-    public function __construct(
-        SymfonyStyle $io = null, InputInterface $input = null, OutputInterface $output = null)
-    {
-
-        if ($io)
-            $this->io = $io;
-        else
-            $this->io = new SymfonyStyle($input, $output);
-
-    }
 
     /**
      * Install composer.
@@ -116,7 +96,7 @@ class Composer
     }
 
     /**
-     *
+     * Download Composer Installer
      */
     private function downloadComposer()
     {
@@ -129,7 +109,7 @@ class Composer
     }
 
     /**
-     *
+     * Get the latest signature for verification.
      */
     private function getSignature(): string
     {
@@ -143,6 +123,8 @@ class Composer
     }
 
     /**
+     * Run the Composer Installer.
+     *
      * @throws \Seat\Installer\Exceptions\ComposerInstallException
      */
     private function runInstaller()
@@ -168,7 +150,7 @@ class Composer
     }
 
     /**
-     *
+     * Move the installed composer binary.
      */
     private function moveExecutable()
     {
@@ -184,7 +166,8 @@ class Composer
     }
 
     /**
-     *
+     * Check if the composer installation directory is in
+     * the users PATH.
      */
     private function checkPath()
     {
@@ -200,6 +183,8 @@ class Composer
     }
 
     /**
+     * Check if composer binary can be found.
+     *
      * @return bool
      */
     public function hasComposer(): bool

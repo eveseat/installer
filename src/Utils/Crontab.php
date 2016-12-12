@@ -23,39 +23,21 @@ namespace Seat\Installer\Utils;
 
 use Seat\Installer\Exceptions\CrontabFailedException;
 use Seat\Installer\Traits\FindsExecutables;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Process\Process;
 
 /**
  * Class Crontab
  * @package Seat\Installer\Utils
  */
-class Crontab
+class Crontab extends AbstractUtil
 {
 
     use FindsExecutables;
 
     /**
-     * Crontab constructor.
+     * Install the Crontab Entry.
      *
-     * @param \Symfony\Component\Console\Style\SymfonyStyle|null     $io
-     * @param \Symfony\Component\Console\Input\InputInterface|null   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-     */
-    public function __construct(
-        SymfonyStyle $io = null, InputInterface $input = null, OutputInterface $output = null)
-    {
-
-        if ($io)
-            $this->io = $io;
-        else
-            $this->io = new SymfonyStyle($input, $output);
-
-    }
-
-    /**
      * @throws \Seat\Installer\Exceptions\CrontabFailedException
      */
     public function install()

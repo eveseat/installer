@@ -25,9 +25,7 @@ namespace Seat\Installer\Utils;
 use Seat\Installer\Exceptions\PackageInstallationFailedException;
 use Seat\Installer\Exceptions\SeatDownloadFailedException;
 use Seat\Installer\Traits\FindsExecutables;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
@@ -35,7 +33,7 @@ use Symfony\Component\Process\Process;
  * Class Seat
  * @package Seat\Installer\Utils
  */
-class Seat
+class Seat extends AbstractUtil
 {
 
     use FindsExecutables;
@@ -44,24 +42,6 @@ class Seat
      * @var
      */
     protected $path;
-
-    /**
-     * Seat constructor.
-     *
-     * @param \Symfony\Component\Console\Style\SymfonyStyle|null     $io
-     * @param \Symfony\Component\Console\Input\InputInterface|null   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-     */
-    public function __construct(
-        SymfonyStyle $io = null, InputInterface $input = null, OutputInterface $output = null)
-    {
-
-        if ($io)
-            $this->io = $io;
-        else
-            $this->io = new SymfonyStyle($input, $output);
-
-    }
 
     /**
      * Install SeAT
@@ -214,6 +194,5 @@ class Seat
 
         }
     }
-
 
 }

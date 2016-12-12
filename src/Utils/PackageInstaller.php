@@ -24,16 +24,14 @@ namespace Seat\Installer\Utils;
 
 use Seat\Installer\Exceptions\PackageInstallationFailedException;
 use Seat\Installer\Traits\DetectsOperatingSystem;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Process\Process;
 
 /**
  * Class PackageInstaller
  * @package Seat\Installer\Utils
  */
-class PackageInstaller
+class PackageInstaller extends AbstractUtil
 {
 
     use DetectsOperatingSystem;
@@ -98,21 +96,14 @@ class PackageInstaller
 
     /**
      * PackageInstaller constructor.
-     *
-     * @param \Symfony\Component\Console\Style\SymfonyStyle|null     $io
-     * @param \Symfony\Component\Console\Input\InputInterface|null   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
      */
-    public function __construct(
-        SymfonyStyle $io = null, InputInterface $input = null, OutputInterface $output = null)
+    public function __construct()
     {
 
-        if ($io)
-            $this->io = $io;
-        else
-            $this->io = new SymfonyStyle($input, $output);
-
         $this->os = $this->getOperatingSystem();
+
+        // Run the parents constructor to enable the $io property
+        parent::__construct();
 
     }
 

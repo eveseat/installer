@@ -23,35 +23,15 @@ namespace Seat\Installer\Utils;
 
 
 use Seat\Installer\Exceptions\SupervisorFailedException;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Process\Process;
 
 /**
  * Class Supervisor
  * @package Seat\Installer\Utils
  */
-class Supervisor
+class Supervisor extends AbstractUtil
 {
-
-    /**
-     * Supervisor constructor.
-     *
-     * @param \Symfony\Component\Console\Style\SymfonyStyle|null     $io
-     * @param \Symfony\Component\Console\Input\InputInterface|null   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-     */
-    public function __construct(
-        SymfonyStyle $io = null, InputInterface $input = null, OutputInterface $output = null)
-    {
-
-        if ($io)
-            $this->io = $io;
-        else
-            $this->io = new SymfonyStyle($input, $output);
-
-    }
 
     /**
      * Setup Supervisor.

@@ -22,10 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Utils;
 
 
+use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Seat\Installer\Utils\Interfaces\WebServer;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
@@ -33,29 +31,11 @@ use Symfony\Component\Process\Process;
  * Class Apache
  * @package Seat\Installer\Utils
  */
-class Apache implements WebServer
+class Apache extends AbstractUtil implements WebServer
 {
 
     /**
-     * Apache constructor.
-     *
-     * @param \Symfony\Component\Console\Style\SymfonyStyle|null     $io
-     * @param \Symfony\Component\Console\Input\InputInterface|null   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-     */
-    public function __construct(
-        SymfonyStyle $io = null, InputInterface $input = null, OutputInterface $output = null)
-    {
-
-        if ($io)
-            $this->io = $io;
-        else
-            $this->io = new SymfonyStyle($input, $output);
-
-    }
-
-    /**
-     *
+     * Install the binaries for Apache
      */
     public function install()
     {
@@ -66,7 +46,7 @@ class Apache implements WebServer
     }
 
     /**
-     *
+     * Configure a SeAT virtual host.
      */
     public function configure()
     {
@@ -116,22 +96,25 @@ EOF;
     }
 
     /**
-     *
+     * Harden the Apache Installation
      */
     public function harden()
     {
 
         $this->io->text('Hardening Apache');
 
+        // Remove Default Website
         $this->io->text('Removing default website');
         $fs = new Filesystem();
         $fs->remove('/etc/apache2/sites-enabled/000-default.conf');
 
+        // Disable Directory Indexing
         $this->io->text('Disabling directory indexing');
         $apache_conf = file_get_contents('/etc/apache2/apache2.conf');
         $apache_conf = str_replace('Options Indexes FollowSymLinks', 'Options FollowSymLinks', $apache_conf);
         file_put_contents('/etc/apache2/apache2.conf', $apache_conf);
 
+        // Remove ServerSignature and ServerTokens
         $this->io->text('Removing server signature and tokens');
         $security_conf = file_get_contents('/etc/apache2/conf-enabled/security.conf');
         $security_conf = str_replace('ServerTokens OS', 'ServerTokens Prod', $security_conf);

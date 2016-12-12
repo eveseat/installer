@@ -26,9 +26,8 @@ use PDO;
 use PDOException;
 use Seat\Installer\Exceptions\MySqlConfigurationException;
 use Seat\Installer\Traits\FindsExecutables;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Seat\Installer\Traits\GeneratesPasswords;
+use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
@@ -36,10 +35,10 @@ use Symfony\Component\Process\Process;
  * Class MySql
  * @package Seat\Installer\Utils
  */
-class MySql
+class MySql extends AbstractUtil
 {
 
-    use FindsExecutables;
+    use FindsExecutables, GeneratesPasswords;
 
     /**
      * @var array
@@ -54,24 +53,6 @@ class MySql
      * @var string
      */
     protected $credentials_file = '/root/.seat-credentials';
-
-    /**
-     * MySql constructor.
-     *
-     * @param \Symfony\Component\Console\Style\SymfonyStyle|null     $io
-     * @param \Symfony\Component\Console\Input\InputInterface|null   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-     */
-    public function __construct(
-        SymfonyStyle $io = null, InputInterface $input = null, OutputInterface $output = null)
-    {
-
-        if ($io)
-            $this->io = $io;
-        else
-            $this->io = new SymfonyStyle($input, $output);
-
-    }
 
     /**
      * @return bool
@@ -225,16 +206,6 @@ EOF;
 
     }
 
-    /**
-     * Generate a random password.
-     *
-     * @return string
-     */
-    private function generatePassword()
-    {
-
-        return sha1(random_bytes(32) . gethostname());
-    }
 
     /**
      * Save the current credentials to a json encoded file.
