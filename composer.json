@@ -11,7 +11,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Seat\\Installer\\Console\\": "src/"
+            "Seat\\Installer\\": "src/"
         }
     },
     "require": {

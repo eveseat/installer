@@ -19,12 +19,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Console\Traits;
+namespace Seat\Installer\Traits;
 
 
 /**
  * Class ChecksForRootUser
- * @package Seat\Installer\Console\Traits
+ * @package Seat\Installer\Traits
  */
 trait ChecksForRootUser
 {

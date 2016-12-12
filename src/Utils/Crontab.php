@@ -19,10 +19,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Console\Utils;
+namespace Seat\Installer\Utils;
 
-use Seat\Installer\Console\Exceptions\CrontabFailedException;
-use Seat\Installer\Console\Traits\FindsExecutables;
+use Seat\Installer\Exceptions\CrontabFailedException;
+use Seat\Installer\Traits\FindsExecutables;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -30,7 +30,7 @@ use Symfony\Component\Process\Process;
 
 /**
  * Class Crontab
- * @package Seat\Installer\Console\Utils
+ * @package Seat\Installer\Utils
  */
 class Crontab
 {
@@ -56,7 +56,7 @@ class Crontab
     }
 
     /**
-     * @throws \Seat\Installer\Console\Exceptions\CrontabFailedException
+     * @throws \Seat\Installer\Exceptions\CrontabFailedException
      */
     public function install()
     {

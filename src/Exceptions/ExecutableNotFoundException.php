@@ -19,10 +19,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Console\Exceptions;
+namespace Seat\Installer\Exceptions;
 
 use Exception;
 
+/**
+ * Class ExecutableNotFoundException
+ * @package Seat\Installer\Exceptions
+ */
 class ExecutableNotFoundException extends Exception
 {
 

@@ -19,13 +19,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Console\Utils;
+namespace Seat\Installer\Utils;
 
 
 use PDO;
 use PDOException;
-use Seat\Installer\Console\Exceptions\MySqlConfigurationException;
-use Seat\Installer\Console\Traits\FindsExecutables;
+use Seat\Installer\Exceptions\MySqlConfigurationException;
+use Seat\Installer\Traits\FindsExecutables;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -34,7 +34,7 @@ use Symfony\Component\Process\Process;
 
 /**
  * Class MySql
- * @package Seat\Installer\Console\Utils
+ * @package Seat\Installer\Utils
  */
 class MySql
 {
@@ -175,7 +175,7 @@ class MySql
     }
 
     /**
-     * @throws \Seat\Installer\Console\Exceptions\MySqlConfigurationException
+     * @throws \Seat\Installer\Exceptions\MySqlConfigurationException
      */
     private function secureInstallation()
     {
@@ -248,7 +248,7 @@ EOF;
     }
 
     /**
-     * @throws \Seat\Installer\Console\Exceptions\MySqlConfigurationException
+     * @throws \Seat\Installer\Exceptions\MySqlConfigurationException
      */
     private function createUserAndDatabase()
     {

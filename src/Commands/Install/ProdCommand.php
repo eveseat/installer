@@ -19,27 +19,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Console;
+namespace Seat\Installer\Commands\Install;
 
-use Seat\Installer\Console\Utils\Apache;
-use Seat\Installer\Console\Utils\Composer;
-use Seat\Installer\Console\Utils\Crontab;
-use Seat\Installer\Console\Utils\MySql;
-use Seat\Installer\Console\Utils\PackageInstaller;
-use Seat\Installer\Console\Utils\Requirements;
-use Seat\Installer\Console\Utils\Seat;
-use Seat\Installer\Console\Utils\Supervisor;
-use Seat\Installer\Console\Utils\Updates;
+use Seat\Installer\Utils\Apache;
+use Seat\Installer\Utils\Composer;
+use Seat\Installer\Utils\Crontab;
+use Seat\Installer\Utils\MySql;
+use Seat\Installer\Utils\PackageInstaller;
+use Seat\Installer\Utils\Requirements;
+use Seat\Installer\Utils\Seat;
+use Seat\Installer\Utils\Supervisor;
+use Seat\Installer\Utils\Updates;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class InstallerCommand
- * @package Seat\Installer\Console
+ * Class InstallProdCommand
+ * @package Seat\Installer
  */
-class InstallerCommand extends Command
+class ProdCommand extends Command
 {
 
     /**
@@ -73,8 +73,8 @@ class InstallerCommand extends Command
     {
 
         $this
-            ->setName('install')
-            ->setDescription('Install SeAT')
+            ->setName('install:production')
+            ->setDescription('Install a SeAT Production Instance')
             ->setHelp('This command allows you to install SeAT on your system');
     }
 

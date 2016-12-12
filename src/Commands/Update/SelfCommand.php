@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Console;
+namespace Seat\Installer\Commands\Update;
 
 use Humbug\SelfUpdate\Updater;
 use Symfony\Component\Console\Command\Command;
@@ -27,10 +27,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class SelfUpdateCommand
- * @package Seat\Installer\Console
+ * Class UpdateSelfCommand
+ * @package Seat\Installer
  */
-class SelfUpdateCommand extends Command
+class SelfCommand extends Command
 {
 
     /**
@@ -50,8 +50,7 @@ class SelfUpdateCommand extends Command
     {
 
         $this
-            ->setName('selfupdate')
-            ->setAliases(['self-update'])
+            ->setName('update:self')
             ->setDescription('Update the SeAT Installer');
 
     }

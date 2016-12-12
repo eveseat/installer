@@ -19,19 +19,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Console\Utils;
+namespace Seat\Installer\Utils;
 
 
-use Seat\Installer\Console\Traits\ChecksForRootUser;
-use Seat\Installer\Console\Traits\DetectsOperatingSystem;
-use Seat\Installer\Console\Traits\FindsExecutables;
+use Seat\Installer\Traits\ChecksForRootUser;
+use Seat\Installer\Traits\DetectsOperatingSystem;
+use Seat\Installer\Traits\FindsExecutables;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class Requirements
- * @package Seat\Installer\Console\Utils
+ * @package Seat\Installer\Utils
  */
 class Requirements
 {

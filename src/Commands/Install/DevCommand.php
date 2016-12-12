@@ -19,14 +19,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Console;
+namespace Seat\Installer\Commands\Install;
 
 use GitWrapper\GitWrapper;
 use GuzzleHttp\Client;
-use Seat\Installer\Console\Exceptions\ComposerInstallException;
-use Seat\Installer\Console\Exceptions\ExecutableNotFoundException;
-use Seat\Installer\Console\Exceptions\MissingPhpExtentionExeption;
-use Seat\Installer\Console\Exceptions\NonEmptyDirectoryException;
+use Seat\Installer\Exceptions\ComposerInstallException;
+use Seat\Installer\Exceptions\ExecutableNotFoundException;
+use Seat\Installer\Exceptions\MissingPhpExtentionExeption;
+use Seat\Installer\Exceptions\NonEmptyDirectoryException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -36,9 +36,9 @@ use Symfony\Component\Process\Process;
 
 /**
  * Class InstallDevCommand
- * @package Seat\Installer\Console
+ * @package Seat\Installer
  */
-class InstallDevCommand extends Command
+class DevCommand extends Command
 {
 
     /**
@@ -111,7 +111,7 @@ class InstallDevCommand extends Command
     {
 
         $this
-            ->setName('install:dev')
+            ->setName('install:development')
             // Default the installation to seat-development
             ->addOption('destination', 'd', InputOption::VALUE_REQUIRED,
                 'Destination folder to install to', 'seat-development')
@@ -200,7 +200,7 @@ class InstallDevCommand extends Command
     /**
      * Check that certain PHP extentions are available.
      *
-     * @throws \Seat\Installer\Console\Exceptions\MissingPhpExtentionExeption
+     * @throws \Seat\Installer\Exceptions\MissingPhpExtentionExeption
      */
     protected function check_php_extensions()
     {
@@ -218,7 +218,7 @@ class InstallDevCommand extends Command
      *
      * @param string $path
      *
-     * @throws \Seat\Installer\Console\Exceptions\NonEmptyDirectoryException
+     * @throws \Seat\Installer\Exceptions\NonEmptyDirectoryException
      */
     protected function resolve_paths(string $path)
     {

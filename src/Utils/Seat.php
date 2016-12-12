@@ -19,12 +19,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Console\Utils;
+namespace Seat\Installer\Utils;
 
 
-use Seat\Installer\Console\Exceptions\PackageInstallationFailedException;
-use Seat\Installer\Console\Exceptions\SeatDownloadFailedException;
-use Seat\Installer\Console\Traits\FindsExecutables;
+use Seat\Installer\Exceptions\PackageInstallationFailedException;
+use Seat\Installer\Exceptions\SeatDownloadFailedException;
+use Seat\Installer\Traits\FindsExecutables;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -33,7 +33,7 @@ use Symfony\Component\Process\Process;
 
 /**
  * Class Seat
- * @package Seat\Installer\Console\Utils
+ * @package Seat\Installer\Utils
  */
 class Seat
 {
@@ -75,7 +75,7 @@ class Seat
     }
 
     /**
-     * @throws \Seat\Installer\Console\Exceptions\SeatDownloadFailedException
+     * @throws \Seat\Installer\Exceptions\SeatDownloadFailedException
      */
     protected function download()
     {
@@ -175,7 +175,7 @@ class Seat
     }
 
     /**
-     * @throws \Seat\Installer\Console\Exceptions\PackageInstallationFailedException
+     * @throws \Seat\Installer\Exceptions\PackageInstallationFailedException
      */
     protected function runArtisanCommands()
     {
