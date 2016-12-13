@@ -171,4 +171,50 @@ class Composer extends AbstractUtil
         return $this->hasExecutable('composer');
     }
 
+    /**
+     * OsUpdates a Composer installation.
+     *
+     * @throws \Seat\Installer\Exceptions\ComposerInstallException
+     */
+    public function update()
+    {
+
+        // Ensure that we have Composer
+        if (!$this->hasComposer())
+            throw new ComposerInstallException('Cant find composer to update. Maybe install it first?');
+
+        // Prep and run the update
+        $command = $this->findExecutable('composer') . ' self-update --no-interaction --no-ansi';
+        $success = $this->runCommandWithOutput($command, '');
+
+        if (!$success)
+            throw new ComposerInstallException('Failed to update Composer');
+
+        $this->io->success('Composer Update Complete');
+    }
+
+
+    /**
+     * Update composer installed packages in a specific path.
+     *
+     * @param string $path
+     *
+     * @throws \Seat\Installer\Exceptions\ComposerInstallException
+     */
+    public function updatePackages(string $path)
+    {
+
+        // Ensure that we have Composer
+        if (!$this->hasComposer())
+            throw new ComposerInstallException('Cant find composer to update. Maybe install it first?');
+
+        // Prep and run the update
+        $command = $this->findExecutable('composer') . ' update --no-interaction --no-ansi ' .
+            '--no-dev --no-progress -d ' . $path;
+        $success = $this->runCommandWithOutput($command, '');
+
+        if (!$success)
+            throw new ComposerInstallException('Failed to update Composer');
+
+    }
 }

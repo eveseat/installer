@@ -29,7 +29,7 @@ use Seat\Installer\Utils\PackageInstaller;
 use Seat\Installer\Utils\Requirements;
 use Seat\Installer\Utils\Seat;
 use Seat\Installer\Utils\Supervisor;
-use Seat\Installer\Utils\Updates;
+use Seat\Installer\Utils\OsUpdates;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -203,7 +203,7 @@ class ProdCommand extends Command
     {
 
         $this->io->text('Updating Operating System');
-        $updates = new Updates($this->io);
+        $updates = new OsUpdates($this->io);
         $updates->update();
 
         $this->io->success('Operating System Update Complete');

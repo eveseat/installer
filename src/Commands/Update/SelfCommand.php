@@ -25,6 +25,7 @@ use Humbug\SelfUpdate\Updater;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class UpdateSelfCommand
@@ -32,6 +33,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SelfCommand extends Command
 {
+
+    protected $io;
 
     /**
      * @var string
@@ -63,6 +66,9 @@ class SelfCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
+        $this->io = new SymfonyStyle($input, $output);
+        $this->io->title('SeAT Installer Self Updater');
 
         $updater = new Updater(null, false);
         $updater->getStrategy()->setPharUrl($this->phar_url);

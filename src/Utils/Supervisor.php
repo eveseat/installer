@@ -73,11 +73,11 @@ EOF;
     /**
      * @throws \Seat\Installer\Exceptions\SupervisorFailedException
      */
-    protected function restartSupervisor()
+    public function restartSupervisor()
     {
 
         // Prepare the command.
-        $command = 'systemctl restart supervisor.service';
+        $command = 'supervisorctl restart all';
 
         // Run the restart
         $success = $this->runCommand($command);

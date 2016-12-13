@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Utils;
 
 
-use Seat\Installer\Exceptions\PackageInstallationFailedException;
+use Seat\Installer\Exceptions\ArtisanCommandFailed;
 use Seat\Installer\Exceptions\SeatDownloadFailedException;
 use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
@@ -91,7 +91,7 @@ class Seat extends AbstractUtil
     public function setPath(string $path)
     {
 
-        $this->path = $path;
+        $this->path = rtrim($path, '/') . '/';
     }
 
     /**
@@ -117,6 +117,7 @@ class Seat extends AbstractUtil
 
         $this->addDbCredentialsToConfig($credentials);
         $this->runArtisanCommands();
+        $this->updateSde();
 
     }
 
@@ -145,20 +146,19 @@ class Seat extends AbstractUtil
     /**
      * @throws \Seat\Installer\Exceptions\PackageInstallationFailedException
      */
-    protected function runArtisanCommands()
+    public function runArtisanCommands()
     {
 
         // Prep the path to php artisan
-        $artisan = $this->findExecutable('php') . ' ' . $this->getPath() . '/artisan';
+        $artisan = $this->findExecutable('php') . ' ' . $this->getPath() . 'artisan';
 
         // An array of commands that need to be run in order to setup SeAT
         $commands = [
-            $artisan . ' vendor:publish',
+            $artisan . ' vendor:publish --force',
             $artisan . ' migrate',
             $artisan . ' db:seed --class=Seat\\\Notifications\\\database\\\seeds\\\ScheduleSeeder',
             $artisan . ' db:seed --class=Seat\\\Services\\\database\\\seeds\\\NotificationTypesSeeder',
             $artisan . ' db:seed --class=Seat\\\Services\\\database\\\seeds\\\ScheduleSeeder',
-            $artisan . ' eve:update-sde -n',
         ];
 
         foreach ($commands as $command) {
@@ -168,9 +168,28 @@ class Seat extends AbstractUtil
 
             // Make sure composer installed fine.
             if (!$success)
-                throw new PackageInstallationFailedException('Setup failed.');
+                throw new ArtisanCommandFailed('Setup failed.');
 
         }
+    }
+
+    /**
+     * @throws \Seat\Installer\Exceptions\PackageInstallationFailedException
+     */
+    protected function updateSde()
+    {
+
+        // Prep the path to php artisan
+        $command = $this->findExecutable('php') . ' ' . $this->getPath() . 'artisan ' .
+            'eve:update-sde -n';
+
+        // Run the setup command
+        $success = $this->runCommandWithOutput($command, '');
+
+        // Make sure composer installed fine.
+        if (!$success)
+            throw new ArtisanCommandFailed('SDE Update failed.');
+
     }
 
 }

@@ -27,10 +27,10 @@ use Seat\Installer\Traits\DetectsOperatingSystem;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 
 /**
- * Class Updates
+ * Class OsUpdates
  * @package Seat\Installer\Utils
  */
-class Updates extends AbstractUtil
+class OsUpdates extends AbstractUtil
 {
 
     use DetectsOperatingSystem;

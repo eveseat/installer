@@ -22,12 +22,30 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Commands\Update;
 
 
+use Seat\Installer\Exceptions\SeatNotFoundException;
+use Seat\Installer\Traits\FindsSeatInstallations;
+use Seat\Installer\Utils\Composer;
+use Seat\Installer\Utils\Seat;
+use Seat\Installer\Utils\Supervisor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Class SeatCommand
+ * @package Seat\Installer\Commands\Update
+ */
 class SeatCommand extends Command
 {
+
+    use FindsSeatInstallations;
+
+    /**
+     * @var
+     */
+    protected $seat_path;
 
     /**
      * Setup the command
@@ -37,6 +55,13 @@ class SeatCommand extends Command
 
         $this
             ->setName('update:seat')
+            ->addOption(
+                'seat-path',
+                'p',
+                InputOption::VALUE_OPTIONAL,
+                'The SeAT path to update. If not specified, an autodetection attempt will be made.',
+                null
+            )
             ->setDescription('Update a SeAT Installation');
 
     }
@@ -50,31 +75,100 @@ class SeatCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $updater = new Updater(null, false);
-        $updater->getStrategy()->setPharUrl($this->phar_url);
-        $updater->getStrategy()->setVersionUrl($this->phar_ver);
+        $this->io = new SymfonyStyle($input, $output);
+        $this->io->title('SeAT Installion Updater');
 
-        try {
+        // Start by ensuring that the SeAT path is ok.
+        $this->findAndSetSeatPath($input);
 
-            $result = $updater->update();
+        // TODO: Ask for update confirmation
+        // TODO: Take Application Offline
 
-            if ($result) {
+        $this->checkComposer();
+        $this->updatePackages();
+        $this->runSeatArtisanCommands();
+        $this->restartWorkers();
 
-                $new = $updater->getNewVersion();
-                $old = $updater->getOldVersion();
-                $output->writeln('<info>Updated from ' . $old . ' to ' . $new . '!</info>');
+        // TODO: Bring Application back up
 
-            } else {
+        $this->io->success('SeAT Update Complete!');
 
-                $output->writeln('<comment>No update needed!</comment>');
+    }
 
-            }
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     *
+     * @throws \Seat\Installer\Exceptions\SeatNotFoundException
+     */
+    protected function findAndSetSeatPath(InputInterface $input)
+    {
 
-        } catch (\Exception $e) {
+        // Check if we have a path to test, or should autodetect.
+        if (!is_null($input->getOption('seat-path'))) {
 
-            $output->writeln('<comment>An update error occured!</comment>');
-            $output->writeln('<error>' . $e->getMessage() . '</error>');
+            if ($this->isSeatInstallation($input->getOption('seat-path')))
+                $this->seat_path = $input->getOption('seat-path');
+            else
+                throw new SeatNotFoundException('SeAT could not be found at: ' .
+                    $input->getOption('seat-path'));
+
+        } else {
+
+            $this->seat_path = $this->findSeatInstallation();
         }
+
+        $this->io->text('SeAT Path detected at: ' . $this->seat_path);
+
+    }
+
+    /**
+     * Ensures that composer is ready to use.
+     */
+    protected function checkComposer()
+    {
+
+        $this->io->text('Checking Composer installation');
+
+        $composer = new Composer($this->io);
+
+        // If we dont have composer, install it.
+        if (!$composer->hasComposer())
+            $composer->install();
+        else
+            $composer->update();
+
+    }
+
+    /**
+     * Update the Composer packages in the SeAT path.
+     */
+    protected function updatePackages()
+    {
+
+        $composer = new Composer($this->io);
+        $composer->updatePackages($this->seat_path);
+
+    }
+
+    /**
+     * Run the migrations, seeds, publishers
+     */
+    protected function runSeatArtisanCommands()
+    {
+
+        $seat = new Seat($this->io);
+        $seat->setPath($this->seat_path);
+        $seat->runArtisanCommands();
+    }
+
+    /**
+     * Restart the supervisor workers.
+     */
+    protected function restartWorkers()
+    {
+
+        $supervisor = new Supervisor($this->io);
+        $supervisor->restartSupervisor();
 
     }
 
