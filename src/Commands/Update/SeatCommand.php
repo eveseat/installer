@@ -81,18 +81,53 @@ class SeatCommand extends Command
         // Start by ensuring that the SeAT path is ok.
         $this->findAndSetSeatPath($input);
 
-        // TODO: Ask for update confirmation
-        // TODO: Take Application Offline
+        if (!$this->confirmContinue()) {
+
+            $this->io->text('Installer stopped via user cancel.');
+
+            return;
+        }
+
+        $this->markSeatOffline();
 
         $this->checkComposer();
         $this->updatePackages();
         $this->runSeatArtisanCommands();
         $this->restartWorkers();
 
-        // TODO: Bring Application back up
+        $this->markSeatOnline();
 
         $this->io->success('SeAT Update Complete!');
 
+    }
+
+
+    /**
+     * @return bool
+     */
+    protected function confirmContinue()
+    {
+
+        $this->io->text('This command will update SeAT on this server ' .
+            'with hostname: ' . gethostname());
+        $this->io->newline();
+
+        $this->io->text('The following is a short summary of actions that ' .
+            'will be performed:');
+        $this->io->newline();
+        $this->io->listing([
+            'Mark SeAT as offline.',
+            'Ensure Composer is ready to use.',
+            'Update the SeAT packages as well as dependencies.',
+            'Run the SeAT asset publisher, databasse migrations and seeders.',
+            'Restart the Supervisor workers.',
+            'Mark SeAT as online.'
+        ]);
+
+        if ($this->io->confirm('Would like to continue with the update?'))
+            return true;
+
+        return false;
     }
 
     /**
@@ -119,6 +154,28 @@ class SeatCommand extends Command
 
         $this->io->text('SeAT Path detected at: ' . $this->seat_path);
 
+    }
+
+    /**
+     * Mark SeAT as down
+     */
+    public function markSeatOffline()
+    {
+
+        $seat = new Seat($this->io);
+        $seat->setPath($this->seat_path);
+        $seat->markApplicationDown();
+    }
+
+    /**
+     * Mark SeAT as up
+     */
+    public function markSeatOnline()
+    {
+
+        $seat = new Seat($this->io);
+        $seat->setPath($this->seat_path);
+        $seat->markApplicationUp();
     }
 
     /**

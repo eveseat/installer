@@ -95,6 +95,15 @@ class Seat extends AbstractUtil
     }
 
     /**
+     * Return the artisan command relative to the SeAT path
+     */
+    public function getArtisan(): string
+    {
+
+        return $this->findExecutable('php') . ' ' . $this->getPath() . 'artisan';
+    }
+
+    /**
      * Configure filesystem permissions.
      */
     protected function setPermissions()
@@ -105,7 +114,6 @@ class Seat extends AbstractUtil
         $fs = new Filesystem();
         $fs->chown($this->getPath(), 'www-data', true);
         $fs->chmod($this->getPath() . '/storage', 0755, 0000, true);
-
 
     }
 
@@ -150,7 +158,7 @@ class Seat extends AbstractUtil
     {
 
         // Prep the path to php artisan
-        $artisan = $this->findExecutable('php') . ' ' . $this->getPath() . 'artisan';
+        $artisan = $this->getArtisan();
 
         // An array of commands that need to be run in order to setup SeAT
         $commands = [
@@ -174,14 +182,55 @@ class Seat extends AbstractUtil
     }
 
     /**
+     * Put a SeAT instance into a state.
+     *
+     * @param $state
+     *
+     * @throws \Seat\Installer\Exceptions\ArtisanCommandFailed
+     */
+    public function setApplicationStatus($state)
+    {
+
+        $valid_states = ['up', 'down'];
+
+        // Ensure we have a valid state.
+        if (!in_array($state, $valid_states))
+            throw new ArtisanCommandFailed('Invalid state: ' . $state);
+
+        // Run the command
+        $success = $this->runCommandWithOutput($this->getArtisan() . ' ' . $state, '');
+
+        if (!$success)
+            throw new ArtisanCommandFailed(
+                'Unable to change application state to ' . $state);
+    }
+
+    /**
+     * Mark a SeAT instance as Up
+     */
+    public function markApplicationUp()
+    {
+
+        return $this->setApplicationStatus('up');
+    }
+
+    /**
+     * Mark a SeAT instance as Down
+     */
+    public function markApplicationDown()
+    {
+
+        return $this->setApplicationStatus('down');
+    }
+
+    /**
      * @throws \Seat\Installer\Exceptions\PackageInstallationFailedException
      */
     protected function updateSde()
     {
 
         // Prep the path to php artisan
-        $command = $this->findExecutable('php') . ' ' . $this->getPath() . 'artisan ' .
-            'eve:update-sde -n';
+        $command = $this->getArtisan() . ' eve:update-sde -n';
 
         // Run the setup command
         $success = $this->runCommandWithOutput($command, '');
