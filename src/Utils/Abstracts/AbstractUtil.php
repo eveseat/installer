@@ -115,7 +115,7 @@ abstract class AbstractUtil
             if (!$prefix == '') {
 
                 if ($process::ERR === $type)
-                    $this->io->write($prefix . ' (error)> ' . $buffer);
+                    '! ' . $this->io->write($prefix . '> ' . $buffer);
 
                 else
                     $this->io->write($prefix . '> ' . $buffer);

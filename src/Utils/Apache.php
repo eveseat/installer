@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Utils;
 
 
+use Seat\Installer\Traits\DetectsOperatingSystem;
+use Seat\Installer\Traits\DownloadsResources;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Seat\Installer\Utils\Interfaces\WebServer;
 use Symfony\Component\Filesystem\Filesystem;
@@ -33,6 +35,33 @@ use Symfony\Component\Filesystem\Filesystem;
 class Apache extends AbstractUtil implements WebServer
 {
 
+    use DetectsOperatingSystem, DownloadsResources;
+
+    /**
+     * @var
+     */
+    protected $web_root;
+
+    /**
+     * @var array
+     */
+    protected $vhost_locations = [
+        'ubuntu' => '/etc/apache2/sites-enabled/',
+        'centos' => '/etc/httpd/conf.d/',
+    ];
+
+    /**
+     * @var array
+     */
+    protected $webserver_users = [
+        'ubuntu' => [
+            '16.04' => 'www-data',
+        ],
+        'centos' => [
+            '7' => 'apache'
+        ]
+    ];
+
     /**
      * Install the binaries for Apache
      */
@@ -41,50 +70,57 @@ class Apache extends AbstractUtil implements WebServer
 
         $installer = new PackageInstaller($this->io);
         $installer->installPackageGroup('apache');
-
     }
 
     /**
      * Configure a SeAT virtual host.
+     *
+     * @param string $path
+     *
+     * @return mixed|void
      */
-    public function configure()
+    public function configure(string $path)
     {
 
         $this->io->text('Writing the Apache Virtual Host configuration');
 
-        // The default, example Vhost
-        $vhost = <<<EOF
-<VirtualHost *:80>
-    ServerAdmin webmaster@your.domain
-    DocumentRoot "/var/www/html/seat.local"
-    ServerName seat.local
-    ServerAlias www.seat.local
-    ErrorLog \${APACHE_LOG_DIR}/seat-error.log
-    CustomLog \${APACHE_LOG_DIR}/seat-access.log combined
-    <Directory "/var/www/html/seat.local">
-        AllowOverride All
-        Order allow,deny
-        Allow from all
-    </Directory>
-</VirtualHost>
-EOF;
+        // Get the OS that will be used to determine where the config will be
+        // written to.
+        $os = $this->getOperatingSystem()['os'];
+        $version = $this->getOperatingSystem()['version'];
 
-        // Write the Vhost
-        file_put_contents('/etc/apache2/sites-available/100-seat.local.conf', $vhost);
+        // Download the config and replace the seatpath
+        if ($os == 'ubuntu')
+            $vhost = $this->downloadResourceFile('apache-vhost-ubuntu.conf');
+        elseif ($os == 'centos')
+            $vhost = $this->downloadResourceFile('apache-vhost-centos.conf');
+
+        $vhost = str_replace(':seatpath', '/var/www/html/seat.local', $vhost);
+
+        // Write the vhost config
+        file_put_contents($this->vhost_locations[$os] . '100-seat.local.conf', $vhost);
 
         // Symlink SeAT public directory to the DocumentRoot/public
         $this->io->text('Symlinking SeATs public directory and the Vhost config');
+
+        // Trim the trailing / if there is one.
+        $path = rtrim($path, '/');
+
+        // Do the symlink
         $fs = new Filesystem();
-        $fs->symlink('/var/www/seat/public', '/var/www/html/seat.local');
+        $fs->symlink($path . '/public', '/var/www/html/seat.local');
 
-        // Symlink the Vhost config to sites-enabled.
-        $fs->symlink(
-            '/etc/apache2/sites-available/100-seat.local.conf',
-            '/etc/apache2/sites-enabled/100-seat.local.conf');
+        // Enable mod_rewrite if this is ubuntu
+        if ($os == 'ubuntu') {
 
-        // Enable mod_rewrite
-        $this->io->text('Enabling mod_rewrite');
-        $this->runCommand('a2enmod rewrite');
+            $this->io->text('Enabling mod_rewrite');
+            $this->runCommand('a2enmod rewrite');
+        }
+
+        $this->io->text('Configuring permissions');
+        $user = $this->webserver_users[$os][$version];
+        $this->runCommand('chown -R ' . $user . ':' . $user . ' ' . $path);
+        $this->runCommand('chmod -R guo+w ' . $path . '/storage/');
 
         // Restart Apache
         $this->io->text('Restarting Apache');
@@ -99,6 +135,22 @@ EOF;
     {
 
         $this->io->text('Hardening Apache');
+
+        $os = $this->getOperatingSystem()['os'];
+
+        if ($os == 'ubuntu')
+            $this->hardenUbuntu();
+        elseif ($os == 'centos')
+            $this->hardenCentos();
+
+
+    }
+
+    /**
+     * Harden the Ubuntu Apache webserver
+     */
+    protected function hardenUbuntu()
+    {
 
         // Remove Default Website
         $this->io->text('Removing default website');
@@ -118,7 +170,46 @@ EOF;
         $security_conf = str_replace('ServerSignature On', 'ServerSignature Off', $security_conf);
         file_put_contents('/etc/apache2/conf-enabled/security.conf', $security_conf);
 
+    }
+
+    /**
+     * Harden the CentOS Apache Webserver
+     */
+    protected function hardenCentos()
+    {
+
+        // Remove Default Website
+        $this->io->text('Removing default website');
+        $fs = new Filesystem();
+        $fs->remove('/etc/httpd/conf.d/welcome.conf');
+
+        // Disable Directory Indexing
+        $this->io->text('Disabling directory indexing');
+        $apache_conf = file_get_contents('/etc/httpd/conf/httpd.conf');
+        $apache_conf = str_replace('Options Indexes FollowSymLinks', 'Options FollowSymLinks', $apache_conf);
+        file_put_contents('/etc/httpd/conf/httpd.conf', $apache_conf);
+
+        // Remove ServerSignature and ServerTokens
+        $this->io->text('Removing server signature and tokens');
+        $security_conf = file_get_contents('/etc/httpd/conf/httpd.conf');
+        $security_conf .= PHP_EOL . 'ServerTokens Prod';
+        $security_conf .= PHP_EOL . 'ServerSignature Off';
+        file_put_contents('/etc/httpd/conf/httpd.conf', $security_conf);
+
 
     }
 
+    /**
+     * Get the user as which the webserver will run.
+     *
+     * @return mixed
+     */
+    public function getuser(): string
+    {
+
+        $os = $this->getOperatingSystem()['os'];
+        $ver = $this->getOperatingSystem()['version'];
+
+        return $this->webserver_users[$os][$ver];
+    }
 }

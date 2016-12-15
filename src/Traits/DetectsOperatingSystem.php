@@ -40,10 +40,24 @@ trait DetectsOperatingSystem
     ];
 
     /**
+     * Strings to match to a supported version of a
+     * distribution.
+     *
      * @var array
      */
     protected $release_versions = [
-        'ubuntu' => ['16.04']
+        'ubuntu' => [
+            [
+                'version'   => '16.04',
+                'signature' => 'Ubuntu 16.'
+            ]
+        ],
+        'centos' => [
+            [
+                'version'   => '7',
+                'signature' => 'CentOS Linux release 7'
+            ]
+        ],
     ];
 
     /**
@@ -79,11 +93,13 @@ trait DetectsOperatingSystem
                 // Read the release file to try and determine the version.
                 $contents = file_get_contents($filename);
 
-                foreach ($this->release_versions[$distro] as $version) {
+                foreach ($this->release_versions[$distro] as $info) {
 
-                    if (strpos($contents, $version)) {
+                    // Check if the release file has the signature for
+                    // the version match.
+                    if (strpos($contents, $info['signature']) !== false) {
 
-                        $this->os_version['version'] = $version;
+                        $this->os_version['version'] = $info['version'];
 
                     }
                 }

@@ -25,15 +25,18 @@ use Seat\Installer\Utils\Apache;
 use Seat\Installer\Utils\Composer;
 use Seat\Installer\Utils\Crontab;
 use Seat\Installer\Utils\MySql;
+use Seat\Installer\Utils\OsUpdates;
 use Seat\Installer\Utils\PackageInstaller;
+use Seat\Installer\Utils\Redis;
 use Seat\Installer\Utils\Requirements;
 use Seat\Installer\Utils\Seat;
 use Seat\Installer\Utils\Supervisor;
-use Seat\Installer\Utils\OsUpdates;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Class InstallProdCommand
@@ -58,6 +61,11 @@ class ProdCommand extends Command
     protected $webserver_choice;
 
     /**
+     * @var
+     */
+    protected $seat_destination;
+
+    /**
      * @var array
      */
     protected $webserver_info = [
@@ -75,6 +83,8 @@ class ProdCommand extends Command
         $this
             ->setName('install:production')
             ->setDescription('Install a SeAT Production Instance')
+            ->addOption('seat-destination', 's', InputOption::VALUE_OPTIONAL,
+                'Destination folder to install to', '/var/www/seat')
             ->setHelp('This command allows you to install SeAT on your system');
     }
 
@@ -90,6 +100,9 @@ class ProdCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title('SeAT Installer');
 
+        // Start by figuring out where we are going to install SeAT
+        $this->seat_destination = $input->getOption('seat-destination');
+
         // Ensure that we should continue.
         if (!$this->confirmContinue()) {
 
@@ -103,6 +116,9 @@ class ProdCommand extends Command
             'apache', 'nginx'
         ], 'apache');
 
+        // Prepare the SeAT installation directory
+        $this->createInstallDirectory();
+
         // Process requirements
         if (!$this->checkRequirements())
             return;
@@ -113,7 +129,9 @@ class ProdCommand extends Command
 
         $this->configureMySql();
 
-        $this->installPackages();
+        $this->configureRedis();
+
+        $this->installPhpPackages();
 
         $this->installSeat();
 
@@ -138,14 +156,23 @@ class ProdCommand extends Command
             'with hostname: ' . gethostname());
         $this->io->newline();
 
+        $this->io->text('SeAT will be installed at: ' . $this->seat_destination .
+            '. If the directory does not exist, it will be created.');
+        $this->io->newline();
+
         $this->io->text('The following is a short summary of actions that ' .
             'will be performed:');
         $this->io->newline();
         $this->io->listing([
             'Check the needed software depedencies.',
-            'Check the needed commands and OS packages.',
-            'Check access to the filesystem.',
-            'Ensure the OS is up to date.'
+            'Ensure Composer is available for use.',
+            'Update the Operating System.',
+            'Configure / Install MySQL.',
+            'Install OS Dependencies.',
+            'Install SeAT.',
+            'Install & Configure supervisor.',
+            'Setup the crontab for SeAT.',
+            'Install and configure a Webserver.'
         ]);
 
         $this->io->text('It may be needed to restart the installer sometimes to continue.');
@@ -154,6 +181,18 @@ class ProdCommand extends Command
             return true;
 
         return false;
+    }
+
+    /**
+     * Creates the installation directory
+     */
+    protected function createInstallDirectory()
+    {
+
+        $fs = new Filesystem();
+        $fs->mkdir($this->seat_destination, 0755);
+        $this->io->success('Directory ' . $this->seat_destination . ' created.');
+
     }
 
     /**
@@ -168,7 +207,12 @@ class ProdCommand extends Command
         $requirements = new Requirements($this->io);
 
         $requirements->checkSoftwareRequirements();
-        $requirements->checkPhpRequirements();
+
+        // Some PHP dependencies can break this tool. Force
+        // a rerun of they are not met.
+        if (!$requirements->checkPhpRequirements())
+            return false;
+
         $requirements->checkAccessRequirements();
         $requirements->checkCommandRequirements();
 
@@ -194,6 +238,8 @@ class ProdCommand extends Command
         // If we dont have composer, install it.
         if (!$composer->hasComposer())
             $composer->install();
+        else
+            $composer->update();
     }
 
     /**
@@ -216,10 +262,6 @@ class ProdCommand extends Command
     protected function configureMySql()
     {
 
-        // Check that PDO is available first
-        if (!extension_loaded('pdo_mysql'))
-            $this->installer->installPackage('php-mysql');
-
         $mysql = new MySql($this->io);
 
         // Check if MySQL is already installed. If so, prompt for
@@ -239,6 +281,9 @@ class ProdCommand extends Command
             $connected = false;
 
             while (!$connected) {
+
+                $this->io->text('If you are back here after a failed intall run, check ' .
+                    'the file at ~/.seat-credentials for the auto-generated seat users password.');
 
                 $this->io->text('Please provide database details:');
                 $username = $this->io->ask('Username');
@@ -289,17 +334,24 @@ class ProdCommand extends Command
 
     }
 
+    protected function configureRedis()
+    {
+
+        $redis = new Redis($this->io);
+        $redis->install();
+        $redis->enable();
+
+        $this->io->success('Redis configuration compelte');
+    }
+
     /**
      * Install the OS packages needed for SeAT
      */
-    protected function installPackages()
+    protected function installPhpPackages()
     {
 
         $installer = new PackageInstaller($this->io);
-
         $installer->installPackageGroup('php');
-        $installer->installPackageGroup('redis');
-        $installer->installPackageGroup('supervisor');
 
     }
 
@@ -310,9 +362,10 @@ class ProdCommand extends Command
     {
 
         $seat = new Seat($this->io);
-        $seat->setPath('/var/www/seat');
+        $seat->setPath($this->seat_destination);
         $seat->install();
         $seat->configure($this->mysql_credentials);
+
     }
 
     /**
@@ -321,7 +374,16 @@ class ProdCommand extends Command
     protected function setupSupervisor()
     {
 
+        // We need to ask the webserver class which user we need
+        // to use for the supervisor job.
+        $webserver = $this->webserver_info[$this->webserver_choice]['installer'];
+        $webserver = new $webserver($this->io);
+
+        // Setup a Supervisor instance.
         $supervisor = new Supervisor($this->io);
+        $supervisor->setUser($webserver->getUser());
+        $supervisor->setPath($this->seat_destination);
+        $supervisor->install();
         $supervisor->setup();
 
     }
@@ -332,9 +394,13 @@ class ProdCommand extends Command
     protected function setupCrontab()
     {
 
-        $crontab = new Crontab($this->io);
-        $crontab->install();
+        // We need to ask the webserver class which user we need
+        // to use for the crontab entry.
+        $webserver = $this->webserver_info[$this->webserver_choice]['installer'];
+        $webserver = new $webserver($this->io);
 
+        $crontab = new Crontab($this->io);
+        $crontab->install($this->seat_destination, $webserver->getUser());
 
     }
 
@@ -348,7 +414,7 @@ class ProdCommand extends Command
         $installer = new $installer($this->io);
         $installer->install();
         $installer->harden();
-        $installer->configure();
+        $installer->configure($this->seat_destination);
 
     }
 

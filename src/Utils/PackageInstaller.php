@@ -51,16 +51,43 @@ class PackageInstaller extends AbstractUtil
     /**
      * @var array
      */
-    protected $command_packages = [
+    protected $php_extention_packages = [
         'ubuntu' => [
-            'unzip'     => 'unzip',
-            'git'       => 'git',
-            'pdo_mysql' => 'php-mysql',
+            '16.04' => [
+                'pdo_mysql' => 'php-mysql',
+                'posix'     => 'php-common',
+            ]
         ],
+
         'centos' => [
-            'unzip'     => 'unzip',
-            'git'       => 'git',
-            'pdo_mysql' => 'php-mysql'
+            '7' => [
+                'pdo_mysql' => 'php-mysql',
+                'posix'     => 'php-posix',
+            ]
+        ]
+    ];
+
+    /**
+     * @var array
+     */
+    protected $command_packages = [
+
+        // Ubuntu
+        'ubuntu' => [
+            '16.04' => [
+                'unzip'     => 'unzip',
+                'git'       => 'git',
+                'pdo_mysql' => 'php-mysql',
+            ],
+        ],
+
+        // CentOS
+        'centos' => [
+            '7' => [
+                'unzip'     => 'unzip',
+                'git'       => 'git',
+                'pdo_mysql' => 'php-mysql'
+            ],
         ]
     ];
 
@@ -71,25 +98,49 @@ class PackageInstaller extends AbstractUtil
 
         // Ubuntu
         'ubuntu' => [
-            'php'        => [
-                'php-cli', 'php-mcrypt', 'php-intl',
-                'php-mysql', 'php-curl', 'php-gd',
-                'php-mbstring', 'php-bz2', 'php-dom'
-            ],
-            'apache'     => [
-                'apache2', 'libapache2-mod-php'
-            ],
-            'redis'      => [
-                'redis-server'
-            ],
-            'supervisor' => [
-                'supervisor'
+            // Ubuntu 16.04 LTS
+            '16.04' => [
+                'mysql'      => [
+                    'mysql-server', 'expect'
+                ],
+                'php'        => [
+                    'php-cli', 'php-mcrypt', 'php-intl',
+                    'php-mysql', 'php-curl', 'php-gd',
+                    'php-mbstring', 'php-bz2', 'php-dom'
+                ],
+                'apache'     => [
+                    'apache2', 'libapache2-mod-php'
+                ],
+                'redis'      => [
+                    'redis-server'
+                ],
+                'supervisor' => [
+                    'supervisor'
+                ]
             ]
         ],
 
         // CentOS
         'centos' => [
-            'php' => []
+            // CentOS 7
+            '7' => [
+                'mysql'      => [
+                    'mariadb-server', 'expect'
+                ],
+                'php'        => [
+                    'php-mysql', 'php-cli', 'php-mcrypt', 'php-process',
+                    'php-mbstring', 'php-intl', 'php-dom', 'php-gd'
+                ],
+                'apache'     => [
+                    'httpd', 'php'
+                ],
+                'redis'      => [
+                    'redis'
+                ],
+                'supervisor' => [
+                    'supervisor'
+                ]
+            ]
         ],
     ];
 
@@ -104,7 +155,7 @@ class PackageInstaller extends AbstractUtil
         if ($this->os)
             return $this->os;
 
-        $this->os = $this->getOperatingSystem()['os'];
+        $this->os = $this->getOperatingSystem();
 
         return $this->os;
 
@@ -133,12 +184,12 @@ class PackageInstaller extends AbstractUtil
 
         // If we are on a debian based system, let apt know we
         // dont want to do anything interactively.
-        if ($this->getOs() == 'ubuntu' || $this->getOs() == 'debian')
+        if ($this->getOs()['os'] == 'ubuntu' || $this->getOs()['os'] == 'debian')
             putenv('DEBIAN_FRONTEND=noninteractive');
 
         // Prepare the command to run.
         $command = str_replace(
-            ':package', $package, $this->package_manager[$this->getOs()]);
+            ':package', $package, $this->package_manager[$this->getOs()['os']]);
 
         // Start the installation.
         $success = $this->runCommandWithOutput($command, 'Package Installation (' . $package . ')');
@@ -146,6 +197,8 @@ class PackageInstaller extends AbstractUtil
         // Make sure composer installed fine.
         if (!$success)
             throw new PackageInstallationFailedException($package . ' installation failed.');
+
+        $this->io->success('Package ' . $package . ' installed OK');
 
     }
 
@@ -158,9 +211,12 @@ class PackageInstaller extends AbstractUtil
         $this->io->text('Attempting to install the package that provides \'' . $command . '\'');
 
         // Check if we know what package provides this command
-        if (array_key_exists($command, $this->command_packages[$this->getOs()])) {
+        if (array_key_exists($command,
+            $this->command_packages[$this->getOs()['os']][$this->getOs()['version']])
+        ) {
 
-            $package = $this->command_packages[$this->getOs()][$command];
+
+            $package = $this->command_packages[$this->getOs()['os']][$this->getOs()['version']][$command];
             $this->io->text('Installing package \'' . $package . '\' for the command');
 
             $this->installPackage($package);
@@ -185,12 +241,44 @@ class PackageInstaller extends AbstractUtil
 
         $this->io->text('Installing packages for package group: \'' . $group_name . '\'.');
 
-        if (!array_key_exists($group_name, $this->package_groups[$this->getOs()]))
+        if (!array_key_exists($group_name,
+            $this->package_groups[$this->getOs()['os']][$this->getOs()['version']])
+        )
             throw new PackageInstallationFailedException('Unknown package group: ' . $group_name);
 
         // Install the packages in the package group.
-        foreach ($this->package_groups[$this->getOs()][$group_name] as $package)
+        foreach ($this->package_groups[$this->getOs()['os']][$this->getOs()['version']][$group_name] as $package)
             $this->installPackage($package);
+
+    }
+
+    /**
+     * @param string $extention
+     *
+     * @throws \Seat\Installer\Exceptions\PackageInstallationFailedException
+     */
+    public function installPackageForPhpExtention(string $extention)
+    {
+
+        $this->io->text('Attempting to install the package that provides ' .
+            'PHP extention \'' . $extention . '\'');
+
+        // Check if we know what package provides this command
+        if (array_key_exists($extention,
+            $this->php_extention_packages[$this->getOs()['os']][$this->getOs()['version']])
+        ) {
+
+
+            $package = $this->php_extention_packages[$this->getOs()['os']][$this->getOs()['version']][$extention];
+            $this->io->text('Installing package \'' . $package . '\' for the command');
+
+            $this->installPackage($package);
+
+            return;
+        }
+
+        throw new PackageInstallationFailedException(
+            'Unable to find package for PHP extention: ' . $extention);
 
     }
 

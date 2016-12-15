@@ -25,6 +25,8 @@ namespace Seat\Installer\Utils;
 use PDO;
 use PDOException;
 use Seat\Installer\Exceptions\MySqlConfigurationException;
+use Seat\Installer\Traits\DetectsOperatingSystem;
+use Seat\Installer\Traits\DownloadsResources;
 use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Traits\GeneratesPasswords;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
@@ -37,7 +39,7 @@ use Symfony\Component\Filesystem\Filesystem;
 class MySql extends AbstractUtil
 {
 
-    use FindsExecutables, GeneratesPasswords;
+    use DownloadsResources, DetectsOperatingSystem, FindsExecutables, GeneratesPasswords;
 
     /**
      * @var array
@@ -54,12 +56,39 @@ class MySql extends AbstractUtil
     protected $credentials_file = '/root/.seat-credentials';
 
     /**
+     * @var array
+     */
+    protected $restart_enable_commands = [
+        'ubuntu' => [
+            '16.04' => [
+                'systemctl enable mysql.service',
+                'systemctl restart mysql.service',
+            ]
+        ],
+
+        'centos' => [
+            '7' => [
+                'systemctl enable mariadb.service',
+                'systemctl restart mariadb.service',
+            ]
+        ]
+    ];
+
+    /**
+     * @var array
+     */
+    protected $secure_install_scripts = [
+        'ubuntu' => 'mysql_secure_installation.ubuntu.bash',
+        'centos' => 'mysql_secure_installation.centos.bash',
+    ];
+
+    /**
      * @return bool
      */
     public function isInstalled(): bool
     {
 
-        if ($this->hasExecutable('mysql') && $this->hasExecutable('mysqld'))
+        if ($this->hasExecutable('mysqld_safe'))
             return true;
 
         return false;
@@ -74,8 +103,26 @@ class MySql extends AbstractUtil
 
         $installer = new PackageInstaller($this->io);
 
-        $installer->installPackage('mysql-server');
-        $installer->installPackage('expect');
+        $installer->installPackageGroup('mysql');
+        $this->restartAndEnable();
+        $this->io->success('MySQL installation complete');
+
+    }
+
+    /**
+     * @throws \Seat\Installer\Exceptions\MySqlConfigurationException
+     */
+    public function restartAndEnable()
+    {
+
+        $os = $this->getOperatingSystem();
+
+        foreach ($this->restart_enable_commands[$os['os']][$os['version']] as $command)
+            $success = $this->runCommandWithOutput($command, 'MySQL Restart');
+
+        if (!$success)
+            throw new MySqlConfigurationException('Unable to restart MySQL');
+
 
     }
 
@@ -145,6 +192,8 @@ class MySql extends AbstractUtil
     public function configure()
     {
 
+        $this->io->text('Checking that MySQL is started');
+
         $this->io->text('Securing MySQL installation');
         $this->secureInstallation();
 
@@ -164,38 +213,15 @@ class MySql extends AbstractUtil
         $this->credentials['root_password'] = $this->generatePassword();
         $this->saveCredentials();
 
-        // The epect command to run:
-        $expect = <<<EOF
-SECURE_MYSQL=$(expect -c "
-set timeout 10
-spawn mysql_secure_installation
+        // Get the script to use to secure the MySQL installation
+        $script = $this->downloadResourceFile(
+            $this->secure_install_scripts[$this->getOperatingSystem()['os']]);
 
-expect \"Press y|Y for Yes, any other key for No:\"
-send \"n\r\"
-
-expect \"New password:\"
-send \"{$this->credentials['root_password']}\r\"
-expect \"Re-enter new password:\"
-send \"{$this->credentials['root_password']}\r\"
-
-expect \"Remove anonymous users? (Press y|Y for Yes, any other key for No) :\"
-send \"y\r\"
-
-expect \"Disallow root login remotely? (Press y|Y for Yes, any other key for No) :\"
-send \"y\r\"
-
-expect \"Remove test database and access to it? (Press y|Y for Yes, any other key for No) :\"
-send \"y\r\"
-
-expect \"Reload privilege tables now? (Press y|Y for Yes, any other key for No) :\"
-send \"y\r\"
-
-expect eof
-"); echo "\$SECURE_MYSQL"
-EOF;
+        // Replace some values with the new root password
+        $script = str_replace(':MYSQL_ROOT_PASS', $this->credentials['root_password'], $script);
 
         // Start the mysql_secure_installation command.
-        $success = $this->runCommandWithOutput($expect, 'MySQL Secure Installation');
+        $success = $this->runCommandWithOutput($script, 'MySQL Secure Installation');
 
         // Make sure it ran fine.
         if (!$success)

@@ -48,17 +48,6 @@ class Seat extends AbstractUtil
     public function install()
     {
 
-        $this->download();
-        $this->setPermissions();
-
-    }
-
-    /**
-     * @throws \Seat\Installer\Exceptions\SeatDownloadFailedException
-     */
-    protected function download()
-    {
-
         $this->io->newLine();
         $this->io->text('Installing SeAT. Go grab a coffee, this may take some time!');
         $this->io->newLine();
@@ -73,6 +62,8 @@ class Seat extends AbstractUtil
         // Make sure SeAT installed fine.
         if (!$success)
             throw new SeatDownloadFailedException('SeAT download failed.');
+
+        $this->io->success('SeAT Downloaded OK');
 
     }
 
@@ -113,7 +104,7 @@ class Seat extends AbstractUtil
 
         $fs = new Filesystem();
         $fs->chown($this->getPath(), 'www-data', true);
-        $fs->chmod($this->getPath() . '/storage', 0755, 0000, true);
+        $fs->chmod($this->getPath() . 'storage', 0755, 0000, true);
 
     }
 
@@ -126,6 +117,8 @@ class Seat extends AbstractUtil
         $this->addDbCredentialsToConfig($credentials);
         $this->runArtisanCommands();
         $this->updateSde();
+
+        $this->io->success('SeAT configuration complete');
 
     }
 

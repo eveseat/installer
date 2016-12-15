@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Utils;
 
 
+use Seat\Installer\Exceptions\OperatingSystemNotSupportedException;
+use Seat\Installer\Exceptions\UnsupportedPhpVersionException;
 use Seat\Installer\Traits\ChecksForRootUser;
 use Seat\Installer\Traits\DetectsOperatingSystem;
 use Seat\Installer\Traits\FindsExecutables;
@@ -62,6 +64,7 @@ class Requirements extends AbstractUtil
      */
     protected $php_extentions = [
         'pdo_mysql' => null,
+        'posix'     => null,
     ];
 
     /**
@@ -75,17 +78,14 @@ class Requirements extends AbstractUtil
     public function checkSoftwareRequirements()
     {
 
-        if (!$this->hasMinimumPhpVersion()) {
+        if (!$this->hasMinimumPhpVersion())
+            throw new UnsupportedPhpVersionException(
+                'PHP version ' . $this->phpversion . ' is not supported. ' .
+                'Please install at least PHP version 7'
+            );
 
-            $this->requirements_ok = false;
-            $this->io->error('PHP Version is not at least v' . $this->phpversion);
-        }
-
-        if (!$this->hasSupportedOs()) {
-
-            $this->requirements_ok = false;
-            $this->io->error('Operating System is not supported by this installer');
-        }
+        if (!$this->hasSupportedOs())
+            throw new OperatingSystemNotSupportedException('Unsupported Operating System');
 
     }
 
@@ -116,7 +116,7 @@ class Requirements extends AbstractUtil
     /**
      * Check that the core PHP requirements are met.
      */
-    public function checkPhpRequirements()
+    public function checkPhpRequirements(): bool
     {
 
         if (!$this->hasAllPhpExtentions()) {
@@ -129,12 +129,12 @@ class Requirements extends AbstractUtil
 
                 if (!$loaded) {
 
-                    $this->io->error('Extention ' . $name . ' not loaded');
+                    $this->io->error('PHP Extention ' . $name . ' not loaded');
 
                     if ($this->io->confirm('Would you like to try and install it?')) {
 
                         $installer = new PackageInstaller($this->io);
-                        $installer->installNeededPackage($name);
+                        $installer->installPackageForPhpExtention($name);
                     }
                 }
             }
@@ -142,6 +142,7 @@ class Requirements extends AbstractUtil
             $this->io->success('PHP requirements check completed. You may need to rerun the script to continue.');
         }
 
+        return $this->requirements_ok;
 
     }
 

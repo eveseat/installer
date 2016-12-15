@@ -37,21 +37,30 @@ class Crontab extends AbstractUtil
     /**
      * Install the Crontab Entry.
      *
+     * @param string $seat_path
+     * @param string $user
+     *
      * @throws \Seat\Installer\Exceptions\CrontabFailedException
      */
-    public function install()
+    public function install(string $seat_path, string $user)
     {
 
-        // Prepare to build a commands array,
+        // Prepare the values needed in the cron entry
         $crontab = $this->findExecutable('crontab');
+        $php = $this->findExecutable('php');
+        $path = rtrim($seat_path, '/');
+
+        // Write the full crontab entry
+        $cron = '* * * * * ' . $php . ' ' . $path . '/artisan schedule:run 1>> /dev/null 2>&';
+
+        // Get a temp file to dump the current crontab
         $tempfile = tempnam(sys_get_temp_dir(), 'cron');
-        $cron = "* * * * * /usr/bin/php /var/www/seat/artisan schedule:run 1>> /dev/null 2>&1";
 
         // Setup commands for the crontab configuration
         $commands = [
-            $crontab . ' -u www-data -l > ' . $tempfile,
+            $crontab . ' -u ' . $user . ' -l > ' . $tempfile,
             'echo "' . $cron . '" >> ' . $tempfile,
-            $crontab . ' -u www-data ' . $tempfile,
+            $crontab . ' -u ' . $user . ' ' . $tempfile,
         ];
 
         // Run the commands to configure.

@@ -19,48 +19,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-namespace Seat\Installer\Utils\Interfaces;
+namespace Seat\Installer\Exceptions;
+
+
+use Exception;
 
 /**
- * Interface WebServer
- * @package Seat\Installer\Utils\Interfaces
+ * Class InvalidResourceException
+ * @package Seat\Installer\Exceptions
  */
-/**
- * Interface WebServer
- * @package Seat\Installer\Utils\Interfaces
- */
-interface WebServer
+class InvalidResourceException extends Exception
 {
-
-    /**
-     * Install the webserver software.
-     *
-     * @return mixed
-     */
-    public function install();
-
-    /**
-     * Configure the webserver to serve SeAT.
-     *
-     * @param string $path
-     *
-     * @return mixed
-     */
-    public function configure(string $path);
-
-    /**
-     * Perform security hardening of the webserver.
-     *
-     * @return mixed
-     */
-    public function harden();
-
-    /**
-     * Get the user as which the webserver will run.
-     *
-     * @return mixed
-     */
-    public function getuser(): string;
-
 
 }

@@ -22,7 +22,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Utils;
 
 
-use Seat\Installer\Exceptions\SupervisorFailedException;
+use Seat\Installer\Traits\DetectsOperatingSystem;
+use Seat\Installer\Traits\DownloadsResources;
+use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 
 /**
@@ -32,6 +34,94 @@ use Seat\Installer\Utils\Abstracts\AbstractUtil;
 class Supervisor extends AbstractUtil
 {
 
+    use DetectsOperatingSystem, DownloadsResources, FindsExecutables;
+
+    /**
+     * @var
+     */
+    protected $user;
+
+    /**
+     * @var
+     */
+    protected $path;
+
+    /**
+     * @var array
+     */
+    protected $restart_enable_commands = [
+        'ubuntu' => [
+            '16.04' => [
+                'systemctl enable supervisor.service',
+                'systemctl restart supervisor.service'
+            ],
+        ],
+        'centos' => [
+            '7' => [
+                'systemctl enable supervisord',
+                'systemctl restart supervisord'
+            ]
+        ]
+    ];
+
+    /**
+     * @var array
+     */
+    protected $config_locations = [
+        'ubuntu' => [
+            '16.04' => '/etc/supervisor/conf.d/seat.conf'
+        ],
+        'centos' => [
+            '7' => '/etc/supervisord.d/seat.ini'
+        ]
+    ];
+
+    /**
+     * Install the package needed for supervisor.
+     */
+    public function install()
+    {
+
+        $installer = new PackageInstaller($this->io);
+        $installer->installPackageGroup('supervisor');
+    }
+
+    /**
+     * @param string $user
+     */
+    public function setUser(string $user)
+    {
+
+        $this->user = $user;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUser(): string
+    {
+
+        return $this->user;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath(string $path)
+    {
+
+        $this->path = rtrim($path, '/') . '/';
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPath()
+    {
+
+        return $this->path;
+    }
+
     /**
      * Setup Supervisor.
      */
@@ -39,9 +129,19 @@ class Supervisor extends AbstractUtil
     {
 
         $this->writeConfig();
-        $this->restartSupervisor();
-        $this->autoStartSupervisorOnBoot();
+        $this->enable();
+    }
 
+    /**
+     * @return string
+     */
+    public function getConfigLocation(): string
+    {
+
+        $os = $this->getOperatingSystem()['os'];
+        $version = $this->getOperatingSystem()['version'];
+
+        return $this->config_locations[$os][$version];
     }
 
     /**
@@ -52,57 +152,30 @@ class Supervisor extends AbstractUtil
 
         $this->io->text('Writing the SeAT Supervisor configuration file');
 
-        $config = <<<EOF
-[program:seat]
-command=/usr/bin/php /var/www/seat/artisan queue:work --queue=high,medium,low,default --tries 1 --timeout=86100
-process_name = %(program_name)s-80%(process_num)02d
-stdout_logfile = /var/log/seat-80%(process_num)02d.log
-stdout_logfile_maxbytes=100MB
-stdout_logfile_backups=10
-numprocs=4
-directory=/var/www/seat
-stopwaitsecs=600
-user=www-data
-EOF;
+        $ini = $this->downloadResourceFile('supervisor-seat.ini');
 
-        file_put_contents('/etc/supervisor/conf.d/seat.conf', $config);
+        // Replace some values in the INI
+        $ini = str_replace(':php', $this->findExecutable('php'), $ini);
+        $ini = str_replace(':artisan', $this->getPath() . 'artisan', $ini);
+        $ini = str_replace(':seatdirectory', $this->getPath(), $ini);
+        $ini = str_replace(':webuser', $this->getUser(), $ini);
 
+        // Write the config file
+        file_put_contents($this->getConfigLocation(), $ini);
 
     }
 
     /**
-     * @throws \Seat\Installer\Exceptions\SupervisorFailedException
+     * Restart and Enable Supervisor
      */
-    public function restartSupervisor()
+    public function enable()
     {
 
-        // Prepare the command.
-        $command = 'supervisorctl restart all';
+        $os = $this->getOperatingSystem()['os'];
+        $version = $this->getOperatingSystem()['version'];
 
-        // Run the restart
-        $success = $this->runCommand($command);
-
-        // Make sure the restart went fine.
-        if (!$success)
-            throw new SupervisorFailedException('Supervisor restart failed.');
-
-    }
-
-    /**
-     * @throws \Seat\Installer\Exceptions\SupervisorFailedException
-     */
-    protected function autoStartSupervisorOnBoot()
-    {
-
-        // Prepare the command.
-        $command = 'systemctl enable supervisor.service';
-
-        // Prepare and start the installation.
-        $success = $this->runCommand($command);
-
-        // Make sure the enable went fine
-        if (!$success)
-            throw new SupervisorFailedException('Supervisor autostart setup failed.');
+        foreach ($this->restart_enable_commands[$os][$version] as $command)
+            $this->runCommandWithOutput($command, 'Supervisor Setup');
     }
 
 }
