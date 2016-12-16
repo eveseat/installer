@@ -117,6 +117,15 @@ class Apache extends AbstractUtil implements WebServer
             $this->runCommand('a2enmod rewrite');
         }
 
+        // Configure SELinux if this is CentOS
+        if ($os == 'centos') {
+
+            $this->io->text('Configuring SELinux');
+            $this->runCommand('chcon -R --reference=/var/www ' . $path);
+            $this->runCommand('setsebool -P httpd_can_network_connect 1');
+            $this->runCommand('setsebool -P httpd_unified 1');
+        }
+
         $this->io->text('Configuring permissions');
         $user = $this->webserver_users[$os][$version];
         $this->runCommand('chown -R ' . $user . ':' . $user . ' ' . $path);
