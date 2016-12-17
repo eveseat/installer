@@ -96,6 +96,7 @@ class SeatCommand extends Command
             return;
         }
 
+
         $this->markSeatOffline();
 
         $this->checkComposer();

@@ -23,6 +23,8 @@ namespace Seat\Installer\Commands;
 
 
 use Dotenv\Dotenv;
+use Exception;
+use Predis\Client;
 use Seat\Installer\Exceptions\SeatNotFoundException;
 use Seat\Installer\Traits\DetectsWebserver;
 use Seat\Installer\Traits\FindsExecutables;
@@ -100,6 +102,7 @@ class Diagnose extends Command
         $this->checkPhpExtentions();
         $this->checkSeatConfiguration();
         $this->checkPermissions();
+        $this->checkRedis();
 
     }
 
@@ -326,6 +329,49 @@ class Diagnose extends Command
         }
 
         return $check_ok;
+
+    }
+
+    /**
+     * Check Redis connectivity
+     */
+    public function checkRedis()
+    {
+
+        $this->io->text('Checking Redis status');
+
+        $host = getenv('REDIS_HOST');
+        $port = getenv('REDIS_PORT');
+
+        if (!$host || !$port) {
+
+            $this->io->warning('The SeAT configuration does not have valid Redis settings. ' .
+                'Going to try with defaults.');
+
+            $host = '127.0.0.1';
+            $port = 6379;
+        }
+
+        try {
+
+            $redis = new Client([
+                'scheme' => 'tcp',
+                'host'   => $host,
+                'port'   => $port
+            ]);
+
+            $redis->set('seat_diagnostics', true);
+
+            if ($redis->get('seat_diagnostics'))
+                return $this->io->success('Redis check passed');
+
+        } catch (Exception $e) {
+
+            return $this->io->error('Redis check failed with: ' . $e->getMessage());
+
+        }
+
+        return $this->io->error('Redis check failed. Unable to get diagnostics testing value.');
 
     }
 
