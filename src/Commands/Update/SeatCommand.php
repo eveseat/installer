@@ -62,6 +62,14 @@ class SeatCommand extends Command
                 'The SeAT path to update. If not specified, an autodetection attempt will be made.',
                 null
             )
+            ->addOption(
+                'ignore-supervisor', 'is', InputOption::VALUE_NONE,
+                'Do not restart supervisor'
+            )
+            ->addOption(
+                'ignore-artisan', 'ia', InputOption::VALUE_NONE,
+                'Ignore the artisan commands for database seeders, migrations and assets publishing'
+            )
             ->setDescription('Update a SeAT Installation');
 
     }
@@ -93,7 +101,9 @@ class SeatCommand extends Command
         $this->checkComposer();
         $this->updatePackages();
         $this->runSeatArtisanCommands();
-        $this->restartWorkers();
+
+        if (!$input->getOption('ignore-supervisor'))
+            $this->restartWorkers();
 
         $this->markSeatOnline();
 

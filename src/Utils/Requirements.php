@@ -39,11 +39,6 @@ class Requirements extends AbstractUtil
     use DetectsOperatingSystem, ChecksForRootUser, FindsExecutables;
 
     /**
-     * @var bool
-     */
-    protected $continue = false;
-
-    /**
      * @var string
      */
     protected $phpversion = '7.0.0';
@@ -76,24 +71,6 @@ class Requirements extends AbstractUtil
      * @var bool
      */
     private $requirements_ok = true;
-
-    /**
-     * Make questions continue with yes
-     */
-    public function setContinue()
-    {
-
-        $this->continue = true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getContinue()
-    {
-
-        return $this->continue;
-    }
 
     /**
      * Check the requirements for SeAT
@@ -154,7 +131,7 @@ class Requirements extends AbstractUtil
 
                     $this->io->error('PHP Extention ' . $name . ' not loaded');
 
-                    if ($this->getContinue() || $this->io->confirm('Would you like to try and install it?')) {
+                    if ($this->io->confirm('Would you like to try and install it?')) {
 
                         $installer = new PackageInstaller($this->io);
                         $installer->installPackageForPhpExtention($name);
@@ -221,7 +198,7 @@ class Requirements extends AbstractUtil
 
                     $this->io->error('Cant find executable for: ' . $name);
 
-                    if ($this->getContinue() || $this->io->confirm('Would you like to try and install it?')) {
+                    if ($this->io->confirm('Would you like to try and install it?')) {
 
                         $installer = new PackageInstaller($this->io);
                         $installer->installNeededPackage($name);

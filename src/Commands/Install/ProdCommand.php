@@ -53,11 +53,6 @@ class ProdCommand extends Command
     /**
      * @var
      */
-    protected $continue;
-
-    /**
-     * @var
-     */
     protected $mysql_credentials;
 
     /**
@@ -90,8 +85,6 @@ class ProdCommand extends Command
             ->setDescription('Install a SeAT Production Instance')
             ->addOption('seat-destination', 's', InputOption::VALUE_OPTIONAL,
                 'Destination folder to install to', '/var/www/seat')
-            ->addOption('yes', 'y', InputOption::VALUE_NONE,
-                'Automatically answer \'yes\' to all questions')
             ->setHelp('This command allows you to install SeAT on your system');
     }
 
@@ -107,9 +100,6 @@ class ProdCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title('SeAT Installer');
 
-        // Set the property to let questions know they should just continue
-        $this->continue = $input->getOption('yes');
-
         // Start by figuring out where we are going to install SeAT
         $this->seat_destination = $input->getOption('seat-destination');
 
@@ -121,15 +111,10 @@ class ProdCommand extends Command
             return;
         }
 
-        // Get the webserver to use. If we can just continue,
-        // default to apache.
-        if ($this->continue)
-            $this->webserver_choice = 'apache';
-
-        else
-            $this->webserver_choice = $this->io->choice('Which webserver do you want to use?', [
-                'apache', 'nginx'
-            ], 'apache');
+        // Get the webserver to use.
+        $this->webserver_choice = $this->io->choice('Which webserver do you want to use?', [
+            'apache', 'nginx'
+        ], 'apache');
 
         // Prepare the SeAT installation directory
         $this->createInstallDirectory();
@@ -192,7 +177,7 @@ class ProdCommand extends Command
 
         $this->io->text('It may be needed to restart the installer sometimes to continue.');
 
-        if ($this->continue || $this->io->confirm('Would like to continue with the installation?'))
+        if ($this->io->confirm('Would like to continue with the installation?'))
             return true;
 
         return false;
@@ -220,10 +205,6 @@ class ProdCommand extends Command
         $this->io->text('Checking Requirements');
 
         $requirements = new Requirements($this->io);
-
-        // Make the class continue with defaults if needed
-        if ($this->continue)
-            $requirements->setContinue();
 
         $requirements->checkSoftwareRequirements();
 
