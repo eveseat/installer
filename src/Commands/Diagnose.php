@@ -22,12 +22,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Commands;
 
 
+use Dotenv\Dotenv;
 use Seat\Installer\Exceptions\SeatNotFoundException;
 use Seat\Installer\Traits\DetectsWebserver;
 use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Traits\FindsSeatInstallations;
 use Seat\Installer\Traits\RunsCommands;
 use Seat\Installer\Utils\Apache;
+use Seat\Installer\Utils\Requirements;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -87,9 +89,20 @@ class Diagnose extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title('SeAT Diagnostics');
 
+        // Ensure that we are on a supported operating system
+        $requirements = new Requirements($this->io);
+        if (!$requirements->hasSupportedOs()) {
+
+            $this->io->error('Sorry, this operating system is not yet supported.');
+
+            return;
+        }
+
         // Start by ensuring that the SeAT path is ok.
         $this->findAndSetSeatPath($input);
 
+        // Continue by running the diagnostics methods
+        $this->checkSeatConfiguration();
         $this->checkPermissions();
 
     }
@@ -121,6 +134,43 @@ class Diagnose extends Command
     }
 
     /**
+     * Get the SeAT configuration from its .env
+     */
+    protected function checkSeatConfiguration()
+    {
+
+        $this->io->text('Checking SeAT configuration file');
+        $config_ok = true;
+
+        $env = new Dotenv($this->seat_path);
+        $env->load();
+
+        $required_values = [
+            'APP_KEY', 'DB_CONNECTION', 'DB_HOST', 'DB_DATABASE', 'CACHE_DRIVER',
+            'QUEUE_DRIVER', 'REDIS_HOST', 'MAIL_DRIVER'
+        ];
+
+        foreach ($required_values as $value) {
+
+            if (!getenv($value)) {
+
+                $this->io->error('The value for ' . $value . ' must be set in the ' .
+                    'SeAT `.env` file.');
+                $config_ok = false;
+            }
+
+        }
+
+        if (getenv('APP_DEBUG') != 'false')
+            $this->io->warning('SeAT is in DEBUG mode. This is dangerous as errors can be ' .
+                'very verbose and reveal sensitive information.');
+
+        if ($config_ok)
+            $this->io->success('Configuration check passed');
+
+    }
+
+    /**
      * Checks folder permisions to ensure that the webserver
      * user has the required access to do things like write to
      * logfiles etc.
@@ -137,7 +187,13 @@ class Diagnose extends Command
 
         $this->io->text('Detected webserver in use as: ' . $webserver);
         $webserver = new $this->webserver_classes[$webserver]($this->io);
-        $user = $webserver->getUser();
+        if (!$user = $webserver->getUser()) {
+
+            $this->io->warning('Unable to determine webserver user for your OS.' .
+                'Skipping permissions check');
+
+            return;
+        }
         $this->io->text('User for webserver detected as: ' . $user);
 
         // Posix info about the user that should own
@@ -162,7 +218,7 @@ class Diagnose extends Command
 
         } else {
 
-            $this->io->success('Ownership OK for ' . $storage);
+            $this->io->success('Ownership check for ' . $storage . ' passed');
         }
 
         // Check the storage folders octal permissions
@@ -178,7 +234,7 @@ class Diagnose extends Command
 
         } else {
 
-            $this->io->success('Permissions OK for ' . $storage);
+            $this->io->success('Permissions check for ' . $storage . ' passed');
         }
 
     }

@@ -101,7 +101,7 @@ class Requirements extends AbstractUtil
     /**
      * @return bool
      */
-    private function hasSupportedOs(): bool
+    public function hasSupportedOs(): bool
     {
 
         $os = $this->getOperatingSystem();

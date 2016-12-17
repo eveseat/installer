@@ -58,6 +58,7 @@ class Apache extends AbstractUtil implements WebServer
             '16.04' => 'www-data',
         ],
         'centos' => [
+            '6' => 'apache',
             '7' => 'apache'
         ]
     ];
@@ -213,11 +214,17 @@ class Apache extends AbstractUtil implements WebServer
      *
      * @return mixed
      */
-    public function getuser(): string
+    public function getuser()
     {
 
         $os = $this->getOperatingSystem()['os'];
         $ver = $this->getOperatingSystem()['version'];
+
+        if (
+            !array_key_exists($os, $this->webserver_users) ||
+            !array_key_exists($ver, $this->webserver_users[$os])
+        )
+            return false;
 
         return $this->webserver_users[$os][$ver];
     }

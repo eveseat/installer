@@ -60,7 +60,7 @@ interface WebServer
      *
      * @return mixed
      */
-    public function getuser(): string;
+    public function getuser();
 
 
 }
