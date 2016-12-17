@@ -24,13 +24,15 @@ namespace Seat\Installer\Commands;
 
 use Dotenv\Dotenv;
 use Exception;
-use Predis\Client;
+use GuzzleHttp\Client as GuzzleClient;
+use Predis\Client as RedistClient;
 use Seat\Installer\Exceptions\SeatNotFoundException;
 use Seat\Installer\Traits\DetectsWebserver;
 use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Traits\FindsSeatInstallations;
 use Seat\Installer\Traits\RunsCommands;
 use Seat\Installer\Utils\Apache;
+use Seat\Installer\Utils\MySql;
 use Seat\Installer\Utils\Requirements;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -103,6 +105,8 @@ class Diagnose extends Command
         $this->checkSeatConfiguration();
         $this->checkPermissions();
         $this->checkRedis();
+        $this->checkMysql();
+        $this->checkNetwork();
 
     }
 
@@ -354,7 +358,7 @@ class Diagnose extends Command
 
         try {
 
-            $redis = new Client([
+            $redis = new RedistClient([
                 'scheme' => 'tcp',
                 'host'   => $host,
                 'port'   => $port
@@ -372,6 +376,60 @@ class Diagnose extends Command
         }
 
         return $this->io->error('Redis check failed. Unable to get diagnostics testing value.');
+
+    }
+
+    /**
+     * Test a MySQL connection
+     */
+    public function checkMysql()
+    {
+
+        $this->io->text('Testing MySQL authentication and connectivity');
+
+        $username = getenv('DB_USERNAME');
+        $password = getenv('DB_PASSWORD');
+        $database = getenv('DB_DATABASE');
+
+        if (!$username || !$database) {
+
+            $this->io->warning('SeAT configuration for the database appears incomplete. ' .
+                'Going to try with some defaults.');
+
+            $username = $database = 'seat';
+        }
+
+        $mysql = new MySql($this->io);
+        $mysql->setCredentials([
+            'username' => $username,
+            'password' => $password,
+            'database' => $database,
+        ]);
+
+        if ($mysql->testCredentails())
+            return $this->io->success('MySQL connectivity check passed');
+
+        return $this->io->error('Unable to succesfully connect and authenticate to the databse');
+
+    }
+
+    /**
+     * Check the network connectivity to the EVE Online API Server
+     */
+    public function checkNetwork()
+    {
+
+        $this->io->text('Checking connectivity to the EVE Online API server');
+
+        $url = 'https://api.eveonline.com/server/serverstatus.xml.aspx';
+
+        $client = new GuzzleClient();
+        $response = $client->get($url);
+
+        if ($response->getStatusCode() == 200)
+            return $this->io->success('Connectivity check to EVE Online API server passed');
+
+        return $this->io->error('Failed connectivity check to EVE Online API server');
 
     }
 

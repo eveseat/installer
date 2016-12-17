@@ -297,12 +297,12 @@ class ProdCommand extends Command
 
                     return $input;
                 });
-                $databse = $this->io->ask('Database');
+                $database = $this->io->ask('Database');
 
                 $mysql->setCredentials([
                     'username' => $username,
                     'password' => $password,
-                    'database' => $databse,
+                    'database' => $database,
                 ]);
 
                 $connected = $mysql->testCredentails();
