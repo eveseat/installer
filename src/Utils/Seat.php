@@ -95,20 +95,6 @@ class Seat extends AbstractUtil
     }
 
     /**
-     * Configure filesystem permissions.
-     */
-    protected function setPermissions()
-    {
-
-        $this->io->text('Fixing up filesystem permissions for SeAT');
-
-        $fs = new Filesystem();
-        $fs->chown($this->getPath(), 'www-data', true);
-        $fs->chmod($this->getPath() . 'storage', 0755, 0000, true);
-
-    }
-
-    /**
      * @param array $credentials
      */
     public function configure(array $credentials)
