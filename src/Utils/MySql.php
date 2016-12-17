@@ -63,6 +63,10 @@ class MySql extends AbstractUtil
             '16.04' => [
                 'systemctl enable mysql.service',
                 'systemctl restart mysql.service',
+            ],
+            '16.10' => [
+                'systemctl enable mysql.service',
+                'systemctl restart mysql.service',
             ]
         ],
 

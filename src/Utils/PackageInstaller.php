@@ -56,6 +56,10 @@ class PackageInstaller extends AbstractUtil
             '16.04' => [
                 'pdo_mysql' => 'php-mysql',
                 'posix'     => 'php-common',
+            ],
+            '16.10' => [
+                'pdo_mysql' => 'php-mysql',
+                'posix'     => 'php-common',
             ]
         ],
 
@@ -75,6 +79,11 @@ class PackageInstaller extends AbstractUtil
         // Ubuntu
         'ubuntu' => [
             '16.04' => [
+                'unzip'     => 'unzip',
+                'git'       => 'git',
+                'pdo_mysql' => 'php-mysql',
+            ],
+            '16.10' => [
                 'unzip'     => 'unzip',
                 'git'       => 'git',
                 'pdo_mysql' => 'php-mysql',
@@ -100,6 +109,25 @@ class PackageInstaller extends AbstractUtil
         'ubuntu' => [
             // Ubuntu 16.04 LTS
             '16.04' => [
+                'mysql'      => [
+                    'mysql-server', 'expect'
+                ],
+                'php'        => [
+                    'php-cli', 'php-mcrypt', 'php-intl',
+                    'php-mysql', 'php-curl', 'php-gd',
+                    'php-mbstring', 'php-bz2', 'php-dom'
+                ],
+                'apache'     => [
+                    'apache2', 'libapache2-mod-php'
+                ],
+                'redis'      => [
+                    'redis-server'
+                ],
+                'supervisor' => [
+                    'supervisor'
+                ]
+            ],
+            '16.10' => [
                 'mysql'      => [
                     'mysql-server', 'expect'
                 ],

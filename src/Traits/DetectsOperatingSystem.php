@@ -49,7 +49,11 @@ trait DetectsOperatingSystem
         'ubuntu' => [
             [
                 'version'   => '16.04',
-                'signature' => 'Ubuntu 16.'
+                'signature' => 'Ubuntu 16.04'
+            ],
+            [
+                'version'   => '16.10',
+                'signature' => 'Ubuntu 16.10'
             ]
         ],
         'centos' => [

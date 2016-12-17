@@ -55,6 +55,10 @@ class Supervisor extends AbstractUtil
                 'systemctl enable supervisor.service',
                 'systemctl restart supervisor.service'
             ],
+            '16.10' => [
+                'systemctl enable supervisor.service',
+                'systemctl restart supervisor.service'
+            ],
         ],
         'centos' => [
             '7' => [
@@ -69,7 +73,8 @@ class Supervisor extends AbstractUtil
      */
     protected $config_locations = [
         'ubuntu' => [
-            '16.04' => '/etc/supervisor/conf.d/seat.conf'
+            '16.04' => '/etc/supervisor/conf.d/seat.conf',
+            '16.10' => '/etc/supervisor/conf.d/seat.conf',
         ],
         'centos' => [
             '7' => '/etc/supervisord.d/seat.ini'

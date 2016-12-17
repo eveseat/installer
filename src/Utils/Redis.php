@@ -42,6 +42,10 @@ class Redis extends AbstractUtil
             '16.04' => [
                 'systemctl enable redis.service',
                 'systemctl restart redis.service',
+            ],
+            '16.10' => [
+                'systemctl enable redis.service',
+                'systemctl restart redis.service',
             ]
         ],
 
