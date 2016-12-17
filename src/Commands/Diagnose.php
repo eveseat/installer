@@ -35,6 +35,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Class Diagnose
@@ -49,7 +50,6 @@ class Diagnose extends Command
      * @var SymfonyStyle
      */
     protected $io;
-
 
     /**
      * @var
@@ -89,21 +89,75 @@ class Diagnose extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title('SeAT Diagnostics');
 
-        // Ensure that we are on a supported operating system
-        $requirements = new Requirements($this->io);
-        if (!$requirements->hasSupportedOs()) {
-
-            $this->io->error('Sorry, this operating system is not yet supported.');
-
+        // Ensure that we have all the min requirements
+        if (!$this->checkRequirements())
             return;
-        }
 
         // Start by ensuring that the SeAT path is ok.
         $this->findAndSetSeatPath($input);
 
         // Continue by running the diagnostics methods
+        $this->checkPhpExtentions();
         $this->checkSeatConfiguration();
         $this->checkPermissions();
+
+    }
+
+    /**
+     * Check some software requirements.
+     *
+     * @return bool
+     */
+    protected function checkRequirements(): bool
+    {
+
+        $this->io->text('Checking minumim software requirements');
+
+        $check_ok = true;
+
+        // Ensure that we are on a supported operating system
+        $requirements = new Requirements($this->io);
+        if (!$requirements->hasSupportedOs()) {
+
+            $this->io->error('Sorry, this operating system is not yet supported.');
+            $check_ok = false;
+        }
+
+        if (!$requirements->hasMinimumPhpVersion()) {
+
+            $this->io->error('At least PHP7 is required for SeAT. Your version: ' . PHP_VERSION);
+            $check_ok = false;
+        }
+
+        return $check_ok;
+    }
+
+    /**
+     * Check that the required PHP extentions are loaded.
+     */
+    protected function checkPhpExtentions()
+    {
+
+        $this->io->text('Checking PHP extentions');
+
+        $check_ok = true;
+
+        $extentions = [
+            'mcrypt', 'intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom'
+        ];
+
+        foreach ($extentions as $extention) {
+
+            if (!extension_loaded($extention)) {
+
+                $this->io->error('PHP Extention ' . $extention . ' not loaded.');
+                $check_ok = false;
+
+            }
+        }
+
+        if ($check_ok)
+            $this->io->success('PHP Extention check passed');
 
     }
 
@@ -114,6 +168,8 @@ class Diagnose extends Command
      */
     protected function findAndSetSeatPath(InputInterface $input)
     {
+
+        $this->io->text('Locating SeAT');
 
         // Check if we have a path to test, or should autodetect.
         if (!is_null($input->getOption('seat-path'))) {
@@ -178,6 +234,8 @@ class Diagnose extends Command
     protected function checkPermissions()
     {
 
+        $this->io->text('Checking filesystem permissions');
+
         if (is_null($webserver = $this->getWebserver())) {
 
             $this->io->warning('Unable to detect the webserver in use. Skipping permissions check.');
@@ -199,43 +257,75 @@ class Diagnose extends Command
         // Posix info about the user that should own
         // and have permissions to the directories.
         $posix_user_info = posix_getpwnam($user);
+        $this->io->text('Webserver User UID: ' . $posix_user_info['uid']);
 
         // Check folder access.
         $storage = $this->seat_path . 'storage';
         $this->io->text('Checking path: ' . $storage);
-        $storage_permissions = alt_stat($storage);
+        if ($this->checkFileOwnership($storage, $user))
+            $this->io->success('Permission and ownership check for ' . $storage . ' passed');
 
-        // Check the storage folders ownership
+        $finder = new Finder();
+        $files_ok = true;
+        foreach ($finder->files()->in($storage) as $file) {
+
+            if (!$this->checkFileOwnership($file, $user))
+                $files_ok = false;
+        }
+
+        if ($files_ok)
+            $this->io->success('Files and folders in ' . $storage . ' check passed');
+
+    }
+
+    /**
+     * @param string $directory
+     * @param string $required_user
+     * @param string $required_octal
+     *
+     * @return bool
+     */
+    private function checkFileOwnership(
+        string $directory, string $required_user, string $required_octal = '755'): bool
+    {
+
+        $check_ok = true;
+
+        // Get the directory permissions.
+        $storage_permissions = alt_stat($directory);
+
+        // Get the unix permissions info for the user.
+        $posix_user_info = posix_getpwnam($required_user);
+
+        // Compare the permissions of the user, to that of the file owner
         if ($posix_user_info['uid'] != $storage_permissions['owner']['fileowner']) {
 
-            $this->io->text('Webserver User UID: ' . $posix_user_info['uid']);
-            $this->io->text('Storage folder owner UID: ' . $storage_permissions['owner']['fileowner']);
-
-            $this->io->error('The storage directory is not owned by the webserver user.');
+            $this->io->error('The directory ' . $directory . ' is not owned by ' . $required_user);
             $this->io->note('You can try and fix this with: ' .
-                $this->findExecutable('chown') . ' -R ' . $user . ':' . $user . ' ' . $storage
+                $this->findExecutable('chown') . ' -R ' .
+                $required_user . ':' . $required_user . ' ' . $directory
             );
 
-        } else {
+            $check_ok = false;
 
-            $this->io->success('Ownership check for ' . $storage . ' passed');
         }
 
         // Check the storage folders octal permissions
-        if ($storage_permissions['perms']['octal1'] != '755') {
+        if ($storage_permissions['perms']['octal1'] != $required_octal) {
 
-            $this->io->text('Permissions for ' . $storage . ': ' .
+            $this->io->text('Permissions for ' . $directory . ': ' .
                 $storage_permissions['perms']['octal1'] . ' ( ' .
                 $storage_permissions['perms']['human'] . ' )');
-            $this->io->error($storage . ' does not have the correct octal permissions.');
+            $this->io->error($directory . ' does not have the correct octal permissions.');
             $this->io->note('You can try and fix this with: ' .
-                $this->findExecutable('chmod') . ' -R 755 ' . $storage
+                $this->findExecutable('chmod') . ' -R 755 ' . $directory
             );
 
-        } else {
+            $check_ok = false;
 
-            $this->io->success('Permissions check for ' . $storage . ' passed');
         }
+
+        return $check_ok;
 
     }
 

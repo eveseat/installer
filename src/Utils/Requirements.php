@@ -92,7 +92,7 @@ class Requirements extends AbstractUtil
     /**
      * @return bool
      */
-    private function hasMinimumPhpVersion(): bool
+    public function hasMinimumPhpVersion(): bool
     {
 
         return version_compare(PHP_VERSION, $this->phpversion) >= 0;
