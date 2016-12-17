@@ -111,10 +111,16 @@ class ProdCommand extends Command
             return;
         }
 
-        // Get the webserver to use.
-        $this->webserver_choice = $this->io->choice('Which webserver do you want to use?', [
-            'apache', 'nginx'
-        ], 'apache');
+        // No interaction means we have to set the webserver
+        // choice manually.
+        if ($input->getOption('no-interaction'))
+            $this->webserver_choice = 'apache';
+
+        else
+            // Get the webserver to use.
+            $this->webserver_choice = $this->io->choice('Which webserver do you want to use?', [
+                'apache', 'nginx'
+            ], 'apache');
 
         // Prepare the SeAT installation directory
         $this->createInstallDirectory();
