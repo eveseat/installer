@@ -236,7 +236,7 @@ class SeatCommand extends Command
     {
 
         $supervisor = new Supervisor($this->io);
-        $supervisor->restartSupervisor();
+        $supervisor->enable();
 
     }
 
