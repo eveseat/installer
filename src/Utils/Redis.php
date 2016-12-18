@@ -53,6 +53,10 @@ class Redis extends AbstractUtil
             '7' => [
                 'systemctl enable redis.service',
                 'systemctl restart redis.service',
+            ],
+            '6' => [
+                'chkconfig redis on',
+                '/etc/init.d/redis restart'
             ]
         ]
     ];

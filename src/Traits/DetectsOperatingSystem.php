@@ -60,6 +60,10 @@ trait DetectsOperatingSystem
             [
                 'version'   => '7',
                 'signature' => 'CentOS Linux release 7'
+            ],
+            [
+                'version' => '6',
+                'signature' => 'CentOS release 6.'
             ]
         ],
     ];

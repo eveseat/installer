@@ -74,6 +74,10 @@ class MySql extends AbstractUtil
             '7' => [
                 'systemctl enable mariadb.service',
                 'systemctl restart mariadb.service',
+            ],
+            '6' => [
+                'chkconfig mysqld on',
+                '/etc/init.d/mysqld restart'
             ]
         ]
     ];

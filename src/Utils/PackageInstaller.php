@@ -67,6 +67,10 @@ class PackageInstaller extends AbstractUtil
             '7' => [
                 'pdo_mysql' => 'php-mysql',
                 'posix'     => 'php-posix',
+            ],
+            '6' => [
+                'pdo_mysql' => 'php-mysql',
+                'posix'     => 'php-posix',
             ]
         ]
     ];
@@ -97,6 +101,11 @@ class PackageInstaller extends AbstractUtil
                 'git'       => 'git',
                 'pdo_mysql' => 'php-mysql'
             ],
+            '6' => [
+                'unzip'     => 'unzip',
+                'git'       => 'git',
+                'pdo_mysql' => 'php-mysql'
+            ]
         ]
     ];
 
@@ -154,6 +163,25 @@ class PackageInstaller extends AbstractUtil
             '7' => [
                 'mysql'      => [
                     'mariadb-server', 'expect'
+                ],
+                'php'        => [
+                    'php-mysql', 'php-cli', 'php-mcrypt', 'php-process',
+                    'php-mbstring', 'php-intl', 'php-dom', 'php-gd'
+                ],
+                'apache'     => [
+                    'httpd', 'php'
+                ],
+                'redis'      => [
+                    'redis'
+                ],
+                'supervisor' => [
+                    'supervisor'
+                ]
+            ],
+            // CentOS 6
+            '6' => [
+                'mysql'      => [
+                    'mysql', 'mysql-server', 'expect'
                 ],
                 'php'        => [
                     'php-mysql', 'php-cli', 'php-mcrypt', 'php-process',
