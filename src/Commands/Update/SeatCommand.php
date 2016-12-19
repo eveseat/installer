@@ -56,9 +56,7 @@ class SeatCommand extends Command
         $this
             ->setName('update:seat')
             ->addOption(
-                'seat-path',
-                'p',
-                InputOption::VALUE_OPTIONAL,
+                'seat-path', 's', InputOption::VALUE_OPTIONAL,
                 'The SeAT path to update. If not specified, an autodetection attempt will be made.',
                 null
             )

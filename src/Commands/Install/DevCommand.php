@@ -113,7 +113,7 @@ class DevCommand extends Command
         $this
             ->setName('install:development')
             // Default the installation to seat-development
-            ->addOption('destination', 'd', InputOption::VALUE_REQUIRED,
+            ->addOption('seat-destination', 's', InputOption::VALUE_REQUIRED,
                 'Destination folder to install to', 'seat-development')
             ->setDescription('Install a SeAT Development Instance')
             ->setHelp(
