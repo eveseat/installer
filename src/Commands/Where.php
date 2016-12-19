@@ -22,7 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Commands;
 
 
-use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Traits\FindsSeatInstallations;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,13 +29,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class Cd
+ * Class Where
  * @package Seat\Installer\Commands
  */
-class Cd extends Command
+class Where extends Command
 {
 
-    use FindsExecutables, FindsSeatInstallations;
+    use FindsSeatInstallations;
 
     /**
      * @var
@@ -55,8 +54,8 @@ class Cd extends Command
     {
 
         $this
-            ->setName('cd')
-            ->setDescription('Cd to the SeAT directory')
+            ->setName('where')
+            ->setDescription('Where to the SeAT directory')
             ->setHelp('This command allows you to change directories to you SeAT installation');
     }
 
@@ -71,11 +70,8 @@ class Cd extends Command
 
         $this->io = new SymfonyStyle($input, $output);
 
-        // Prepare the command to run.
-        $command = $this->findExecutable('cd') . ' ' . $this->findSeatInstallation();
-
-        // Run the command
-        $this->runCommandWithOutput($command, '');
+        // Find and print the directory
+        $this->io->success('SeAT is at: ' . $this->findSeatInstallation());
 
         return;
 
