@@ -28,6 +28,8 @@ $app->add(new \Seat\Installer\Commands\Update\SeatCommand);
 $app->add(new \Seat\Installer\Commands\Install\ProdCommand);
 $app->add(new \Seat\Installer\Commands\Install\DevCommand);
 
+// Helper Commands
+$app->add(new \Seat\Installer\Commands\Cd);
 $app->add(new \Seat\Installer\Commands\Run);
 
 // Diagnostics
