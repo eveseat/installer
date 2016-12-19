@@ -40,7 +40,11 @@ trait FindsSeatInstallations
     protected $possible_path = [
         '/var/www/seat/',
         '/var/www/html/',
+        '/var/seat/',
         '/usr/local/nginx/seat/',
+        '/srv/http/seat/',
+        '/srv/www/seat/',
+        '/srv/seat/',
     ];
 
     /**
