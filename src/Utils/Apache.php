@@ -48,7 +48,7 @@ class Apache extends AbstractUtil implements WebServer
     protected $vhost_locations = [
         'ubuntu' => '/etc/apache2/sites-enabled/',
         'centos' => '/etc/httpd/conf.d/',
-        'debian' => '/etc/apache2/sites-enabled',
+        'debian' => '/etc/apache2/sites-enabled/',
     ];
 
     /**
