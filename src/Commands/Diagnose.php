@@ -25,7 +25,7 @@ namespace Seat\Installer\Commands;
 use Dotenv\Dotenv;
 use Exception;
 use GuzzleHttp\Client as GuzzleClient;
-use Predis\Client as RedistClient;
+use Predis\Client as RedisClient;
 use Seat\Installer\Exceptions\SeatNotFoundException;
 use Seat\Installer\Traits\DetectsWebserver;
 use Seat\Installer\Traits\FindsExecutables;
@@ -358,7 +358,7 @@ class Diagnose extends Command
 
         try {
 
-            $redis = new RedistClient([
+            $redis = new RedisClient([
                 'scheme' => 'tcp',
                 'host'   => $host,
                 'port'   => $port
