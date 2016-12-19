@@ -101,9 +101,6 @@ trait DetectsOperatingSystem
 
             if ($fs->exists($filename)) {
 
-                // Update the distro
-                $this->os_version['os'] = $distro;
-
                 // Read the release file to try and determine the version.
                 $contents = file_get_contents($filename);
 
@@ -113,6 +110,8 @@ trait DetectsOperatingSystem
                     // the version match.
                     if (strpos($contents, $info['signature']) !== false) {
 
+                        // Update version information
+                        $this->os_version['os'] = $distro;
                         $this->os_version['version'] = $info['version'];
 
                     }
