@@ -126,30 +126,30 @@ class ProdCommand extends Command
                 'apache', 'nginx'
             ], 'apache');
 
-//        // Prepare the SeAT installation directory
-//        $this->createInstallDirectory();
-//
-//        // Process requirements
-//        if (!$this->checkRequirements())
-//            return;
-//
-//        $this->checkComposer();
-//
-//        $this->updateOs();
-//
-//        $this->configureMySql();
-//
-//        $this->configureRedis();
-//
-//        $this->installPhpPackages();
-//
-//        $this->installSeat();
+        // Prepare the SeAT installation directory
+        $this->createInstallDirectory();
+
+        // Process requirements
+        if (!$this->checkRequirements())
+            return;
+
+        $this->checkComposer();
+
+        $this->updateOs();
+
+        $this->configureMySql();
+
+        $this->configureRedis();
+
+        $this->installPhpPackages();
+
+        $this->installSeat();
 
         $this->installWebserver();
 
-//        $this->setupCrontab();
+        $this->setupCrontab();
 
-//        $this->setupSupervisor();
+        $this->setupSupervisor();
 
         $this->io->success('Installation complete!');
         $this->io->text('Remember to set an admin password with \'php artisan seat:admin:reset\'');
