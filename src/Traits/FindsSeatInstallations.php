@@ -22,6 +22,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Seat\Installer\Traits;
 
 
+use Dotenv\Dotenv;
+use Dotenv\Exception\InvalidPathException;
 use Seat\Installer\Exceptions\SeatNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -74,6 +76,45 @@ trait FindsSeatInstallations
 
         $fs = new Filesystem();
 
+        // First attempt will be to try and read the seat-tool.conf
+        // to try and find SeAT.
+        try {
+
+            // Load values from the config file into the ENV
+            (new Dotenv('/etc', 'seat-tool.conf'))->load();
+
+            $config_path = getenv('SEAT_PATH');
+
+            // Test seat-tool.conf first
+            if ($config_path) {
+
+                // Check if the path exists.
+                if ($fs->exists($config_path)) {
+
+                    if ($this->testPath($config_path)) {
+
+                        // Looks good!
+                        return $config_path;
+
+                    } else {
+
+                        // Warn that the value might be invalid
+                        echo('SeAT path in /etc/seat-tool.conf appears invalid!');
+                    }
+
+                } else {
+
+                    echo('SeAT path /etc/seat-tool.conf does not exist.');
+                }
+            }
+
+        } catch (InvalidPathException $_) {
+            // Ignore this exception. The config file is not readable or
+            // not present.
+        }
+
+        // Config not set, or SEAT_PATH is not valid. Enumerate the filesystem
+        // to try and find SeAT.
         foreach ($this->possible_path as $path) {
 
             // If the path does not exist, well just continue then
