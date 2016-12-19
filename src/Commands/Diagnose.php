@@ -326,7 +326,7 @@ class Diagnose extends Command
                 $storage_permissions['perms']['human'] . ' )');
             $this->io->error($directory . ' does not have the correct octal permissions.');
             $this->io->note('You can try and fix this with: ' .
-                $this->findExecutable('chmod') . ' -R 755 ' . $directory
+                $this->findExecutable('chmod') . ' -R ' . $required_octal . ' ' . $directory
             );
 
             $check_ok = false;
