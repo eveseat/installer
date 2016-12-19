@@ -55,8 +55,8 @@ class Where extends Command
 
         $this
             ->setName('where')
-            ->setDescription('Where to the SeAT directory')
-            ->setHelp('This command allows you to change directories to you SeAT installation');
+            ->setDescription('Shows where is the SeAT directory')
+            ->setHelp('This command allows you to locate your SeAT installation');
     }
 
     /**
