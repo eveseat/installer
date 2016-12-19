@@ -146,6 +146,9 @@ class PackageInstaller extends AbstractUtil
                 'apache'     => [
                     'apache2', 'libapache2-mod-php'
                 ],
+                'nginx'      => [
+                    'nginx', 'php-fpm'
+                ],
                 'redis'      => [
                     'redis-server'
                 ],
@@ -164,6 +167,9 @@ class PackageInstaller extends AbstractUtil
                 ],
                 'apache'     => [
                     'apache2', 'libapache2-mod-php'
+                ],
+                'nginx'      => [
+                    'nginx', 'php-fpm'
                 ],
                 'redis'      => [
                     'redis-server'
@@ -188,6 +194,9 @@ class PackageInstaller extends AbstractUtil
                 'apache'     => [
                     'httpd', 'php'
                 ],
+                'nginx'      => [
+                    'nginx', 'php-fpm'
+                ],
                 'redis'      => [
                     'redis'
                 ],
@@ -206,6 +215,9 @@ class PackageInstaller extends AbstractUtil
                 ],
                 'apache'     => [
                     'httpd', 'php'
+                ],
+                'nginx'      => [
+                    'nginx', 'php-fpm'
                 ],
                 'redis'      => [
                     'redis'
@@ -228,6 +240,9 @@ class PackageInstaller extends AbstractUtil
                 ],
                 'apache'     => [
                     'apache2', 'libapache2-mod-php'
+                ],
+                'nginx'      => [
+                    'nginx', 'php-fpm'
                 ],
                 'redis'      => [
                     'redis-server'

@@ -38,11 +38,6 @@ class Apache extends AbstractUtil implements WebServer
     use DetectsOperatingSystem, DownloadsResources;
 
     /**
-     * @var
-     */
-    protected $web_root;
-
-    /**
      * @var array
      */
     protected $vhost_locations = [

@@ -48,6 +48,8 @@ trait DownloadsResources
         'apache-vhost-ubuntu.conf',
         'apache-vhost-centos.conf',
         'apache-vhost-debian.conf',
+        'nginx-server-block-ubuntu.conf',
+        'nginx-server-block-centos.conf',
     ];
 
     /**

@@ -111,7 +111,7 @@ class Requirements extends AbstractUtil
         if (array_key_exists($os['os'], $this->supported_os) &&
             in_array($os['version'], $this->supported_os[$os['os']])
         )
-            $this->io->text('Opering system detected as: ' . $os['os'] . ' ' . $os['version']);
+            $this->io->text('Operating system detected as: ' . $os['os'] . ' ' . $os['version']);
         else
             $this->io->note('Unable to determine Operating System');
 

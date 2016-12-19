@@ -25,6 +25,7 @@ use Seat\Installer\Utils\Apache;
 use Seat\Installer\Utils\Composer;
 use Seat\Installer\Utils\Crontab;
 use Seat\Installer\Utils\MySql;
+use Seat\Installer\Utils\Nginx;
 use Seat\Installer\Utils\OsUpdates;
 use Seat\Installer\Utils\PackageInstaller;
 use Seat\Installer\Utils\Redis;
@@ -71,6 +72,9 @@ class ProdCommand extends Command
     protected $webserver_info = [
         'apache' => [
             'installer' => Apache::class,
+        ],
+        'nginx'  => [
+            'installer' => Nginx::class,
         ]
     ];
 
@@ -122,30 +126,30 @@ class ProdCommand extends Command
                 'apache', 'nginx'
             ], 'apache');
 
-        // Prepare the SeAT installation directory
-        $this->createInstallDirectory();
-
-        // Process requirements
-        if (!$this->checkRequirements())
-            return;
-
-        $this->checkComposer();
-
-        $this->updateOs();
-
-        $this->configureMySql();
-
-        $this->configureRedis();
-
-        $this->installPhpPackages();
-
-        $this->installSeat();
+//        // Prepare the SeAT installation directory
+//        $this->createInstallDirectory();
+//
+//        // Process requirements
+//        if (!$this->checkRequirements())
+//            return;
+//
+//        $this->checkComposer();
+//
+//        $this->updateOs();
+//
+//        $this->configureMySql();
+//
+//        $this->configureRedis();
+//
+//        $this->installPhpPackages();
+//
+//        $this->installSeat();
 
         $this->installWebserver();
 
-        $this->setupCrontab();
+//        $this->setupCrontab();
 
-        $this->setupSupervisor();
+//        $this->setupSupervisor();
 
         $this->io->success('Installation complete!');
         $this->io->text('Remember to set an admin password with \'php artisan seat:admin:reset\'');
