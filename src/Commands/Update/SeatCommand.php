@@ -110,6 +110,31 @@ class SeatCommand extends Command
 
     }
 
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     *
+     * @throws \Seat\Installer\Exceptions\SeatNotFoundException
+     */
+    protected function findAndSetSeatPath(InputInterface $input)
+    {
+
+        // Check if we have a path to test, or should autodetect.
+        if (!is_null($input->getOption('seat-path'))) {
+
+            if ($this->isSeatInstallation($input->getOption('seat-path')))
+                $this->seat_path = $input->getOption('seat-path');
+            else
+                throw new SeatNotFoundException('SeAT could not be found at: ' .
+                    $input->getOption('seat-path'));
+
+        } else {
+
+            $this->seat_path = $this->findSeatInstallation();
+        }
+
+        $this->io->text('SeAT Path detected at: ' . $this->seat_path);
+
+    }
 
     /**
      * @return bool
@@ -140,32 +165,6 @@ class SeatCommand extends Command
     }
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     *
-     * @throws \Seat\Installer\Exceptions\SeatNotFoundException
-     */
-    protected function findAndSetSeatPath(InputInterface $input)
-    {
-
-        // Check if we have a path to test, or should autodetect.
-        if (!is_null($input->getOption('seat-path'))) {
-
-            if ($this->isSeatInstallation($input->getOption('seat-path')))
-                $this->seat_path = $input->getOption('seat-path');
-            else
-                throw new SeatNotFoundException('SeAT could not be found at: ' .
-                    $input->getOption('seat-path'));
-
-        } else {
-
-            $this->seat_path = $this->findSeatInstallation();
-        }
-
-        $this->io->text('SeAT Path detected at: ' . $this->seat_path);
-
-    }
-
-    /**
      * Mark SeAT as down
      */
     public function markSeatOffline()
@@ -174,17 +173,6 @@ class SeatCommand extends Command
         $seat = new Seat($this->io);
         $seat->setPath($this->seat_path);
         $seat->markApplicationDown();
-    }
-
-    /**
-     * Mark SeAT as up
-     */
-    public function markSeatOnline()
-    {
-
-        $seat = new Seat($this->io);
-        $seat->setPath($this->seat_path);
-        $seat->markApplicationUp();
     }
 
     /**
@@ -236,6 +224,17 @@ class SeatCommand extends Command
         $supervisor = new Supervisor($this->io);
         $supervisor->enable();
 
+    }
+
+    /**
+     * Mark SeAT as up
+     */
+    public function markSeatOnline()
+    {
+
+        $seat = new Seat($this->io);
+        $seat->setPath($this->seat_path);
+        $seat->markApplicationUp();
     }
 
 }

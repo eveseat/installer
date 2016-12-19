@@ -26,7 +26,6 @@ use Seat\Installer\Exceptions\ArtisanCommandFailed;
 use Seat\Installer\Exceptions\SeatDownloadFailedException;
 use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Class Seat
@@ -83,15 +82,6 @@ class Seat extends AbstractUtil
     {
 
         $this->path = rtrim($path, '/') . '/';
-    }
-
-    /**
-     * Return the artisan command relative to the SeAT path
-     */
-    public function getArtisan(): string
-    {
-
-        return $this->findExecutable('php') . ' ' . $this->getPath() . 'artisan';
     }
 
     /**
@@ -161,6 +151,42 @@ class Seat extends AbstractUtil
     }
 
     /**
+     * Return the artisan command relative to the SeAT path
+     */
+    public function getArtisan(): string
+    {
+
+        return $this->findExecutable('php') . ' ' . $this->getPath() . 'artisan';
+    }
+
+    /**
+     * @throws \Seat\Installer\Exceptions\PackageInstallationFailedException
+     */
+    protected function updateSde()
+    {
+
+        // Prep the path to php artisan
+        $command = $this->getArtisan() . ' eve:update-sde -n';
+
+        // Run the setup command
+        $success = $this->runCommandWithOutput($command, '');
+
+        // Make sure composer installed fine.
+        if (!$success)
+            throw new ArtisanCommandFailed('SDE Update failed.');
+
+    }
+
+    /**
+     * Mark a SeAT instance as Up
+     */
+    public function markApplicationUp()
+    {
+
+        return $this->setApplicationStatus('up');
+    }
+
+    /**
      * Put a SeAT instance into a state.
      *
      * @param $state
@@ -185,39 +211,12 @@ class Seat extends AbstractUtil
     }
 
     /**
-     * Mark a SeAT instance as Up
-     */
-    public function markApplicationUp()
-    {
-
-        return $this->setApplicationStatus('up');
-    }
-
-    /**
      * Mark a SeAT instance as Down
      */
     public function markApplicationDown()
     {
 
         return $this->setApplicationStatus('down');
-    }
-
-    /**
-     * @throws \Seat\Installer\Exceptions\PackageInstallationFailedException
-     */
-    protected function updateSde()
-    {
-
-        // Prep the path to php artisan
-        $command = $this->getArtisan() . ' eve:update-sde -n';
-
-        // Run the setup command
-        $success = $this->runCommandWithOutput($command, '');
-
-        // Make sure composer installed fine.
-        if (!$success)
-            throw new ArtisanCommandFailed('SDE Update failed.');
-
     }
 
 }

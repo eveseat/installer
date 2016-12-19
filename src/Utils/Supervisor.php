@@ -106,42 +106,6 @@ class Supervisor extends AbstractUtil
     }
 
     /**
-     * @param string $user
-     */
-    public function setUser(string $user)
-    {
-
-        $this->user = $user;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUser(): string
-    {
-
-        return $this->user;
-    }
-
-    /**
-     * @param string $path
-     */
-    public function setPath(string $path)
-    {
-
-        $this->path = rtrim($path, '/') . '/';
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPath()
-    {
-
-        return $this->path;
-    }
-
-    /**
      * Setup Supervisor.
      */
     public function setup()
@@ -149,18 +113,6 @@ class Supervisor extends AbstractUtil
 
         $this->writeConfig();
         $this->enable();
-    }
-
-    /**
-     * @return string
-     */
-    public function getConfigLocation(): string
-    {
-
-        $os = $this->getOperatingSystem()['os'];
-        $version = $this->getOperatingSystem()['version'];
-
-        return $this->config_locations[$os][$version];
     }
 
     /**
@@ -182,6 +134,54 @@ class Supervisor extends AbstractUtil
         // Write the config file
         file_put_contents($this->getConfigLocation(), $ini);
 
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPath()
+    {
+
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath(string $path)
+    {
+
+        $this->path = rtrim($path, '/') . '/';
+    }
+
+    /**
+     * @return string
+     */
+    public function getUser(): string
+    {
+
+        return $this->user;
+    }
+
+    /**
+     * @param string $user
+     */
+    public function setUser(string $user)
+    {
+
+        $this->user = $user;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConfigLocation(): string
+    {
+
+        $os = $this->getOperatingSystem()['os'];
+        $version = $this->getOperatingSystem()['version'];
+
+        return $this->config_locations[$os][$version];
     }
 
     /**

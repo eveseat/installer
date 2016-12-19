@@ -140,6 +140,34 @@ class Diagnose extends Command
     }
 
     /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     *
+     * @throws \Seat\Installer\Exceptions\SeatNotFoundException
+     */
+    protected function findAndSetSeatPath(InputInterface $input)
+    {
+
+        $this->io->text('Locating SeAT');
+
+        // Check if we have a path to test, or should autodetect.
+        if (!is_null($input->getOption('seat-path'))) {
+
+            if ($this->isSeatInstallation($input->getOption('seat-path')))
+                $this->seat_path = $input->getOption('seat-path');
+            else
+                throw new SeatNotFoundException('SeAT could not be found at: ' .
+                    $input->getOption('seat-path'));
+
+        } else {
+
+            $this->seat_path = $this->findSeatInstallation();
+        }
+
+        $this->io->text('SeAT Path detected at: ' . $this->seat_path);
+
+    }
+
+    /**
      * Check that the required PHP extentions are loaded.
      */
     protected function checkPhpExtentions()
@@ -165,34 +193,6 @@ class Diagnose extends Command
 
         if ($check_ok)
             $this->io->success('PHP Extention check passed');
-
-    }
-
-    /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     *
-     * @throws \Seat\Installer\Exceptions\SeatNotFoundException
-     */
-    protected function findAndSetSeatPath(InputInterface $input)
-    {
-
-        $this->io->text('Locating SeAT');
-
-        // Check if we have a path to test, or should autodetect.
-        if (!is_null($input->getOption('seat-path'))) {
-
-            if ($this->isSeatInstallation($input->getOption('seat-path')))
-                $this->seat_path = $input->getOption('seat-path');
-            else
-                throw new SeatNotFoundException('SeAT could not be found at: ' .
-                    $input->getOption('seat-path'));
-
-        } else {
-
-            $this->seat_path = $this->findSeatInstallation();
-        }
-
-        $this->io->text('SeAT Path detected at: ' . $this->seat_path);
 
     }
 

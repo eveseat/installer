@@ -378,22 +378,16 @@ class ProdCommand extends Command
     }
 
     /**
-     * Setup Supervisor
+     * Install and configure the chosen webserver.
      */
-    protected function setupSupervisor()
+    protected function installWebserver()
     {
 
-        // We need to ask the webserver class which user we need
-        // to use for the supervisor job.
-        $webserver = $this->webserver_info[$this->webserver_choice]['installer'];
-        $webserver = new $webserver($this->io);
-
-        // Setup a Supervisor instance.
-        $supervisor = new Supervisor($this->io);
-        $supervisor->setUser($webserver->getUser());
-        $supervisor->setPath($this->seat_destination);
-        $supervisor->install();
-        $supervisor->setup();
+        $installer = $this->webserver_info[$this->webserver_choice]['installer'];
+        $installer = new $installer($this->io);
+        $installer->install();
+        $installer->harden();
+        $installer->configure($this->seat_destination);
 
     }
 
@@ -414,16 +408,22 @@ class ProdCommand extends Command
     }
 
     /**
-     * Install and configure the chosen webserver.
+     * Setup Supervisor
      */
-    protected function installWebserver()
+    protected function setupSupervisor()
     {
 
-        $installer = $this->webserver_info[$this->webserver_choice]['installer'];
-        $installer = new $installer($this->io);
-        $installer->install();
-        $installer->harden();
-        $installer->configure($this->seat_destination);
+        // We need to ask the webserver class which user we need
+        // to use for the supervisor job.
+        $webserver = $this->webserver_info[$this->webserver_choice]['installer'];
+        $webserver = new $webserver($this->io);
+
+        // Setup a Supervisor instance.
+        $supervisor = new Supervisor($this->io);
+        $supervisor->setUser($webserver->getUser());
+        $supervisor->setPath($this->seat_destination);
+        $supervisor->install();
+        $supervisor->setup();
 
     }
 

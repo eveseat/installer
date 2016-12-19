@@ -240,24 +240,6 @@ class PackageInstaller extends AbstractUtil
     ];
 
     /**
-     * Get the OS we are on.
-     *
-     * @return array
-     */
-    public function getOs()
-    {
-
-        if ($this->os)
-            return $this->os;
-
-        $this->os = $this->getOperatingSystem();
-
-        return $this->os;
-
-
-    }
-
-    /**
      * Process an array of packages to install.
      *
      * @param array $packages
@@ -294,6 +276,24 @@ class PackageInstaller extends AbstractUtil
             throw new PackageInstallationFailedException($package . ' installation failed.');
 
         $this->io->success('Package ' . $package . ' installed OK');
+
+    }
+
+    /**
+     * Get the OS we are on.
+     *
+     * @return array
+     */
+    public function getOs()
+    {
+
+        if ($this->os)
+            return $this->os;
+
+        $this->os = $this->getOperatingSystem();
+
+        return $this->os;
+
 
     }
 
