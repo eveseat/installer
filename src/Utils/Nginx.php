@@ -81,6 +81,9 @@ class Nginx extends AbstractUtil implements WebServer
         'debian' => '/etc/php/7.0/fpm/php.ini',
     ];
 
+    /**
+     * @var array
+     */
     protected $restart_commands = [
         'ubuntu' => [
             '16.04' => [
@@ -192,6 +195,26 @@ class Nginx extends AbstractUtil implements WebServer
     }
 
     /**
+     * Get the user as which the webserver will run.
+     *
+     * @return mixed
+     */
+    public function getuser()
+    {
+
+        $os = $this->getOperatingSystem()['os'];
+        $ver = $this->getOperatingSystem()['version'];
+
+        if (
+            !array_key_exists($os, $this->webserver_users) ||
+            !array_key_exists($ver, $this->webserver_users[$os])
+        )
+            return false;
+
+        return $this->webserver_users[$os][$ver];
+    }
+
+    /**
      * Apply the cgi.fix_pathinfo configuration change
      */
     protected function fixCgiPath()
@@ -213,25 +236,5 @@ class Nginx extends AbstractUtil implements WebServer
     public function harden()
     {
         // TODO: Implement harden() method.
-    }
-
-    /**
-     * Get the user as which the webserver will run.
-     *
-     * @return mixed
-     */
-    public function getuser()
-    {
-
-        $os = $this->getOperatingSystem()['os'];
-        $ver = $this->getOperatingSystem()['version'];
-
-        if (
-            !array_key_exists($os, $this->webserver_users) ||
-            !array_key_exists($ver, $this->webserver_users[$os])
-        )
-            return false;
-
-        return $this->webserver_users[$os][$ver];
     }
 }
