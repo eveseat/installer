@@ -272,9 +272,10 @@ class Diagnose extends Command
         if ($this->checkFileOwnership($storage, $user))
             $this->io->success('Permission and ownership check for ' . $storage . ' passed');
 
+        // Check that logfiles are also ok.
         $finder = new Finder();
         $files_ok = true;
-        foreach ($finder->files()->in($storage) as $file) {
+        foreach ($finder->files()->name('*.log')->in($storage) as $file) {
 
             if (!$this->checkFileOwnership($file, $user))
                 $files_ok = false;
