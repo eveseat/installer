@@ -49,6 +49,7 @@ class Requirements extends AbstractUtil
     protected $supported_os = [
         'ubuntu' => ['16.04', '16.10'],
         'centos' => ['6', '7'],
+        'debian' => ['8'],
     ];
 
     /**
@@ -105,6 +106,14 @@ class Requirements extends AbstractUtil
     {
 
         $os = $this->getOperatingSystem();
+
+        // Be a little verbose about the OS detection.
+        if (array_key_exists($os['os'], $this->supported_os) &&
+            in_array($os['version'], $this->supported_os[$os['os']])
+        )
+            $this->io->text('Opering system detected as: ' . $os['os'] . ' ' . $os['version']);
+        else
+            $this->io->note('Unable to determine Operating System');
 
         return (
             array_key_exists($os['os'], $this->supported_os) &&

@@ -58,6 +58,13 @@ class Redis extends AbstractUtil
                 'chkconfig redis on',
                 '/etc/init.d/redis restart'
             ]
+        ],
+
+        'debian' => [
+            '8' => [
+                'systemctl enable redis.service',
+                'systemctl restart redis.service',
+            ]
         ]
     ];
 

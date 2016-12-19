@@ -69,6 +69,12 @@ class Supervisor extends AbstractUtil
                 'chkconfig supervisord on',
                 '/etc/init.d/supervisord restart'
             ]
+        ],
+        'debian' => [
+            '8' => [
+                'systemctl enable supervisor.service',
+                'systemctl restart supervisor.service'
+            ]
         ]
     ];
 
@@ -83,6 +89,9 @@ class Supervisor extends AbstractUtil
         'centos' => [
             '7' => '/etc/supervisord.d/seat.ini',
             '6' => '/etc/supervisord.d/seat.ini',
+        ],
+        'debian' => [
+            '8' => '/etc/supervisor/conf.d/seat.conf'
         ]
     ];
 

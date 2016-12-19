@@ -75,7 +75,6 @@ class Crontab extends AbstractUtil
                 throw new CrontabFailedException('Crontab installation failed.');
         }
 
-
     }
 
 }

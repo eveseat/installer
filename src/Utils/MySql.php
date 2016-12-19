@@ -79,6 +79,12 @@ class MySql extends AbstractUtil
                 'chkconfig mysqld on',
                 '/etc/init.d/mysqld restart'
             ]
+        ],
+        'debian' => [
+            '8' => [
+                'systemctl enable mysql.service',
+                'systemctl restart mysql.service',
+            ]
         ]
     ];
 
@@ -88,6 +94,7 @@ class MySql extends AbstractUtil
     protected $secure_install_scripts = [
         'ubuntu' => 'mysql_secure_installation.ubuntu.bash',
         'centos' => 'mysql_secure_installation.centos.bash',
+        'debian' => 'mysql_secure_installation.debian.bash',
     ];
 
     /**

@@ -45,7 +45,8 @@ class PackageInstaller extends AbstractUtil
      */
     protected $package_manager = [
         'ubuntu' => 'apt-get install :package -y',
-        'centos' => 'yum install :package -y'
+        'centos' => 'yum install :package -y',
+        'debian' => 'apt-get install :package -y',
     ];
 
     /**
@@ -71,6 +72,13 @@ class PackageInstaller extends AbstractUtil
             '6' => [
                 'pdo_mysql' => 'php-mysql',
                 'posix'     => 'php-posix',
+            ]
+        ],
+
+        'debian' => [
+            '8' => [
+                'pdo_mysql' => 'php-mysql',
+                'posix'     => 'php-common'
             ]
         ]
     ];
@@ -102,6 +110,15 @@ class PackageInstaller extends AbstractUtil
                 'pdo_mysql' => 'php-mysql'
             ],
             '6' => [
+                'unzip'     => 'unzip',
+                'git'       => 'git',
+                'pdo_mysql' => 'php-mysql'
+            ]
+        ],
+
+        // Debian
+        'debian' => [
+            '8' => [
                 'unzip'     => 'unzip',
                 'git'       => 'git',
                 'pdo_mysql' => 'php-mysql'
@@ -198,6 +215,28 @@ class PackageInstaller extends AbstractUtil
                 ]
             ]
         ],
+
+        'debian' => [
+            '8' => [
+                'mysql'      => [
+                    'mysql-server', 'expect'
+                ],
+                'php'        => [
+                    'php-cli', 'php-mcrypt', 'php-intl',
+                    'php-mysql', 'php-curl', 'php-gd',
+                    'php-mbstring', 'php-bz2', 'php-xml'
+                ],
+                'apache'     => [
+                    'apache2', 'libapache2-mod-php'
+                ],
+                'redis'      => [
+                    'redis-server'
+                ],
+                'supervisor' => [
+                    'supervisor'
+                ]
+            ]
+        ]
     ];
 
     /**

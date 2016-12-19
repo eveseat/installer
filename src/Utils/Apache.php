@@ -48,6 +48,7 @@ class Apache extends AbstractUtil implements WebServer
     protected $vhost_locations = [
         'ubuntu' => '/etc/apache2/sites-enabled/',
         'centos' => '/etc/httpd/conf.d/',
+        'debian' => '/etc/apache2/sites-enabled',
     ];
 
     /**
@@ -61,7 +62,10 @@ class Apache extends AbstractUtil implements WebServer
         'centos' => [
             '6' => 'apache',
             '7' => 'apache'
-        ]
+        ],
+        'debian' => [
+            '8' => 'www-data',
+        ],
     ];
 
     /**
@@ -94,6 +98,8 @@ class Apache extends AbstractUtil implements WebServer
         // Download the config and replace the seatpath
         if ($os == 'ubuntu')
             $vhost = $this->downloadResourceFile('apache-vhost-ubuntu.conf');
+        elseif ($os == 'debian')
+            $vhost = $this->downloadResourceFile('apache-vhost-debian.conf');
         elseif ($os == 'centos')
             $vhost = $this->downloadResourceFile('apache-vhost-centos.conf');
 
@@ -112,8 +118,8 @@ class Apache extends AbstractUtil implements WebServer
         $fs = new Filesystem();
         $fs->symlink($path . '/public', '/var/www/html/seat.local');
 
-        // Enable mod_rewrite if this is ubuntu
-        if ($os == 'ubuntu') {
+        // Enable mod_rewrite if this is a debian based apache
+        if ($os == 'ubuntu' || $os == 'debian') {
 
             $this->io->text('Enabling mod_rewrite');
             $this->runCommand('a2enmod rewrite');
@@ -149,8 +155,8 @@ class Apache extends AbstractUtil implements WebServer
 
         $os = $this->getOperatingSystem()['os'];
 
-        if ($os == 'ubuntu')
-            $this->hardenUbuntu();
+        if ($os == 'ubuntu' || $os == 'debian')
+            $this->hardenDebBased();
         elseif ($os == 'centos')
             $this->hardenCentos();
 
@@ -158,9 +164,9 @@ class Apache extends AbstractUtil implements WebServer
     }
 
     /**
-     * Harden the Ubuntu Apache webserver
+     * Harden the Debian Based Apache webserver
      */
-    protected function hardenUbuntu()
+    protected function hardenDebBased()
     {
 
         // Remove Default Website

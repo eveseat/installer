@@ -43,9 +43,11 @@ trait DownloadsResources
     protected $resources = [
         'mysql_secure_installation.ubuntu.bash',
         'mysql_secure_installation.centos.bash',
+        'mysql_secure_installation.debian.bash',
         'supervisor-seat.ini',
         'apache-vhost-ubuntu.conf',
         'apache-vhost-centos.conf',
+        'apache-vhost-debian.conf',
     ];
 
     /**

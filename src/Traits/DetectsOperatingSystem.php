@@ -36,12 +36,12 @@ trait DetectsOperatingSystem
      */
     protected $release_files = [
         'ubuntu' => 'lsb-release',
-        'centos' => 'centos-release'
+        'centos' => 'centos-release',
+        'debian' => 'debian_version'
     ];
 
     /**
-     * Strings to match to a supported version of a
-     * distribution.
+     * Strings to match to a version of a distribution.
      *
      * @var array
      */
@@ -62,8 +62,14 @@ trait DetectsOperatingSystem
                 'signature' => 'CentOS Linux release 7'
             ],
             [
-                'version' => '6',
+                'version'   => '6',
                 'signature' => 'CentOS release 6.'
+            ]
+        ],
+        'debian' => [
+            [
+                'version'   => '8',
+                'signature' => '8.'
             ]
         ],
     ];

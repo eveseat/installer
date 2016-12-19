@@ -41,6 +41,7 @@ class OsUpdates extends AbstractUtil
     protected $update_command = [
         'ubuntu' => 'apt-get update && apt-get upgrade -y',
         'centos' => 'yum update -y',
+        'debian' => 'apt-get update && apt-get upgrade -y',
     ];
 
     /**
