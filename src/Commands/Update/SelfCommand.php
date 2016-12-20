@@ -70,9 +70,15 @@ class SelfCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title('SeAT Installer Self Updater');
 
+        $this->io->text('Checking for a newer version');
         $updater = new Updater(null, false);
         $updater->getStrategy()->setPharUrl($this->phar_url);
         $updater->getStrategy()->setVersionUrl($this->phar_ver);
+
+        // Run hasUpdate. This will update the version number internally.
+        $updater->hasUpdate();
+
+        $this->io->text('Remote version: ' . $updater->getNewVersion());
 
         try {
 
@@ -82,7 +88,8 @@ class SelfCommand extends Command
 
                 $new = $updater->getNewVersion();
                 $old = $updater->getOldVersion();
-                $output->writeln('<info>Updated from ' . $old . ' to ' . $new . '!</info>');
+                $output->writeln('<info>Updated from ' . substr($old, 0, 7) .
+                    ' to ' . substr($new, 0, 7) . '!</info>');
 
             } else {
 
