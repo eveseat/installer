@@ -25,8 +25,8 @@ $app->add(new \Seat\Installer\Commands\Update\SelfCommand);
 $app->add(new \Seat\Installer\Commands\Update\SeatCommand);
 
 // Installers
-$app->add(new \Seat\Installer\Commands\Install\ProdCommand);
-$app->add(new \Seat\Installer\Commands\Install\DevCommand);
+$app->add(new \Seat\Installer\Commands\Install\Production);
+$app->add(new \Seat\Installer\Commands\Install\Development);
 
 // Helper Commands
 $app->add(new \Seat\Installer\Commands\Where);

@@ -38,7 +38,7 @@ use Symfony\Component\Process\Process;
  * Class InstallDevCommand
  * @package Seat\Installer
  */
-class DevCommand extends Command
+class Development extends Command
 {
 
     /**

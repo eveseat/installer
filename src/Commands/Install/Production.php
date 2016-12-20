@@ -43,7 +43,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * Class InstallProdCommand
  * @package Seat\Installer
  */
-class ProdCommand extends Command
+class Production extends Command
 {
 
     /**
