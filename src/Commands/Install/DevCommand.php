@@ -137,7 +137,7 @@ class DevCommand extends Command
         // Ensure that the packages, environment and paths are OK.
         $this->resolve_executables();
         $this->check_php_extensions();
-        $this->resolve_paths($input->getOption('destination'));
+        $this->resolve_paths($input->getOption('seat-destination'));
 
         // Get the main repo and prep packages dir.
         $output->writeln('<info>Cloning Main SeAT repository to ' . $this->install_directory . '...</info>');
