@@ -51,7 +51,7 @@ class Crontab extends AbstractUtil
         $path = rtrim($seat_path, '/');
 
         // Write the full crontab entry
-        $cron = '* * * * * ' . $php . ' ' . $path . '/artisan schedule:run 1>> /dev/null 2>&';
+        $cron = '* * * * * ' . $php . ' ' . $path . '/artisan schedule:run 1>> /dev/null 2>&1';
 
         // Get a temp file to dump the current crontab
         $tempfile = tempnam(sys_get_temp_dir(), 'cron');
