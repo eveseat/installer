@@ -49,30 +49,52 @@ class Supervisor extends AbstractUtil
     /**
      * @var array
      */
-    protected $restart_enable_commands = [
+    protected $enable_commands = [
         'ubuntu' => [
             '16.04' => [
                 'systemctl enable supervisor.service',
-                'systemctl restart supervisor.service'
             ],
             '16.10' => [
                 'systemctl enable supervisor.service',
-                'systemctl restart supervisor.service'
             ],
         ],
         'centos' => [
             '7' => [
                 'systemctl enable supervisord',
-                'systemctl restart supervisord'
             ],
             '6' => [
                 'chkconfig supervisord on',
-                '/etc/init.d/supervisord restart'
             ]
         ],
         'debian' => [
             '8' => [
                 'systemctl enable supervisor.service',
+            ]
+        ]
+    ];
+
+    /**
+     * @var array
+     */
+    protected $restart_commands = [
+        'ubuntu' => [
+            '16.04' => [
+                'systemctl restart supervisor.service'
+            ],
+            '16.10' => [
+                'systemctl restart supervisor.service'
+            ],
+        ],
+        'centos' => [
+            '7' => [
+                'systemctl restart supervisord'
+            ],
+            '6' => [
+                '/etc/init.d/supervisord restart'
+            ]
+        ],
+        'debian' => [
+            '8' => [
                 'systemctl restart supervisor.service'
             ]
         ]
@@ -113,6 +135,7 @@ class Supervisor extends AbstractUtil
 
         $this->writeConfig();
         $this->enable();
+        $this->restart();
     }
 
     /**
@@ -185,7 +208,7 @@ class Supervisor extends AbstractUtil
     }
 
     /**
-     * Restart and Enable Supervisor
+     * Enable Supervisor
      */
     public function enable()
     {
@@ -193,7 +216,20 @@ class Supervisor extends AbstractUtil
         $os = $this->getOperatingSystem()['os'];
         $version = $this->getOperatingSystem()['version'];
 
-        foreach ($this->restart_enable_commands[$os][$version] as $command)
+        foreach ($this->enable_commands[$os][$version] as $command)
+            $this->runCommandWithOutput($command, 'Supervisor Setup');
+    }
+
+    /**
+     * Restart Supervisor
+     */
+    public function restart()
+    {
+
+        $os = $this->getOperatingSystem()['os'];
+        $version = $this->getOperatingSystem()['version'];
+
+        foreach ($this->restart_commands[$os][$version] as $command)
             $this->runCommandWithOutput($command, 'Supervisor Setup');
     }
 
