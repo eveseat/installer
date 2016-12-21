@@ -45,6 +45,8 @@ trait DownloadsResources
         'mysql_secure_installation.centos.bash',
         'mysql_secure_installation.debian.bash',
         'supervisor-seat.ini',
+        'supervisor-inet-http-server.conf',
+        'seat-supervisor-env.conf',
         'apache-vhost-ubuntu.conf',
         'apache-vhost-centos.conf',
         'apache-vhost-debian.conf',

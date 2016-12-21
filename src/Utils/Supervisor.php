@@ -25,6 +25,7 @@ namespace Seat\Installer\Utils;
 use Seat\Installer\Traits\DetectsOperatingSystem;
 use Seat\Installer\Traits\DownloadsResources;
 use Seat\Installer\Traits\FindsExecutables;
+use Seat\Installer\Traits\GeneratesPasswords;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 
 /**
@@ -34,7 +35,7 @@ use Seat\Installer\Utils\Abstracts\AbstractUtil;
 class Supervisor extends AbstractUtil
 {
 
-    use DetectsOperatingSystem, DownloadsResources, FindsExecutables;
+    use DetectsOperatingSystem, DownloadsResources, FindsExecutables, GeneratesPasswords;
 
     /**
      * @var
@@ -103,7 +104,7 @@ class Supervisor extends AbstractUtil
     /**
      * @var array
      */
-    protected $config_locations = [
+    protected $seat_config_locations = [
         'ubuntu' => [
             '16.04' => '/etc/supervisor/conf.d/seat.conf',
             '16.10' => '/etc/supervisor/conf.d/seat.conf',
@@ -114,6 +115,23 @@ class Supervisor extends AbstractUtil
         ],
         'debian' => [
             '8' => '/etc/supervisor/conf.d/seat.conf'
+        ]
+    ];
+
+    /**
+     * @var array
+     */
+    protected $supervisor_config_locations = [
+        'ubuntu' => [
+            '16.04' => '/etc/supervisor/supervisord.conf',
+            '16.10' => '/etc/supervisor/supervisord.conf',
+        ],
+        'centos' => [
+            '7' => '/etc/supervisord.conf',
+            '6' => '/etc/supervisord.conf',
+        ],
+        'debian' => [
+            '8' => '/etc/supervisor/supervisord.conf'
         ]
     ];
 
@@ -155,7 +173,42 @@ class Supervisor extends AbstractUtil
         $ini = str_replace(':webuser', $this->getUser(), $ini);
 
         // Write the config file
-        file_put_contents($this->getConfigLocation(), $ini);
+        file_put_contents($this->getSeatConfigLocation(), $ini);
+
+    }
+
+    /**
+     * @param string $seat_path
+     */
+    public function setupIntegration(string $seat_path)
+    {
+
+        // Fix up the SeAT path
+        $env_path = rtrim($seat_path, '/') . '/.env';
+
+        $this->io->text('Configuring the SeAT / Supervisor integration');
+
+        // Get the configuration block and update it with a password
+        $inet_http = $this->downloadResourceFile('supervisor-inet-http-server.conf');
+        $password = $this->generatePassword();
+        $ini = str_replace(':password', $password, $inet_http);
+
+        // Get the supervisor config and append the new config block to it.
+        $supervisor_conf = file_get_contents($this->getSupervisorConfigLocation());
+        $supervisor_conf = $supervisor_conf . $ini;
+
+        // Write the new config file
+        file_put_contents($this->getSupervisorConfigLocation(), $supervisor_conf);
+
+        // Load up the SeAT env file, download the extra values and set
+        // the new password we generated.
+        $seat_env = file_get_contents($env_path);
+        $new_values = $this->downloadResourceFile('seat-supervisor-env.conf');
+        $new_values = str_replace(':password', $password, $new_values);
+
+        // Add the new sections and write the new env.
+        $seat_env = $seat_env . $new_values;
+        file_put_contents($env_path, $seat_env);
 
     }
 
@@ -198,13 +251,25 @@ class Supervisor extends AbstractUtil
     /**
      * @return string
      */
-    public function getConfigLocation(): string
+    public function getSeatConfigLocation(): string
     {
 
         $os = $this->getOperatingSystem()['os'];
         $version = $this->getOperatingSystem()['version'];
 
-        return $this->config_locations[$os][$version];
+        return $this->seat_config_locations[$os][$version];
+    }
+
+    /**
+     * @return string
+     */
+    public function getSupervisorConfigLocation(): string
+    {
+
+        $os = $this->getOperatingSystem()['os'];
+        $version = $this->getOperatingSystem()['version'];
+
+        return $this->supervisor_config_locations[$os][$version];
     }
 
     /**
