@@ -78,7 +78,7 @@ class SelfCommand extends Command
         // Run hasUpdate. This will update the version number internally.
         $updater->hasUpdate();
 
-        $this->io->text('Remote version: ' . $updater->getNewVersion());
+        $this->io->text('Remote version: ' . substr($updater->getNewVersion(), 0, 7));
 
         try {
 
