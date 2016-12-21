@@ -25,6 +25,7 @@ namespace Seat\Installer\Commands;
 use Seat\Installer\Traits\FindsSeatInstallations;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -56,6 +57,7 @@ class Where extends Command
         $this
             ->setName('where')
             ->setDescription('Shows where is the SeAT directory')
+            ->addOption('script', '', InputOption::VALUE_NONE, 'Display the path in a script friendly way')
             ->setHelp('This command allows you to locate your SeAT installation');
     }
 
@@ -69,6 +71,14 @@ class Where extends Command
     {
 
         $this->io = new SymfonyStyle($input, $output);
+
+        // If we should be script friendly, only output the path it found
+        if ($input->getOption('script')) {
+
+            echo($this->findSeatInstallation() . PHP_EOL);
+
+            return;
+        }
 
         // Find and print the directory
         $this->io->success('SeAT is at: ' . $this->findSeatInstallation());
