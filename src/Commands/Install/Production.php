@@ -429,6 +429,7 @@ class Production extends Command
         $supervisor->install();
         $supervisor->setup();
         $supervisor->setupIntegration($this->seat_destination);
+        $supervisor->restart();
 
     }
 
