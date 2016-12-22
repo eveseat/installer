@@ -88,10 +88,10 @@ trait RunsCommands
                 } else {
 
                     // If the output is just a newline, strip the prefix.
-                    if ($buffer == "\n")
+                    if (in_array($buffer, ["\n", "\r\n", "\t"]))
                         $this->io->write($buffer);
                     else
-                        $this->io->write($prefix . '> ' . $buffer);
+                        $this->io->write($prefix . '> ' . trim($buffer));
                 }
 
             } else {

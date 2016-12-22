@@ -27,12 +27,14 @@ use Seat\Installer\Exceptions\ComposerInstallException;
 use Seat\Installer\Exceptions\ExecutableNotFoundException;
 use Seat\Installer\Exceptions\MissingPhpExtentionExeption;
 use Seat\Installer\Exceptions\NonEmptyDirectoryException;
+use Seat\Installer\Traits\FindsExecutables;
+use Seat\Installer\Traits\RunsCommands;
+use Seat\Installer\Utils\Composer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\ExecutableFinder;
-use Symfony\Component\Process\Process;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class InstallDevCommand
@@ -41,15 +43,12 @@ use Symfony\Component\Process\Process;
 class Development extends Command
 {
 
-    /**
-     * @var
-     */
-    protected $input;
+    use FindsExecutables, RunsCommands;
 
     /**
-     * @var
+     * @var SymfonyStyle
      */
-    protected $output;
+    protected $io;
 
     /**
      * Array of shell executable locations.
@@ -131,8 +130,19 @@ class Development extends Command
     {
 
         // Bind the input and output for later use in other methods.
-        $this->input = $input;
-        $this->output = $output;
+        $this->io = new SymfonyStyle($input, $output);
+        $this->io->title('SeAT Development Installer');
+
+        // Ensure that we should continue.
+        if (!$this->confirmContinue()) {
+
+            $this->io->text('Installer stopped via user cancel.');
+
+            return;
+        }
+
+        // Check composer
+        $this->prepareComposer();
 
         // Ensure that the packages, environment and paths are OK.
         $this->resolve_executables();
@@ -140,37 +150,77 @@ class Development extends Command
         $this->resolve_paths($input->getOption('seat-destination'));
 
         // Get the main repo and prep packages dir.
-        $output->writeln('<info>Cloning Main SeAT repository to ' . $this->install_directory . '...</info>');
+        $this->io->text('Cloning Main SeAT repository to ' . $this->install_directory . '...');
         $this->clone_repository($this->repositories['seat'], $this->install_directory);
         mkdir($this->packages_directory, 0777, true);
 
         // Clone seperate packages.
-        $output->writeln('<info>Cloning Packages...</info>');
+        $this->io->text('Cloning Packages...');
         foreach ($this->packages as $name => $repository) {
 
             $destination = $this->packages_directory . '/' . $name;
-            $output->writeln('Processing ' . $name . ' to ' . $destination);
+            $this->io->text('Processing ' . $name . ' to ' . $destination);
             $this->clone_repository($repository, $destination);
         }
 
         // Override composer.json with the one ready for dev.
-        $output->writeln('<info>Downloading Development composer.json and installing dependencies...</info>');
+        $this->io->text('Downloading Development composer.json and installing dependencies...');
         $this->install_dependencies();
 
         // Copy the .env.example file
-        $output->writeln('<info>Preparing .env file...</info>');
+        $this->io->text('Preparing .env file...');
         if (!file_exists($this->install_directory . '/.env'))
             copy($this->install_directory . '/.env.example', $this->install_directory . '/.env');
 
         // Enable debug
-        $output->writeln('<info>Enabling debug mode...</info>');
+        $this->io->text('Enabling debug mode...');
         $this->enable_debug_mode();
 
         // Generate crypto key
-        $output->writeln('<info>Generating Encrytion Key...</info>');
+        $this->io->text('Generating Encrytion Key...');
         $this->generate_encryption_key();
 
-        $output->writeln('<info>Done! Remember to setup Redis and the DB</info>');
+        $this->io->success('Done! Remember to setup Redis and the DB');
+
+    }
+
+    /**
+     * @return bool
+     */
+    protected function confirmContinue()
+    {
+
+        $this->io->text('This installer will install a SeAT instance ready ' .
+            'for development.');
+        $this->io->newline();
+
+        $this->io->text('The following is a short summary of actions that ' .
+            'will be performed:');
+        $this->io->newline();
+        $this->io->listing([
+            'Check the needed software depedencies.',
+            'Ensure Composer is available for use.',
+            'Check the destination directory.',
+            'Clone SeAT and all its packages.',
+            'Enable debug mode in SeAT.',
+            'Generate a new encryption key.',
+        ]);
+
+        if ($this->io->confirm('Would like to continue with the installation?'))
+            return true;
+
+        return false;
+    }
+
+    /**
+     * Checks if composer is installed. If not, do it.
+     */
+    protected function prepareComposer()
+    {
+
+        $composer = new Composer($this->io);
+        if (!$composer->hasComposer())
+            $composer->install();
 
     }
 
@@ -180,17 +230,15 @@ class Development extends Command
     protected function resolve_executables()
     {
 
-        $finder = new ExecutableFinder();
-
         foreach ($this->executables as $exeutable => $path) {
 
-            $path = $finder->find($exeutable);
+            $path = $this->findExecutable($exeutable);
 
             // Make sure we found the executable.
             if (is_null($path))
                 throw new ExecutableNotFoundException('Cant find executable for ' . $exeutable);
 
-            $this->output->writeln('Using ' . $path . ' for ' . $exeutable);
+            $this->io->comment('Using ' . $path . ' for ' . $exeutable);
             $this->executables[$exeutable] = $path;
         }
 
@@ -205,7 +253,7 @@ class Development extends Command
     protected function check_php_extensions()
     {
 
-        $required_ext = ['intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom', 'xml', 'zip'];
+        $required_ext = ['intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom', 'xml', 'zip', 'bz2'];
 
         foreach ($required_ext as $extention)
             if (!extension_loaded($extention))
@@ -256,7 +304,10 @@ class Development extends Command
     {
 
         $git = new GitWrapper($this->executables['git']);
+        $git->setTimeout(300);
         $git->cloneRepository($repository, $path);
+
+        $this->io->success('Cloned ' . $repository . ' to ' . $path);
 
         return;
 
@@ -277,22 +328,12 @@ class Development extends Command
             'sink' => 'composer.json'
         ]);
 
-        // Run the installation
-        $process = new Process($this->executables['composer'] .
-            ' install --no-ansi --no-progress --no-suggest');
-        $process->setTimeout(3600);
-        $process->start();
-
-        // Output as it goes
-        $process->wait(function ($type, $buffer) {
-
-            // Echo if there is something in the buffer to echo.
-            if (strlen($buffer) > 0)
-                $this->output->write('COMPOSER> ' . $buffer);
-        });
+        // Perform the composer install
+        $command = $this->executables['composer'] . ' install --no-ansi --no-progress --no-suggest';
+        $success = $this->runCommandWithOutput($command, '');
 
         // Make sure composer installed fine.
-        if (!$process->isSuccessful())
+        if (!$success)
             throw new ComposerInstallException('Composer installation failed.');
 
         return;
@@ -321,8 +362,7 @@ class Development extends Command
     {
 
         chdir($this->install_directory);
-        $process = new Process($this->executables['php'] . ' artisan key:generate');
-        $process->mustRun();
+        $this->runCommandWithOutput($this->executables['php'] . ' artisan key:generate', 'Encryption');
 
         return;
 
