@@ -81,11 +81,18 @@ trait RunsCommands
             // If a prefix is set, also show if it was an error.
             if (!$prefix == '') {
 
-                if ($process::ERR === $type)
+                if ($process::ERR === $type) {
+
                     '! ' . $this->io->write($prefix . '> ' . $buffer);
 
-                else
-                    $this->io->write($prefix . '> ' . $buffer);
+                } else {
+
+                    // If the output is just a newline, strip the prefix.
+                    if ($buffer == "\n")
+                        $this->io->write($buffer);
+                    else
+                        $this->io->write($prefix . '> ' . $buffer);
+                }
 
             } else {
 
