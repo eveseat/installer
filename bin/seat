@@ -35,5 +35,8 @@ $app->add(new \Seat\Installer\Commands\Run);
 // Diagnostics
 $app->add(new \Seat\Installer\Commands\Diagnose);
 
+// Make
+$app->add(new \Seat\Installer\Commands\Make\Package);
+
 
 $app->run();
