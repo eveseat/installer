@@ -213,6 +213,8 @@ class SeatCommand extends Command
         $seat = new Seat($this->io);
         $seat->setPath($this->seat_path);
         $seat->runArtisanCommands();
+        $seat->updateConfigCache();
+
     }
 
     /**

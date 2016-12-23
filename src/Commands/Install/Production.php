@@ -378,6 +378,7 @@ class Production extends Command
         $seat->setPath($this->seat_destination);
         $seat->install();
         $seat->configure($this->mysql_credentials);
+        $seat->updateConfigCache();
 
     }
 

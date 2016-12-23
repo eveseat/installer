@@ -219,4 +219,17 @@ class Seat extends AbstractUtil
         return $this->setApplicationStatus('down');
     }
 
+    /**
+     * @throws \Seat\Installer\Exceptions\ArtisanCommandFailed
+     */
+    public function updateConfigCache()
+    {
+
+        $success = $this->runCommandWithOutput($this->getArtisan() .
+            ' config:cache');
+
+        if (!$success)
+            throw new ArtisanCommandFailed('Unable to update the config cache');
+    }
+
 }
