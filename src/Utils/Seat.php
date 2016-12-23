@@ -226,7 +226,7 @@ class Seat extends AbstractUtil
     {
 
         $success = $this->runCommandWithOutput($this->getArtisan() .
-            ' config:cache');
+            ' config:clear');
 
         if (!$success)
             throw new ArtisanCommandFailed('Unable to update the config cache');
