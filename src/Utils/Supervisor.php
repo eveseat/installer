@@ -178,41 +178,6 @@ class Supervisor extends AbstractUtil
     }
 
     /**
-     * @param string $seat_path
-     */
-    public function setupIntegration(string $seat_path)
-    {
-
-        // Fix up the SeAT path
-        $env_path = rtrim($seat_path, '/') . '/.env';
-
-        $this->io->text('Configuring the SeAT / Supervisor integration');
-
-        // Get the configuration block and update it with a password
-        $inet_http = $this->downloadResourceFile('supervisor-inet-http-server.conf');
-        $password = $this->generatePassword();
-        $ini = str_replace(':password', $password, $inet_http);
-
-        // Get the supervisor config and append the new config block to it.
-        $supervisor_conf = file_get_contents($this->getSupervisorConfigLocation());
-        $supervisor_conf = $supervisor_conf . $ini;
-
-        // Write the new config file
-        file_put_contents($this->getSupervisorConfigLocation(), $supervisor_conf);
-
-        // Load up the SeAT env file, download the extra values and set
-        // the new password we generated.
-        $seat_env = file_get_contents($env_path);
-        $new_values = $this->downloadResourceFile('seat-supervisor-env.conf');
-        $new_values = str_replace(':password', $password, $new_values);
-
-        // Add the new sections and write the new env.
-        $seat_env = $seat_env . $new_values;
-        file_put_contents($env_path, $seat_env);
-
-    }
-
-    /**
      * @return mixed
      */
     public function getPath()
@@ -261,18 +226,6 @@ class Supervisor extends AbstractUtil
     }
 
     /**
-     * @return string
-     */
-    public function getSupervisorConfigLocation(): string
-    {
-
-        $os = $this->getOperatingSystem()['os'];
-        $version = $this->getOperatingSystem()['version'];
-
-        return $this->supervisor_config_locations[$os][$version];
-    }
-
-    /**
      * Enable Supervisor
      */
     public function enable()
@@ -296,6 +249,53 @@ class Supervisor extends AbstractUtil
 
         foreach ($this->restart_commands[$os][$version] as $command)
             $this->runCommandWithOutput($command, 'Supervisor Setup');
+    }
+
+    /**
+     * @param string $seat_path
+     */
+    public function setupIntegration(string $seat_path)
+    {
+
+        // Fix up the SeAT path
+        $env_path = rtrim($seat_path, '/') . '/.env';
+
+        $this->io->text('Configuring the SeAT / Supervisor integration');
+
+        // Get the configuration block and update it with a password
+        $inet_http = $this->downloadResourceFile('supervisor-inet-http-server.conf');
+        $password = $this->generatePassword();
+        $ini = str_replace(':password', $password, $inet_http);
+
+        // Get the supervisor config and append the new config block to it.
+        $supervisor_conf = file_get_contents($this->getSupervisorConfigLocation());
+        $supervisor_conf = $supervisor_conf . $ini;
+
+        // Write the new config file
+        file_put_contents($this->getSupervisorConfigLocation(), $supervisor_conf);
+
+        // Load up the SeAT env file, download the extra values and set
+        // the new password we generated.
+        $seat_env = file_get_contents($env_path);
+        $new_values = $this->downloadResourceFile('seat-supervisor-env.conf');
+        $new_values = str_replace(':password', $password, $new_values);
+
+        // Add the new sections and write the new env.
+        $seat_env = $seat_env . $new_values;
+        file_put_contents($env_path, $seat_env);
+
+    }
+
+    /**
+     * @return string
+     */
+    public function getSupervisorConfigLocation(): string
+    {
+
+        $os = $this->getOperatingSystem()['os'];
+        $version = $this->getOperatingSystem()['version'];
+
+        return $this->supervisor_config_locations[$os][$version];
     }
 
 }
