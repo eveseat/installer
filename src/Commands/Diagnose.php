@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Commands;
-
 
 use Dotenv\Dotenv;
 use Exception;
@@ -42,12 +42,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Class Diagnose
+ * Class Diagnose.
  * @package Seat\Installer\Commands
  */
 class Diagnose extends Command
 {
-
     use DetectsWebserver, FindsSeatInstallations, FindsExecutables, RunsCommands;
 
     /**
@@ -68,7 +67,7 @@ class Diagnose extends Command
     ];
 
     /**
-     * Setup the command
+     * Setup the command.
      */
     protected function configure()
     {
@@ -94,7 +93,7 @@ class Diagnose extends Command
         $this->io->title('SeAT Diagnostics');
 
         // Ensure that we have all the min requirements
-        if (!$this->checkRequirements())
+        if (! $this->checkRequirements())
             return;
 
         // Start by ensuring that the SeAT path is ok.
@@ -124,13 +123,13 @@ class Diagnose extends Command
 
         // Ensure that we are on a supported operating system
         $requirements = new Requirements($this->io);
-        if (!$requirements->hasSupportedOs()) {
+        if (! $requirements->hasSupportedOs()) {
 
             $this->io->error('Sorry, this operating system is not yet supported.');
             $check_ok = false;
         }
 
-        if (!$requirements->hasMinimumPhpVersion()) {
+        if (! $requirements->hasMinimumPhpVersion()) {
 
             $this->io->error('At least PHP7 is required for SeAT. Your version: ' . PHP_VERSION);
             $check_ok = false;
@@ -150,7 +149,7 @@ class Diagnose extends Command
         $this->io->text('Locating SeAT');
 
         // Check if we have a path to test, or should autodetect.
-        if (!is_null($input->getOption('seat-path'))) {
+        if (! is_null($input->getOption('seat-path'))) {
 
             if ($this->isSeatInstallation($input->getOption('seat-path')))
                 $this->seat_path = $input->getOption('seat-path');
@@ -178,12 +177,12 @@ class Diagnose extends Command
         $check_ok = true;
 
         $extentions = [
-            'mcrypt', 'intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom'
+            'mcrypt', 'intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom',
         ];
 
         foreach ($extentions as $extention) {
 
-            if (!extension_loaded($extention)) {
+            if (! extension_loaded($extention)) {
 
                 $this->io->error('PHP Extention ' . $extention . ' not loaded.');
                 $check_ok = false;
@@ -197,7 +196,7 @@ class Diagnose extends Command
     }
 
     /**
-     * Get the SeAT configuration from its .env
+     * Get the SeAT configuration from its .env.
      */
     protected function checkSeatConfiguration()
     {
@@ -210,12 +209,12 @@ class Diagnose extends Command
 
         $required_values = [
             'APP_KEY', 'DB_CONNECTION', 'DB_HOST', 'DB_DATABASE', 'CACHE_DRIVER',
-            'QUEUE_DRIVER', 'REDIS_HOST', 'MAIL_DRIVER'
+            'QUEUE_DRIVER', 'REDIS_HOST', 'MAIL_DRIVER',
         ];
 
         foreach ($required_values as $value) {
 
-            if (!getenv($value)) {
+            if (! getenv($value)) {
 
                 $this->io->error('The value for ' . $value . ' must be set in the ' .
                     'SeAT `.env` file.');
@@ -252,7 +251,7 @@ class Diagnose extends Command
 
         $this->io->text('Detected webserver in use as: ' . $webserver);
         $webserver = new $this->webserver_classes[$webserver]($this->io);
-        if (!$user = $webserver->getUser()) {
+        if (! $user = $webserver->getUser()) {
 
             $this->io->warning('Unable to determine webserver user for your OS.' .
                 'Skipping permissions check');
@@ -277,7 +276,7 @@ class Diagnose extends Command
         $files_ok = true;
         foreach ($finder->files()->name('*.log')->in($storage) as $file) {
 
-            if (!$this->checkFileOwnership($file, $user))
+            if (! $this->checkFileOwnership($file, $user))
                 $files_ok = false;
         }
 
@@ -338,7 +337,7 @@ class Diagnose extends Command
     }
 
     /**
-     * Check Redis connectivity
+     * Check Redis connectivity.
      */
     public function checkRedis()
     {
@@ -348,7 +347,7 @@ class Diagnose extends Command
         $host = getenv('REDIS_HOST');
         $port = getenv('REDIS_PORT');
 
-        if (!$host || !$port) {
+        if (! $host || ! $port) {
 
             $this->io->warning('The SeAT configuration does not have valid Redis settings. ' .
                 'Going to try with defaults.');
@@ -362,7 +361,7 @@ class Diagnose extends Command
             $redis = new RedisClient([
                 'scheme' => 'tcp',
                 'host'   => $host,
-                'port'   => $port
+                'port'   => $port,
             ]);
 
             $redis->set('seat_diagnostics', true);
@@ -381,7 +380,7 @@ class Diagnose extends Command
     }
 
     /**
-     * Test a MySQL connection
+     * Test a MySQL connection.
      */
     public function checkMysql()
     {
@@ -392,7 +391,7 @@ class Diagnose extends Command
         $password = getenv('DB_PASSWORD');
         $database = getenv('DB_DATABASE');
 
-        if (!$username || !$database) {
+        if (! $username || ! $database) {
 
             $this->io->warning('SeAT configuration for the database appears incomplete. ' .
                 'Going to try with some defaults.');
@@ -415,7 +414,7 @@ class Diagnose extends Command
     }
 
     /**
-     * Check the network connectivity to the EVE Online API Server
+     * Check the network connectivity to the EVE Online API Server.
      */
     public function checkNetwork()
     {
@@ -433,5 +432,4 @@ class Diagnose extends Command
         return $this->io->error('Failed connectivity check to EVE Online API server');
 
     }
-
 }

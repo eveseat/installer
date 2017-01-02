@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Utils;
-
 
 use Seat\Installer\Traits\DetectsOperatingSystem;
 use Seat\Installer\Traits\DownloadsResources;
@@ -29,12 +29,11 @@ use Seat\Installer\Utils\Interfaces\WebServer;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class Apache
+ * Class Apache.
  * @package Seat\Installer\Utils
  */
 class Apache extends AbstractUtil implements WebServer
 {
-
     use DetectsOperatingSystem, DownloadsResources;
 
     /**
@@ -52,11 +51,11 @@ class Apache extends AbstractUtil implements WebServer
     protected $webserver_users = [
         'ubuntu' => [
             '16.04' => 'www-data',
-            '16.10' => 'www-data'
+            '16.10' => 'www-data',
         ],
         'centos' => [
             '6' => 'apache',
-            '7' => 'apache'
+            '7' => 'apache',
         ],
         'debian' => [
             '8' => 'www-data',
@@ -64,7 +63,7 @@ class Apache extends AbstractUtil implements WebServer
     ];
 
     /**
-     * Install the binaries for Apache
+     * Install the binaries for Apache.
      */
     public function install()
     {
@@ -141,7 +140,7 @@ class Apache extends AbstractUtil implements WebServer
     }
 
     /**
-     * Harden the Apache Installation
+     * Harden the Apache Installation.
      */
     public function harden()
     {
@@ -155,11 +154,10 @@ class Apache extends AbstractUtil implements WebServer
         elseif ($os == 'centos')
             $this->hardenCentos();
 
-
     }
 
     /**
-     * Harden the Debian Based Apache webserver
+     * Harden the Debian Based Apache webserver.
      */
     protected function hardenDebBased()
     {
@@ -185,7 +183,7 @@ class Apache extends AbstractUtil implements WebServer
     }
 
     /**
-     * Harden the CentOS Apache Webserver
+     * Harden the CentOS Apache Webserver.
      */
     protected function hardenCentos()
     {
@@ -208,7 +206,6 @@ class Apache extends AbstractUtil implements WebServer
         $security_conf .= PHP_EOL . 'ServerSignature Off';
         file_put_contents('/etc/httpd/conf/httpd.conf', $security_conf);
 
-
     }
 
     /**
@@ -223,8 +220,8 @@ class Apache extends AbstractUtil implements WebServer
         $ver = $this->getOperatingSystem()['version'];
 
         if (
-            !array_key_exists($os, $this->webserver_users) ||
-            !array_key_exists($ver, $this->webserver_users[$os])
+            ! array_key_exists($os, $this->webserver_users) ||
+            ! array_key_exists($ver, $this->webserver_users[$os])
         )
             return false;
 
