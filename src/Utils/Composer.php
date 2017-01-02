@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Utils;
-
 
 use GuzzleHttp\Client;
 use Seat\Installer\Exceptions\ComposerInstallException;
@@ -29,12 +29,11 @@ use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class Composer
+ * Class Composer.
  * @package Seat\Installer\Utils
  */
 class Composer extends AbstractUtil
 {
-
     use FindsExecutables;
 
     /**
@@ -76,7 +75,6 @@ class Composer extends AbstractUtil
         // Check the signatures if the downloaded file and the sig file.
         if ($signature != $downloaded_signature)
             throw new ComposerInstallException('Signature mismatch');
-
         $this->io->text('Running Composer Installer');
         $this->runInstaller();
 
@@ -84,22 +82,21 @@ class Composer extends AbstractUtil
         $this->checkPath();
 
         $this->io->text('Checking if composer can now be found.');
-        if (!$this->hasComposer())
+        if (! $this->hasComposer())
             throw new ComposerInstallException('Composer could not be found after installation');
-
         $this->io->success('Composer Installation Complete');
 
     }
 
     /**
-     * Download Composer Installer
+     * Download Composer Installer.
      */
     private function downloadComposer()
     {
 
         $client = new Client();
         $client->request('get', $this->composer_url, [
-            'sink' => $this->temp_filestore
+            'sink' => $this->temp_filestore,
         ]);
 
     }
@@ -134,9 +131,8 @@ class Composer extends AbstractUtil
         $success = $this->runCommandWithOutput($command, 'Composer Installation');
 
         // Make sure composer installed fine.
-        if (!$success)
+        if (! $success)
             throw new ComposerInstallException('Composer installation failed.');
-
         // Cleanup the tempfile
         $fs = new Filesystem();
         $fs->remove($this->temp_filestore);
@@ -152,7 +148,7 @@ class Composer extends AbstractUtil
 
         $path = getenv('PATH');
 
-        if (!strpos($path, $this->executable_path))
+        if (! strpos($path, $this->executable_path))
             $this->io->warning('Installation path ' . $this->executable_path . ' is not ' .
                 'in the PATH environment variable. This may cause tools to fail when ' .
                 'they need to use composer.');
@@ -180,19 +176,16 @@ class Composer extends AbstractUtil
     {
 
         // Ensure that we have Composer
-        if (!$this->hasComposer())
+        if (! $this->hasComposer())
             throw new ComposerInstallException('Cant find composer to update. Maybe install it first?');
-
         // Prep and run the update
         $command = $this->findExecutable('composer') . ' self-update --no-interaction --no-ansi';
         $success = $this->runCommandWithOutput($command, '');
 
-        if (!$success)
+        if (! $success)
             throw new ComposerInstallException('Failed to update Composer');
-
         $this->io->success('Composer Update Complete');
     }
-
 
     /**
      * Update composer installed packages in a specific path.
@@ -205,16 +198,14 @@ class Composer extends AbstractUtil
     {
 
         // Ensure that we have Composer
-        if (!$this->hasComposer())
+        if (! $this->hasComposer())
             throw new ComposerInstallException('Cant find composer to update. Maybe install it first?');
-
         // Prep and run the update
         $command = $this->findExecutable('composer') . ' update --no-interaction --no-ansi ' .
             '--no-dev --no-progress -d ' . $path;
         $success = $this->runCommandWithOutput($command, '');
 
-        if (!$success)
+        if (! $success)
             throw new ComposerInstallException('Failed to update Composer');
-
     }
 }

@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Utils;
-
 
 use Seat\Installer\Traits\DetectsOperatingSystem;
 use Seat\Installer\Traits\DownloadsResources;
@@ -29,12 +29,11 @@ use Seat\Installer\Utils\Interfaces\WebServer;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class Nginx
+ * Class Nginx.
  * @package Seat\Installer\Utils
  */
 class Nginx extends AbstractUtil implements WebServer
 {
-
     use DetectsOperatingSystem, DownloadsResources;
 
     /**
@@ -52,11 +51,11 @@ class Nginx extends AbstractUtil implements WebServer
     protected $webserver_users = [
         'ubuntu' => [
             '16.04' => 'www-data',
-            '16.10' => 'www-data'
+            '16.10' => 'www-data',
         ],
         'centos' => [
             '6' => 'nginx',
-            '7' => 'apache'
+            '7' => 'apache',
         ],
         'debian' => [
             '8' => 'www-data',
@@ -88,25 +87,25 @@ class Nginx extends AbstractUtil implements WebServer
         'ubuntu' => [
             '16.04' => [
                 'systemctl restart nginx.service',
-                'systemctl restart php7.0-fpm.service'
+                'systemctl restart php7.0-fpm.service',
             ],
             '16.10' => [
                 'systemctl restart nginx.service',
-                'systemctl restart php7.0-fpm.service'
-            ]
+                'systemctl restart php7.0-fpm.service',
+            ],
         ],
         'centos' => [
             '6' => [],
             '7' => [
                 'systemctl restart nginx.service',
-                'systemctl restart php-fpm.service'
-            ]
+                'systemctl restart php-fpm.service',
+            ],
         ],
         'debian' => [
             '8' => [
                 'systemctl restart nginx.service',
-                'systemctl restart php7.0-fpm.service'
-            ]
+                'systemctl restart php7.0-fpm.service',
+            ],
         ],
     ];
 
@@ -206,8 +205,8 @@ class Nginx extends AbstractUtil implements WebServer
         $ver = $this->getOperatingSystem()['version'];
 
         if (
-            !array_key_exists($os, $this->webserver_users) ||
-            !array_key_exists($ver, $this->webserver_users[$os])
+            ! array_key_exists($os, $this->webserver_users) ||
+            ! array_key_exists($ver, $this->webserver_users[$os])
         )
             return false;
 
@@ -215,7 +214,7 @@ class Nginx extends AbstractUtil implements WebServer
     }
 
     /**
-     * Apply the cgi.fix_pathinfo configuration change
+     * Apply the cgi.fix_pathinfo configuration change.
      */
     protected function fixCgiPath()
     {

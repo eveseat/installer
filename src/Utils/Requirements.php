@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Utils;
-
 
 use Seat\Installer\Exceptions\OperatingSystemNotSupportedException;
 use Seat\Installer\Exceptions\UnsupportedPhpVersionException;
@@ -30,12 +30,11 @@ use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 
 /**
- * Class Requirements
+ * Class Requirements.
  * @package Seat\Installer\Utils
  */
 class Requirements extends AbstractUtil
 {
-
     use DetectsOperatingSystem, ChecksForRootUser, FindsExecutables;
 
     /**
@@ -74,20 +73,19 @@ class Requirements extends AbstractUtil
     private $requirements_ok = true;
 
     /**
-     * Check the requirements for SeAT
+     * Check the requirements for SeAT.
      */
     public function checkSoftwareRequirements()
     {
 
-        if (!$this->hasMinimumPhpVersion())
+        if (! $this->hasMinimumPhpVersion())
             throw new UnsupportedPhpVersionException(
                 'PHP version ' . $this->phpversion . ' is not supported. ' .
                 'Please install at least PHP version 7'
             );
 
-        if (!$this->hasSupportedOs())
+        if (! $this->hasSupportedOs())
             throw new OperatingSystemNotSupportedException('Unsupported Operating System');
-
     }
 
     /**
@@ -115,10 +113,9 @@ class Requirements extends AbstractUtil
         else
             $this->io->note('Unable to determine Operating System');
 
-        return (
+        return
             array_key_exists($os['os'], $this->supported_os) &&
-            in_array($os['version'], $this->supported_os[$os['os']])
-        );
+            in_array($os['version'], $this->supported_os[$os['os']]);
 
     }
 
@@ -128,7 +125,7 @@ class Requirements extends AbstractUtil
     public function checkPhpRequirements(): bool
     {
 
-        if (!$this->hasAllPhpExtentions()) {
+        if (! $this->hasAllPhpExtentions()) {
 
             $this->requirements_ok = false;
 
@@ -136,7 +133,7 @@ class Requirements extends AbstractUtil
             // the missing extension.
             foreach ($this->php_extentions as $name => $loaded) {
 
-                if (!$loaded) {
+                if (! $loaded) {
 
                     $this->io->error('PHP Extention ' . $name . ' not loaded');
 
@@ -169,7 +166,7 @@ class Requirements extends AbstractUtil
                 $this->php_extentions[$name] = true;
         }
 
-        return !in_array(null, $this->php_extentions);
+        return ! in_array(null, $this->php_extentions);
 
     }
 
@@ -179,7 +176,7 @@ class Requirements extends AbstractUtil
     public function checkAccessRequirements()
     {
 
-        if (!$this->haveRootAccess()) {
+        if (! $this->haveRootAccess()) {
 
             $this->requirements_ok = false;
             $this->io->error('Not running as root');
@@ -196,7 +193,7 @@ class Requirements extends AbstractUtil
         if ($commands)
             $this->executables = $commands;
 
-        if (!$executables = $this->hasAllCommands()) {
+        if (! $executables = $this->hasAllCommands()) {
 
             $this->requirements_ok = false;
 
@@ -228,7 +225,7 @@ class Requirements extends AbstractUtil
 
         $this->executables = $this->findExecutables($this->executables);
 
-        return !in_array(null, $this->executables);
+        return ! in_array(null, $this->executables);
 
     }
 

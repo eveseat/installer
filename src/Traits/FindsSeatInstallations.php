@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Traits;
-
 
 use Dotenv\Dotenv;
 use Dotenv\Exception\InvalidPathException;
@@ -28,12 +28,11 @@ use Seat\Installer\Exceptions\SeatNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class FindsSeatInstallations
+ * Class FindsSeatInstallations.
  * @package Seat\Installer\Traits
  */
 trait FindsSeatInstallations
 {
-
     /**
      * Paths to use for automatic detection.
      *
@@ -57,11 +56,11 @@ trait FindsSeatInstallations
      */
     protected $needed_files = [
         'directories' => [
-            'app', 'changelogs', 'database'
+            'app', 'changelogs', 'database',
         ],
         'files'       => [
-            'artisan', 'composer.json', 'server.php'
-        ]
+            'artisan', 'composer.json', 'server.php',
+        ],
     ];
 
     /**
@@ -99,12 +98,12 @@ trait FindsSeatInstallations
                     } else {
 
                         // Warn that the value might be invalid
-                        echo('SeAT path in /etc/seat-tool.conf appears invalid!');
+                        echo 'SeAT path in /etc/seat-tool.conf appears invalid!';
                     }
 
                 } else {
 
-                    echo('SeAT path /etc/seat-tool.conf does not exist.');
+                    echo 'SeAT path /etc/seat-tool.conf does not exist.';
                 }
             }
 
@@ -118,7 +117,7 @@ trait FindsSeatInstallations
         foreach ($this->possible_path as $path) {
 
             // If the path does not exist, well just continue then
-            if (!$fs->exists($path))
+            if (! $fs->exists($path))
                 continue;
 
             if ($this->testPath($path))
@@ -185,5 +184,4 @@ trait FindsSeatInstallations
         return false;
 
     }
-
 }

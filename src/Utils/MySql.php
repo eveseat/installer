@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Utils;
-
 
 use PDO;
 use PDOException;
@@ -33,12 +33,11 @@ use Seat\Installer\Utils\Abstracts\AbstractUtil;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class MySql
+ * Class MySql.
  * @package Seat\Installer\Utils
  */
 class MySql extends AbstractUtil
 {
-
     use DownloadsResources, DetectsOperatingSystem, FindsExecutables, GeneratesPasswords;
 
     /**
@@ -67,7 +66,7 @@ class MySql extends AbstractUtil
             '16.10' => [
                 'systemctl enable mysql.service',
                 'systemctl restart mysql.service',
-            ]
+            ],
         ],
 
         'centos' => [
@@ -77,15 +76,15 @@ class MySql extends AbstractUtil
             ],
             '6' => [
                 'chkconfig mysqld on',
-                '/etc/init.d/mysqld restart'
-            ]
+                '/etc/init.d/mysqld restart',
+            ],
         ],
         'debian' => [
             '8' => [
                 'systemctl enable mysql.service',
                 'systemctl restart mysql.service',
-            ]
-        ]
+            ],
+        ],
     ];
 
     /**
@@ -111,7 +110,7 @@ class MySql extends AbstractUtil
     }
 
     /**
-     * Install MySQL
+     * Install MySQL.
      */
     public function install()
     {
@@ -135,10 +134,8 @@ class MySql extends AbstractUtil
         foreach ($this->restart_enable_commands[$os['os']][$os['version']] as $command)
             $success = $this->runCommandWithOutput($command, 'MySQL Restart');
 
-        if (!$success)
+        if (! $success)
             throw new MySqlConfigurationException('Unable to restart MySQL');
-
-
     }
 
     /**
@@ -174,7 +171,7 @@ class MySql extends AbstractUtil
                 $this->credentials['username'],
                 $this->credentials['password'],
                 [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 ]);
 
         } catch (PDOException $e) {
@@ -215,7 +212,6 @@ class MySql extends AbstractUtil
         $this->io->text('Creating Database and adding user for SeAT');
         $this->createUserAndDatabase();
 
-
     }
 
     /**
@@ -239,11 +235,9 @@ class MySql extends AbstractUtil
         $success = $this->runCommandWithOutput($script, 'MySQL Secure Installation');
 
         // Make sure it ran fine.
-        if (!$success)
+        if (! $success)
             throw new MySqlConfigurationException('MySQL configuration failed.');
-
     }
-
 
     /**
      * Save the current credentials to a json encoded file.
@@ -273,7 +267,7 @@ class MySql extends AbstractUtil
             // Login as root to create the new user.
             $handler = new PDO('mysql:host=localhost', 'root',
                 $this->credentials['root_password'], [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 ]);
 
             // Create the databse
@@ -289,5 +283,4 @@ class MySql extends AbstractUtil
             throw new MySqlConfigurationException($e->getMessage());
         }
     }
-
 }

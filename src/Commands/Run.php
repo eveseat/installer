@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Commands;
-
 
 use Seat\Installer\Exceptions\SeatNotFoundException;
 use Seat\Installer\Traits\FindsExecutables;
@@ -34,12 +34,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class Run
+ * Class Run.
  * @package Seat\Installer\Commands
  */
 class Run extends Command
 {
-
     use FindsSeatInstallations, FindsExecutables, RunsCommands;
 
     /**
@@ -53,7 +52,7 @@ class Run extends Command
     protected $seat_path;
 
     /**
-     * Setup the command
+     * Setup the command.
      */
     protected function configure()
     {
@@ -86,8 +85,6 @@ class Run extends Command
         // Run the command
         $this->runCommandWithOutput($command, '');
 
-        return;
-
     }
 
     /**
@@ -99,7 +96,7 @@ class Run extends Command
     {
 
         // Check if we have a path to test, or should autodetect.
-        if (!is_null($input->getOption('seat-path'))) {
+        if (! is_null($input->getOption('seat-path'))) {
 
             if ($this->isSeatInstallation($input->getOption('seat-path')))
                 $this->seat_path = $input->getOption('seat-path');
@@ -115,5 +112,4 @@ class Run extends Command
         $this->io->text('SeAT Path detected at: ' . $this->seat_path);
 
     }
-
 }

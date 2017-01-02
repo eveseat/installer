@@ -1,38 +1,37 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Utils;
-
 
 use Seat\Installer\Exceptions\PackageInstallationFailedException;
 use Seat\Installer\Traits\DetectsOperatingSystem;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 
 /**
- * Class PackageInstaller
+ * Class PackageInstaller.
  * @package Seat\Installer\Utils
  */
 class PackageInstaller extends AbstractUtil
 {
-
     use DetectsOperatingSystem;
 
     /**
@@ -61,7 +60,7 @@ class PackageInstaller extends AbstractUtil
             '16.10' => [
                 'pdo_mysql' => 'php-mysql',
                 'posix'     => 'php-common',
-            ]
+            ],
         ],
 
         'centos' => [
@@ -72,15 +71,15 @@ class PackageInstaller extends AbstractUtil
             '6' => [
                 'pdo_mysql' => 'php-mysql',
                 'posix'     => 'php-posix',
-            ]
+            ],
         ],
 
         'debian' => [
             '8' => [
                 'pdo_mysql' => 'php-mysql',
-                'posix'     => 'php-common'
-            ]
-        ]
+                'posix'     => 'php-common',
+            ],
+        ],
     ];
 
     /**
@@ -107,13 +106,13 @@ class PackageInstaller extends AbstractUtil
             '7' => [
                 'unzip'     => 'unzip',
                 'git'       => 'git',
-                'pdo_mysql' => 'php-mysql'
+                'pdo_mysql' => 'php-mysql',
             ],
             '6' => [
                 'unzip'     => 'unzip',
                 'git'       => 'git',
-                'pdo_mysql' => 'php-mysql'
-            ]
+                'pdo_mysql' => 'php-mysql',
+            ],
         ],
 
         // Debian
@@ -121,9 +120,9 @@ class PackageInstaller extends AbstractUtil
             '8' => [
                 'unzip'     => 'unzip',
                 'git'       => 'git',
-                'pdo_mysql' => 'php-mysql'
-            ]
-        ]
+                'pdo_mysql' => 'php-mysql',
+            ],
+        ],
     ];
 
     /**
@@ -136,48 +135,48 @@ class PackageInstaller extends AbstractUtil
             // Ubuntu 16.04 LTS
             '16.04' => [
                 'mysql'      => [
-                    'mysql-server', 'expect'
+                    'mysql-server', 'expect',
                 ],
                 'php'        => [
                     'php-cli', 'php-mcrypt', 'php-intl',
                     'php-mysql', 'php-curl', 'php-gd',
-                    'php-mbstring', 'php-bz2', 'php-dom'
+                    'php-mbstring', 'php-bz2', 'php-dom',
                 ],
                 'apache'     => [
-                    'apache2', 'libapache2-mod-php'
+                    'apache2', 'libapache2-mod-php',
                 ],
                 'nginx'      => [
-                    'nginx', 'php-fpm'
+                    'nginx', 'php-fpm',
                 ],
                 'redis'      => [
-                    'redis-server'
+                    'redis-server',
                 ],
                 'supervisor' => [
-                    'supervisor'
-                ]
+                    'supervisor',
+                ],
             ],
             '16.10' => [
                 'mysql'      => [
-                    'mysql-server', 'expect'
+                    'mysql-server', 'expect',
                 ],
                 'php'        => [
                     'php-cli', 'php-mcrypt', 'php-intl',
                     'php-mysql', 'php-curl', 'php-gd',
-                    'php-mbstring', 'php-bz2', 'php-dom'
+                    'php-mbstring', 'php-bz2', 'php-dom',
                 ],
                 'apache'     => [
-                    'apache2', 'libapache2-mod-php'
+                    'apache2', 'libapache2-mod-php',
                 ],
                 'nginx'      => [
-                    'nginx', 'php-fpm'
+                    'nginx', 'php-fpm',
                 ],
                 'redis'      => [
-                    'redis-server'
+                    'redis-server',
                 ],
                 'supervisor' => [
-                    'supervisor'
-                ]
-            ]
+                    'supervisor',
+                ],
+            ],
         ],
 
         // CentOS
@@ -185,73 +184,73 @@ class PackageInstaller extends AbstractUtil
             // CentOS 7
             '7' => [
                 'mysql'      => [
-                    'mariadb-server', 'expect'
+                    'mariadb-server', 'expect',
                 ],
                 'php'        => [
                     'php-mysql', 'php-cli', 'php-mcrypt', 'php-process',
-                    'php-mbstring', 'php-intl', 'php-dom', 'php-gd'
+                    'php-mbstring', 'php-intl', 'php-dom', 'php-gd',
                 ],
                 'apache'     => [
-                    'httpd', 'php'
+                    'httpd', 'php',
                 ],
                 'nginx'      => [
-                    'nginx', 'php-fpm'
+                    'nginx', 'php-fpm',
                 ],
                 'redis'      => [
-                    'redis'
+                    'redis',
                 ],
                 'supervisor' => [
-                    'supervisor'
-                ]
+                    'supervisor',
+                ],
             ],
             // CentOS 6
             '6' => [
                 'mysql'      => [
-                    'mysql', 'mysql-server', 'expect'
+                    'mysql', 'mysql-server', 'expect',
                 ],
                 'php'        => [
                     'php-mysql', 'php-cli', 'php-mcrypt', 'php-process',
-                    'php-mbstring', 'php-intl', 'php-dom', 'php-gd'
+                    'php-mbstring', 'php-intl', 'php-dom', 'php-gd',
                 ],
                 'apache'     => [
-                    'httpd', 'php'
+                    'httpd', 'php',
                 ],
                 'nginx'      => [
-                    'nginx', 'php-fpm'
+                    'nginx', 'php-fpm',
                 ],
                 'redis'      => [
-                    'redis'
+                    'redis',
                 ],
                 'supervisor' => [
-                    'supervisor'
-                ]
-            ]
+                    'supervisor',
+                ],
+            ],
         ],
 
         'debian' => [
             '8' => [
                 'mysql'      => [
-                    'mysql-server', 'expect'
+                    'mysql-server', 'expect',
                 ],
                 'php'        => [
                     'php-cli', 'php-mcrypt', 'php-intl',
                     'php-mysql', 'php-curl', 'php-gd',
-                    'php-mbstring', 'php-bz2', 'php-xml'
+                    'php-mbstring', 'php-bz2', 'php-xml',
                 ],
                 'apache'     => [
-                    'apache2', 'libapache2-mod-php'
+                    'apache2', 'libapache2-mod-php',
                 ],
                 'nginx'      => [
-                    'nginx', 'php-fpm'
+                    'nginx', 'php-fpm',
                 ],
                 'redis'      => [
-                    'redis-server'
+                    'redis-server',
                 ],
                 'supervisor' => [
-                    'supervisor'
-                ]
-            ]
-        ]
+                    'supervisor',
+                ],
+            ],
+        ],
     ];
 
     /**
@@ -287,9 +286,8 @@ class PackageInstaller extends AbstractUtil
         $success = $this->runCommandWithOutput($command, 'Package Installation (' . $package . ')');
 
         // Make sure composer installed fine.
-        if (!$success)
+        if (! $success)
             throw new PackageInstallationFailedException($package . ' installation failed.');
-
         $this->io->success('Package ' . $package . ' installed OK');
 
     }
@@ -309,7 +307,6 @@ class PackageInstaller extends AbstractUtil
 
         return $this->os;
 
-
     }
 
     /**
@@ -325,7 +322,6 @@ class PackageInstaller extends AbstractUtil
             $this->command_packages[$this->getOs()['os']][$this->getOs()['version']])
         ) {
 
-
             $package = $this->command_packages[$this->getOs()['os']][$this->getOs()['version']][$command];
             $this->io->text('Installing package \'' . $package . '\' for the command');
 
@@ -336,8 +332,6 @@ class PackageInstaller extends AbstractUtil
 
         $this->io->text('Not sure which package has the command. Going to try just installing the command.');
         $this->installPackage($command);
-
-        return;
 
     }
 
@@ -351,11 +345,10 @@ class PackageInstaller extends AbstractUtil
 
         $this->io->text('Installing packages for package group: \'' . $group_name . '\'.');
 
-        if (!array_key_exists($group_name,
+        if (! array_key_exists($group_name,
             $this->package_groups[$this->getOs()['os']][$this->getOs()['version']])
         )
             throw new PackageInstallationFailedException('Unknown package group: ' . $group_name);
-
         // Install the packages in the package group.
         foreach ($this->package_groups[$this->getOs()['os']][$this->getOs()['version']][$group_name] as $package)
             $this->installPackage($package);
@@ -378,7 +371,6 @@ class PackageInstaller extends AbstractUtil
             $this->php_extention_packages[$this->getOs()['os']][$this->getOs()['version']])
         ) {
 
-
             $package = $this->php_extention_packages[$this->getOs()['os']][$this->getOs()['version']][$extention];
             $this->io->text('Installing package \'' . $package . '\' for the command');
 
@@ -391,5 +383,4 @@ class PackageInstaller extends AbstractUtil
             'Unable to find package for PHP extention: ' . $extention);
 
     }
-
 }

@@ -1,23 +1,24 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Commands\Install;
 
@@ -37,12 +38,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class InstallDevCommand
+ * Class InstallDevCommand.
  * @package Seat\Installer
  */
 class Development extends Command
 {
-
     use FindsExecutables, RunsCommands;
 
     /**
@@ -73,13 +73,13 @@ class Development extends Command
     protected $packages_directory = '/packages/eveseat';
 
     /**
-     * The Main Glue
+     * The Main Glue.
      *
      * @var array
      */
     protected $repositories = [
 
-        'seat' => 'https://github.com/eveseat/seat.git'
+        'seat' => 'https://github.com/eveseat/seat.git',
     ];
 
     /**
@@ -95,7 +95,7 @@ class Development extends Command
         'installer'     => 'https://github.com/eveseat/installer.git',
         'notifications' => 'https://github.com/eveseat/notifications.git',
         'services'      => 'https://github.com/eveseat/services.git',
-        'web'           => 'https://github.com/eveseat/web.git'
+        'web'           => 'https://github.com/eveseat/web.git',
     ];
 
     /**
@@ -104,7 +104,7 @@ class Development extends Command
     protected $composer_json = 'https://raw.githubusercontent.com/eveseat/scripts/master/development/composer.dev.json';
 
     /**
-     * Setup the command
+     * Setup the command.
      */
     protected function configure()
     {
@@ -134,7 +134,7 @@ class Development extends Command
         $this->io->title('SeAT Development Installer');
 
         // Ensure that we should continue.
-        if (!$this->confirmContinue()) {
+        if (! $this->confirmContinue()) {
 
             $this->io->text('Installer stopped via user cancel.');
 
@@ -169,7 +169,7 @@ class Development extends Command
 
         // Copy the .env.example file
         $this->io->text('Preparing .env file...');
-        if (!file_exists($this->install_directory . '/.env'))
+        if (! file_exists($this->install_directory . '/.env'))
             copy($this->install_directory . '/.env.example', $this->install_directory . '/.env');
 
         // Enable debug
@@ -219,7 +219,7 @@ class Development extends Command
     {
 
         $composer = new Composer($this->io);
-        if (!$composer->hasComposer())
+        if (! $composer->hasComposer())
             $composer->install();
 
     }
@@ -237,12 +237,10 @@ class Development extends Command
             // Make sure we found the executable.
             if (is_null($path))
                 throw new ExecutableNotFoundException('Cant find executable for ' . $exeutable);
-
             $this->io->comment('Using ' . $path . ' for ' . $exeutable);
             $this->executables[$exeutable] = $path;
         }
 
-        return;
     }
 
     /**
@@ -256,7 +254,7 @@ class Development extends Command
         $required_ext = ['intl', 'gd', 'PDO', 'curl', 'mbstring', 'dom', 'xml', 'zip', 'bz2'];
 
         foreach ($required_ext as $extention)
-            if (!extension_loaded($extention))
+            if (! extension_loaded($extention))
                 throw new MissingPhpExtentionExeption(
                     'PHP Extention ' . $extention . ' not installed.');
     }
@@ -282,7 +280,6 @@ class Development extends Command
         // Make sure the path does not already exist
         if (file_exists($full_path))
             throw new NonEmptyDirectoryException($path . ' already exists');
-
         // Set the install path.
         $this->install_directory = $full_path;
 
@@ -291,7 +288,6 @@ class Development extends Command
         $this->packages_directory = $this->install_directory .
             $this->packages_directory;
 
-        return;
     }
 
     /**
@@ -309,8 +305,6 @@ class Development extends Command
 
         $this->io->success('Cloned ' . $repository . ' to ' . $path);
 
-        return;
-
     }
 
     /**
@@ -325,7 +319,7 @@ class Development extends Command
         // Perform the download
         $client = new Client();
         $client->request('GET', $this->composer_json, [
-            'sink' => 'composer.json'
+            'sink' => 'composer.json',
         ]);
 
         // Perform the composer install
@@ -333,11 +327,8 @@ class Development extends Command
         $success = $this->runCommandWithOutput($command, '');
 
         // Make sure composer installed fine.
-        if (!$success)
+        if (! $success)
             throw new ComposerInstallException('Composer installation failed.');
-
-        return;
-
     }
 
     /**
@@ -351,8 +342,6 @@ class Development extends Command
         $file_contents = str_replace('APP_DEBUG=false', 'APP_DEBUG=true', $file_contents);
         file_put_contents($path_to_file, $file_contents);
 
-        return;
-
     }
 
     /**
@@ -364,8 +353,5 @@ class Development extends Command
         chdir($this->install_directory);
         $this->runCommandWithOutput($this->executables['php'] . ' artisan key:generate', 'Encryption');
 
-        return;
-
     }
-
 }

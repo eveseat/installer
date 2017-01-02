@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Commands\Update;
-
 
 use Seat\Installer\Exceptions\SeatNotFoundException;
 use Seat\Installer\Traits\FindsSeatInstallations;
@@ -34,12 +34,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class SeatCommand
+ * Class SeatCommand.
  * @package Seat\Installer\Commands\Update
  */
 class SeatCommand extends Command
 {
-
     use FindsSeatInstallations;
 
     /**
@@ -48,7 +47,7 @@ class SeatCommand extends Command
     protected $seat_path;
 
     /**
-     * Setup the command
+     * Setup the command.
      */
     protected function configure()
     {
@@ -87,13 +86,12 @@ class SeatCommand extends Command
         // Start by ensuring that the SeAT path is ok.
         $this->findAndSetSeatPath($input);
 
-        if (!$this->confirmContinue()) {
+        if (! $this->confirmContinue()) {
 
             $this->io->text('Installer stopped via user cancel.');
 
             return;
         }
-
 
         $this->markSeatOffline();
 
@@ -101,7 +99,7 @@ class SeatCommand extends Command
         $this->updatePackages();
         $this->runSeatArtisanCommands();
 
-        if (!$input->getOption('ignore-supervisor'))
+        if (! $input->getOption('ignore-supervisor'))
             $this->restartWorkers();
 
         $this->markSeatOnline();
@@ -119,7 +117,7 @@ class SeatCommand extends Command
     {
 
         // Check if we have a path to test, or should autodetect.
-        if (!is_null($input->getOption('seat-path'))) {
+        if (! is_null($input->getOption('seat-path'))) {
 
             if ($this->isSeatInstallation($input->getOption('seat-path')))
                 $this->seat_path = $input->getOption('seat-path');
@@ -155,7 +153,7 @@ class SeatCommand extends Command
             'Update the SeAT packages as well as dependencies.',
             'Run the SeAT asset publisher, databasse migrations and seeders.',
             'Restart the Supervisor workers.',
-            'Mark SeAT as online.'
+            'Mark SeAT as online.',
         ]);
 
         if ($this->io->confirm('Would like to continue with the update?'))
@@ -165,7 +163,7 @@ class SeatCommand extends Command
     }
 
     /**
-     * Mark SeAT as down
+     * Mark SeAT as down.
      */
     public function markSeatOffline()
     {
@@ -186,7 +184,7 @@ class SeatCommand extends Command
         $composer = new Composer($this->io);
 
         // If we dont have composer, install it.
-        if (!$composer->hasComposer())
+        if (! $composer->hasComposer())
             $composer->install();
         else
             $composer->update();
@@ -205,7 +203,7 @@ class SeatCommand extends Command
     }
 
     /**
-     * Run the migrations, seeds, publishers
+     * Run the migrations, seeds, publishers.
      */
     protected function runSeatArtisanCommands()
     {
@@ -229,7 +227,7 @@ class SeatCommand extends Command
     }
 
     /**
-     * Mark SeAT as up
+     * Mark SeAT as up.
      */
     public function markSeatOnline()
     {
@@ -238,5 +236,4 @@ class SeatCommand extends Command
         $seat->setPath($this->seat_path);
         $seat->markApplicationUp();
     }
-
 }

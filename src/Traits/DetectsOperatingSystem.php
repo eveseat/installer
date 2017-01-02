@@ -1,43 +1,42 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Traits;
-
 
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class DetectsOperatingSystem
+ * Class DetectsOperatingSystem.
  * @package Seat\Installer\Traits
  */
 trait DetectsOperatingSystem
 {
-
     /**
      * @var array
      */
     protected $release_files = [
         'ubuntu' => 'lsb-release',
         'centos' => 'centos-release',
-        'debian' => 'debian_version'
+        'debian' => 'debian_version',
     ];
 
     /**
@@ -49,28 +48,28 @@ trait DetectsOperatingSystem
         'ubuntu' => [
             [
                 'version'   => '16.04',
-                'signature' => 'Ubuntu 16.04'
+                'signature' => 'Ubuntu 16.04',
             ],
             [
                 'version'   => '16.10',
-                'signature' => 'Ubuntu 16.10'
-            ]
+                'signature' => 'Ubuntu 16.10',
+            ],
         ],
         'centos' => [
             [
                 'version'   => '7',
-                'signature' => 'CentOS Linux release 7'
+                'signature' => 'CentOS Linux release 7',
             ],
             [
                 'version'   => '6',
-                'signature' => 'CentOS release 6.'
-            ]
+                'signature' => 'CentOS release 6.',
+            ],
         ],
         'debian' => [
             [
                 'version'   => '8',
-                'signature' => '8.'
-            ]
+                'signature' => '8.',
+            ],
         ],
     ];
 
@@ -79,7 +78,7 @@ trait DetectsOperatingSystem
      */
     protected $os_version = [
         'os'      => null,
-        'version' => null
+        'version' => null,
     ];
 
     /**
@@ -123,5 +122,4 @@ trait DetectsOperatingSystem
         return $this->os_version;
 
     }
-
 }

@@ -1,26 +1,26 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Utils;
-
 
 use Seat\Installer\Exceptions\ArtisanCommandFailed;
 use Seat\Installer\Exceptions\SeatDownloadFailedException;
@@ -28,12 +28,11 @@ use Seat\Installer\Traits\FindsExecutables;
 use Seat\Installer\Utils\Abstracts\AbstractUtil;
 
 /**
- * Class Seat
+ * Class Seat.
  * @package Seat\Installer\Utils
  */
 class Seat extends AbstractUtil
 {
-
     use FindsExecutables;
 
     /**
@@ -42,7 +41,7 @@ class Seat extends AbstractUtil
     protected $path;
 
     /**
-     * Install SeAT
+     * Install SeAT.
      */
     public function install()
     {
@@ -59,9 +58,8 @@ class Seat extends AbstractUtil
         $success = $this->runCommandWithOutput($command, '');
 
         // Make sure SeAT installed fine.
-        if (!$success)
+        if (! $success)
             throw new SeatDownloadFailedException('SeAT download failed.');
-
         $this->io->success('SeAT Downloaded OK');
 
     }
@@ -144,14 +142,13 @@ class Seat extends AbstractUtil
             $success = $this->runCommandWithOutput($command, 'SeAT Setup Command');
 
             // Make sure composer installed fine.
-            if (!$success)
+            if (! $success)
                 throw new ArtisanCommandFailed('Setup failed.');
-
         }
     }
 
     /**
-     * Return the artisan command relative to the SeAT path
+     * Return the artisan command relative to the SeAT path.
      */
     public function getArtisan(): string
     {
@@ -172,13 +169,12 @@ class Seat extends AbstractUtil
         $success = $this->runCommandWithOutput($command, '');
 
         // Make sure composer installed fine.
-        if (!$success)
+        if (! $success)
             throw new ArtisanCommandFailed('SDE Update failed.');
-
     }
 
     /**
-     * Mark a SeAT instance as Up
+     * Mark a SeAT instance as Up.
      */
     public function markApplicationUp()
     {
@@ -199,19 +195,18 @@ class Seat extends AbstractUtil
         $valid_states = ['up', 'down'];
 
         // Ensure we have a valid state.
-        if (!in_array($state, $valid_states))
+        if (! in_array($state, $valid_states))
             throw new ArtisanCommandFailed('Invalid state: ' . $state);
-
         // Run the command
         $success = $this->runCommandWithOutput($this->getArtisan() . ' ' . $state, '');
 
-        if (!$success)
+        if (! $success)
             throw new ArtisanCommandFailed(
                 'Unable to change application state to ' . $state);
     }
 
     /**
-     * Mark a SeAT instance as Down
+     * Mark a SeAT instance as Down.
      */
     public function markApplicationDown()
     {
@@ -228,8 +223,7 @@ class Seat extends AbstractUtil
         $success = $this->runCommandWithOutput($this->getArtisan() .
             ' config:clear');
 
-        if (!$success)
+        if (! $success)
             throw new ArtisanCommandFailed('Unable to update the config cache');
     }
-
 }

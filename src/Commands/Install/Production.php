@@ -1,23 +1,24 @@
 <?php
+
 /*
-This file is part of SeAT
-
-Copyright (C) 2015, 2016  Leon Jacobs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ * This file is part of SeAT
+ *
+ * Copyright (C) 2015, 2016, 2017  Leon Jacobs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 namespace Seat\Installer\Commands\Install;
 
@@ -40,12 +41,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class InstallProdCommand
+ * Class InstallProdCommand.
  * @package Seat\Installer
  */
 class Production extends Command
 {
-
     /**
      * @var
      */
@@ -75,11 +75,11 @@ class Production extends Command
         ],
         'nginx'  => [
             'installer' => Nginx::class,
-        ]
+        ],
     ];
 
     /**
-     * Setup the command
+     * Setup the command.
      */
     protected function configure()
     {
@@ -108,7 +108,7 @@ class Production extends Command
         $this->seat_destination = $input->getOption('seat-destination');
 
         // Ensure that we should continue.
-        if (!$this->confirmContinue()) {
+        if (! $this->confirmContinue()) {
 
             $this->io->text('Installer stopped via user cancel.');
 
@@ -123,14 +123,14 @@ class Production extends Command
         else
             // Get the webserver to use.
             $this->webserver_choice = $this->io->choice('Which webserver do you want to use?', [
-                'apache', 'nginx'
+                'apache', 'nginx',
             ], 'apache');
 
         // Prepare the SeAT installation directory
         $this->createInstallDirectory();
 
         // Process requirements
-        if (!$this->checkRequirements())
+        if (! $this->checkRequirements())
             return;
 
         $this->checkComposer();
@@ -182,7 +182,7 @@ class Production extends Command
             'Install SeAT.',
             'Install & Configure supervisor.',
             'Setup the crontab for SeAT.',
-            'Install and configure a Webserver.'
+            'Install and configure a Webserver.',
         ]);
 
         $this->io->text('It may be needed to restart the installer sometimes to continue.');
@@ -194,7 +194,7 @@ class Production extends Command
     }
 
     /**
-     * Creates the installation directory
+     * Creates the installation directory.
      */
     protected function createInstallDirectory()
     {
@@ -220,13 +220,13 @@ class Production extends Command
 
         // Some PHP dependencies can break this tool. Force
         // a rerun of they are not met.
-        if (!$requirements->checkPhpRequirements())
+        if (! $requirements->checkPhpRequirements())
             return false;
 
         $requirements->checkAccessRequirements();
         $requirements->checkCommandRequirements();
 
-        if (!$requirements->hasAllRequirements())
+        if (! $requirements->hasAllRequirements())
             return false;
 
         $this->io->success('Passed requirements check');
@@ -246,7 +246,7 @@ class Production extends Command
         $composer = new Composer($this->io);
 
         // If we dont have composer, install it.
-        if (!$composer->hasComposer())
+        if (! $composer->hasComposer())
             $composer->install();
         else
             $composer->update();
@@ -290,7 +290,7 @@ class Production extends Command
 
             $connected = false;
 
-            while (!$connected) {
+            while (! $connected) {
 
                 $this->io->text('If you are back here after a failed intall run, check ' .
                     'the file at ~/.seat-credentials for the auto-generated seat users password.');
@@ -311,7 +311,7 @@ class Production extends Command
 
                 $connected = $mysql->testCredentails();
 
-                if (!$connected)
+                if (! $connected)
                     $this->io->error('Unable to connect to MySql. Please retry.');
 
             }
@@ -323,7 +323,6 @@ class Production extends Command
 
             // Get the creds from the mysql Object
             $this->mysql_credentials = $mysql->getCredentials();
-
 
         } else {
 
@@ -341,12 +340,8 @@ class Production extends Command
 
         }
 
-
     }
 
-    /**
-     *
-     */
     protected function configureRedis()
     {
 
@@ -358,7 +353,7 @@ class Production extends Command
     }
 
     /**
-     * Install the OS packages needed for SeAT
+     * Install the OS packages needed for SeAT.
      */
     protected function installPhpPackages()
     {
@@ -369,7 +364,7 @@ class Production extends Command
     }
 
     /**
-     * Install SeAT
+     * Install SeAT.
      */
     protected function installSeat()
     {
@@ -397,7 +392,7 @@ class Production extends Command
     }
 
     /**
-     * Setup the Crontab
+     * Setup the Crontab.
      */
     protected function setupCrontab()
     {
@@ -413,7 +408,7 @@ class Production extends Command
     }
 
     /**
-     * Setup Supervisor
+     * Setup Supervisor.
      */
     protected function setupSupervisor()
     {
@@ -433,5 +428,4 @@ class Production extends Command
         $supervisor->restart();
 
     }
-
 }
