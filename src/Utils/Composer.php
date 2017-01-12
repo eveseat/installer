@@ -191,10 +191,11 @@ class Composer extends AbstractUtil
      * Update composer installed packages in a specific path.
      *
      * @param string $path
+     * @param bool   $include_dev
      *
      * @throws \Seat\Installer\Exceptions\ComposerInstallException
      */
-    public function updatePackages(string $path)
+    public function updatePackages(string $path, $include_dev = false)
     {
 
         // Ensure that we have Composer
@@ -202,7 +203,8 @@ class Composer extends AbstractUtil
             throw new ComposerInstallException('Cant find composer to update. Maybe install it first?');
         // Prep and run the update
         $command = $this->findExecutable('composer') . ' update --no-interaction --no-ansi ' .
-            '--no-dev --no-progress -d ' . $path;
+            ($include_dev ? '' : '--no-dev ') .
+            '--no-progress -d ' . $path;
         $success = $this->runCommandWithOutput($command, '');
 
         if (! $success)

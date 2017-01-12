@@ -65,7 +65,11 @@ class SeatCommand extends Command
             )
             ->addOption(
                 'ignore-artisan', 'ia', InputOption::VALUE_NONE,
-                'Ignore the artisan commands for database seeders, migrations and assets publishing'
+                'Ignore the artisan commands for database seeders, migrations and assets publishing.'
+            )
+            ->addOption(
+                'include-dev', 'id', InputOption::VALUE_NONE,
+                'Include development packages when updating composer packages.'
             )
             ->setDescription('Update a SeAT Installation');
 
@@ -96,7 +100,7 @@ class SeatCommand extends Command
         $this->markSeatOffline();
 
         $this->checkComposer();
-        $this->updatePackages();
+        $this->updatePackages($input->getOption('include-dev'));
         $this->runSeatArtisanCommands();
 
         if (! $input->getOption('ignore-supervisor'))
@@ -193,12 +197,14 @@ class SeatCommand extends Command
 
     /**
      * Update the Composer packages in the SeAT path.
+     *
+     * @param $include_dev
      */
-    protected function updatePackages()
+    protected function updatePackages($include_dev)
     {
 
         $composer = new Composer($this->io);
-        $composer->updatePackages($this->seat_path);
+        $composer->updatePackages($this->seat_path, $include_dev);
 
     }
 
