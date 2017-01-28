@@ -54,12 +54,12 @@ class PackageInstaller extends AbstractUtil
     protected $php_extention_packages = [
         'ubuntu' => [
             '16.04' => [
-                'pdo_mysql' => 'php-mysql',
-                'posix'     => 'php-common',
+                'pdo_mysql' => 'php7.0-mysql',
+                'posix'     => 'php7.0-common',
             ],
             '16.10' => [
-                'pdo_mysql' => 'php-mysql',
-                'posix'     => 'php-common',
+                'pdo_mysql' => 'php7.0-mysql',
+                'posix'     => 'php7.0-common',
             ],
         ],
 
@@ -92,12 +92,12 @@ class PackageInstaller extends AbstractUtil
             '16.04' => [
                 'unzip'     => 'unzip',
                 'git'       => 'git',
-                'pdo_mysql' => 'php-mysql',
+                'pdo_mysql' => 'php7.0-mysql',
             ],
             '16.10' => [
                 'unzip'     => 'unzip',
                 'git'       => 'git',
-                'pdo_mysql' => 'php-mysql',
+                'pdo_mysql' => 'php7.0-mysql',
             ],
         ],
 
@@ -138,15 +138,15 @@ class PackageInstaller extends AbstractUtil
                     'mysql-server', 'expect',
                 ],
                 'php'        => [
-                    'php-cli', 'php-mcrypt', 'php-intl',
-                    'php-mysql', 'php-curl', 'php-gd',
-                    'php-mbstring', 'php-bz2', 'php-dom',
+                    'php7.0-cli', 'php7.0-mcrypt', 'php7.0-intl',
+                    'php7.0-mysql', 'php7.0-curl', 'php7.0-gd',
+                    'php7.0-mbstring', 'php7.0-bz2', 'php7.0-xml',
                 ],
                 'apache'     => [
-                    'apache2', 'libapache2-mod-php',
+                    'apache2', 'libapache2-mod-php7.0',
                 ],
                 'nginx'      => [
-                    'nginx', 'php-fpm',
+                    'nginx', 'php7.0-fpm',
                 ],
                 'redis'      => [
                     'redis-server',
@@ -160,15 +160,15 @@ class PackageInstaller extends AbstractUtil
                     'mysql-server', 'expect',
                 ],
                 'php'        => [
-                    'php-cli', 'php-mcrypt', 'php-intl',
-                    'php-mysql', 'php-curl', 'php-gd',
-                    'php-mbstring', 'php-bz2', 'php-dom',
+                    'php7.0-cli', 'php7.0-mcrypt', 'php7.0-intl',
+                    'php7.0-mysql', 'php7.0-curl', 'php7.0-gd',
+                    'php7.0-mbstring', 'php7.0-bz2', 'php7.0-xml',
                 ],
                 'apache'     => [
-                    'apache2', 'libapache2-mod-php',
+                    'apache2', 'libapache2-mod-php7.0',
                 ],
                 'nginx'      => [
-                    'nginx', 'php-fpm',
+                    'nginx', 'php7.0-fpm',
                 ],
                 'redis'      => [
                     'redis-server',
