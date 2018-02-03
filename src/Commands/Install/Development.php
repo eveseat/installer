@@ -125,6 +125,10 @@ class Development extends Command
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      *
      * @return int|null|void
+     * @throws \Seat\Installer\Exceptions\ComposerInstallException
+     * @throws \Seat\Installer\Exceptions\ExecutableNotFoundException
+     * @throws \Seat\Installer\Exceptions\MissingPhpExtentionExeption
+     * @throws \Seat\Installer\Exceptions\NonEmptyDirectoryException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -176,11 +180,14 @@ class Development extends Command
         $this->io->text('Enabling debug mode...');
         $this->enable_debug_mode();
 
+        $this->io->text('Publishing database migrations and other assets...');
+        $this->publish_assets();
+
         // Generate crypto key
         $this->io->text('Generating Encrytion Key...');
         $this->generate_encryption_key();
 
-        $this->io->success('Done! Remember to setup Redis and the DB');
+        $this->io->success('Done! Remember to setup Redis, the DB and to run migrations');
 
     }
 
@@ -342,6 +349,16 @@ class Development extends Command
         $file_contents = str_replace('APP_DEBUG=false', 'APP_DEBUG=true', $file_contents);
         file_put_contents($path_to_file, $file_contents);
 
+    }
+
+    /**
+     * Publish assets such as migrations and web contents.
+     */
+    protected function publish_assets()
+    {
+
+        chdir($this->install_directory);
+        $this->runCommand($this->executables['php'] . ' artisan vendor:publish --force --all');
     }
 
     /**
