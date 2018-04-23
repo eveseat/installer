@@ -70,6 +70,10 @@ trait DetectsOperatingSystem
                 'version'   => '8',
                 'signature' => '8.',
             ],
+            [
+                'version'   => '9',
+                'signature' => '9.',
+            ],
         ],
     ];
 

@@ -79,6 +79,10 @@ class PackageInstaller extends AbstractUtil
                 'pdo_mysql' => 'php-mysql',
                 'posix'     => 'php-common',
             ],
+            '9' => [
+                'pdo_mysql' => 'php7.1-mysql',
+                'posix'     => 'php7.1-common',
+            ],
         ],
     ];
 
@@ -121,6 +125,11 @@ class PackageInstaller extends AbstractUtil
                 'unzip'     => 'unzip',
                 'git'       => 'git',
                 'pdo_mysql' => 'php-mysql',
+            ],
+            '9' => [
+                'unzip'     => 'unzip',
+                'git'       => 'git',
+                'pdo_mysql' => 'php7.1-mysql',
             ],
         ],
     ];
@@ -242,6 +251,28 @@ class PackageInstaller extends AbstractUtil
                 ],
                 'nginx'      => [
                     'nginx', 'php-fpm',
+                ],
+                'redis'      => [
+                    'redis-server',
+                ],
+                'supervisor' => [
+                    'supervisor',
+                ],
+            ],
+            '9' => [
+                'mysql'      => [
+                    'mariadb-server', 'expect',
+                ],
+                'php'        => [
+                    'php7.1-cli', 'php7.1-mcrypt', 'php7.1-intl',
+                    'php7.1-mysql', 'php7.1-curl', 'php7.1-gd',
+                    'php7.1-mbstring', 'php7.1-bz2', 'php7.1-xml',
+                ],
+                'apache'     => [
+                    'apache2', 'libapache2-mod-php7.1',
+                ],
+                'nginx'      => [
+                    'nginx', 'php7.1-fpm',
                 ],
                 'redis'      => [
                     'redis-server',

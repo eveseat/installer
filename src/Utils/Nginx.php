@@ -59,6 +59,7 @@ class Nginx extends AbstractUtil implements WebServer
         ],
         'debian' => [
             '8' => 'www-data',
+            '9' => 'www-data',
         ],
     ];
 
@@ -105,6 +106,10 @@ class Nginx extends AbstractUtil implements WebServer
             '8' => [
                 'systemctl restart nginx.service',
                 'systemctl restart php7.0-fpm.service',
+            ],
+            '9' => [
+                'systemctl restart nginx.service',
+                'systemctl restart php7.1-fpm.service',
             ],
         ],
     ];

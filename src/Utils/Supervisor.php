@@ -70,6 +70,9 @@ class Supervisor extends AbstractUtil
             '8' => [
                 'systemctl enable supervisor.service',
             ],
+            '9' => [
+                'systemctl enable supervisor.service',
+            ],
         ],
     ];
 
@@ -97,6 +100,9 @@ class Supervisor extends AbstractUtil
             '8' => [
                 'systemctl restart supervisor.service',
             ],
+            '9' => [
+                'systemctl restart supervisor.service',
+            ],
         ],
     ];
 
@@ -114,6 +120,7 @@ class Supervisor extends AbstractUtil
         ],
         'debian' => [
             '8' => '/etc/supervisor/conf.d/seat.conf',
+            '9' => '/etc/supervisor/conf.d/seat.conf',
         ],
     ];
 
@@ -131,6 +138,7 @@ class Supervisor extends AbstractUtil
         ],
         'debian' => [
             '8' => '/etc/supervisor/supervisord.conf',
+            '9' => '/etc/supervisor/supervisord.conf',
         ],
     ];
 

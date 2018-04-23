@@ -59,6 +59,7 @@ class Apache extends AbstractUtil implements WebServer
         ],
         'debian' => [
             '8' => 'www-data',
+            '9' => 'www-data',
         ],
     ];
 
