@@ -138,9 +138,9 @@ class PackageInstaller extends AbstractUtil
                     'mysql-server', 'expect',
                 ],
                 'php'        => [
-                    'php-cli', 'php-mcrypt', 'php-intl',
-                    'php-mysql', 'php-curl', 'php-gd',
-                    'php-mbstring', 'php-bz2', 'php-dom',
+                    'php7.1-cli', 'php7.1-mcrypt', 'php7.1-intl',
+                    'php7.1-mysql', 'php7.1-curl', 'php7.1-gd',
+                    'php7.1-mbstring', 'php7.1-bz2', 'php7.1-dom',
                 ],
                 'apache'     => [
                     'apache2', 'libapache2-mod-php',
