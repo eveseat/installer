@@ -129,7 +129,7 @@ class Seat extends AbstractUtil
 
         // An array of commands that need to be run in order to setup SeAT
         $commands = [
-            $artisan . ' vendor:publish --force',
+            $artisan . ' vendor:publish --force --all',
             $artisan . ' migrate',
             $artisan . ' db:seed --class=Seat\\\Notifications\\\database\\\seeds\\\ScheduleSeeder',
             $artisan . ' db:seed --class=Seat\\\Services\\\database\\\seeds\\\NotificationTypesSeeder',
