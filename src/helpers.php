@@ -67,15 +67,15 @@ if (! function_exists('alt_stat')) {
                 'decimal'   => sprintf('%04o', $p),
                 'fileperms' => @fileperms($file),
                 'mode1'     => $p,
-                'mode2'     => $ss['mode'], ],
+                'mode2'     => $ss['mode'],],
 
             'owner' => [
                 'fileowner' => $ss['uid'],
                 'filegroup' => $ss['gid'],
                 'owner'     => (function_exists('posix_getpwuid')) ?
-                        @posix_getpwuid($ss['uid']) : '',
+                    @posix_getpwuid($ss['uid']) : '',
                 'group'     => (function_exists('posix_getgrgid')) ?
-                        @posix_getgrgid($ss['gid']) : '',
+                    @posix_getgrgid($ss['gid']) : '',
             ],
 
             'file' => [
