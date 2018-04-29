@@ -67,7 +67,7 @@ if (! function_exists('alt_stat')) {
                 'decimal'   => sprintf('%04o', $p),
                 'fileperms' => @fileperms($file),
                 'mode1'     => $p,
-                'mode2'     => $ss['mode'],],
+                'mode2'     => $ss['mode'], ],
 
             'owner' => [
                 'fileowner' => $ss['uid'],
