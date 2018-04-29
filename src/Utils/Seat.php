@@ -43,7 +43,7 @@ class Seat extends AbstractUtil
     /**
      * Install SeAT.
      */
-    public function install()
+    public function install($minimum_stability)
     {
 
         $this->io->newLine();
@@ -52,7 +52,7 @@ class Seat extends AbstractUtil
 
         // Prepare the command.
         $command = $this->findExecutable('composer') . ' create-project eveseat/seat ' .
-            $this->getPath() . ' --no-dev --no-ansi --no-progress';
+            $this->getPath() . ' --stability ' . $minimum_stability . ' --no-dev --no-ansi --no-progress';
 
         // Start the installation.
         $success = $this->runCommandWithOutput($command, '');
