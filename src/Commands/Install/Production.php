@@ -160,7 +160,6 @@ class Production extends Command
         $this->setupSupervisor();
 
         $this->io->success('Installation complete!');
-        $this->io->text('Remember to set an admin password with \'php artisan seat:admin:reset\'');
 
     }
 
