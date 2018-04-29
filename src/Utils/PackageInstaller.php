@@ -143,7 +143,7 @@ class PackageInstaller extends AbstractUtil
                     'php7.1-mbstring', 'php7.1-bz2', 'php7.1-dom',
                 ],
                 'apache'     => [
-                    'apache2', 'libapache2-mod-php',
+                    'apache2', 'libapache2-mod-php7.1',
                 ],
                 'nginx'      => [
                     'nginx', 'php-fpm',
