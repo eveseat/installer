@@ -125,6 +125,13 @@ class Requirements extends AbstractUtil
     public function checkPhpRequirements(): bool
     {
 
+        if (version_compare(phpversion(), '7.1', '<')) {
+
+            $this->io->error('Current PHP version is not at least v7.1+');
+
+            return $this->requirements_ok = false;
+        }
+
         if (! $this->hasAllPhpExtentions()) {
 
             $this->requirements_ok = false;

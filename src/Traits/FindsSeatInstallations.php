@@ -131,6 +131,23 @@ trait FindsSeatInstallations
     }
 
     /**
+     * Check if a path is a SeAT installation.
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    public function isSeatInstallation(string $path)
+    {
+
+        if ($this->testPath($path))
+            return true;
+
+        return false;
+
+    }
+
+    /**
      * Test a path to check if the 'signatures'
      * required for it to be considered a SeAT
      * installation match.
@@ -164,23 +181,6 @@ trait FindsSeatInstallations
             return true;
 
         // Path is not valid. Return false.
-        return false;
-
-    }
-
-    /**
-     * Check if a path is a SeAT installation.
-     *
-     * @param string $path
-     *
-     * @return bool
-     */
-    public function isSeatInstallation(string $path)
-    {
-
-        if ($this->testPath($path))
-            return true;
-
         return false;
 
     }

@@ -67,6 +67,11 @@ class Production extends Command
     protected $seat_destination;
 
     /**
+     * @var
+     */
+    protected $minimum_stability;
+
+    /**
      * @var array
      */
     protected $webserver_info = [
@@ -89,6 +94,8 @@ class Production extends Command
             ->setDescription('Install a SeAT Production Instance')
             ->addOption('seat-destination', 's', InputOption::VALUE_OPTIONAL,
                 'Destination folder to install to', '/var/www/seat')
+            ->addOption('minimum-stability', null, InputOption::VALUE_OPTIONAL,
+                'The minimum stability used for the install', 'stable')
             ->setHelp('This command allows you to install SeAT on your system');
     }
 
@@ -106,6 +113,7 @@ class Production extends Command
 
         // Start by figuring out where we are going to install SeAT
         $this->seat_destination = $input->getOption('seat-destination');
+        $this->minimum_stability = $input->getOption('minimum-stability');
 
         // Ensure that we should continue.
         if (! $this->confirmContinue()) {
@@ -143,7 +151,7 @@ class Production extends Command
 
         $this->installPhpPackages();
 
-        $this->installSeat();
+        $this->installSeat($this->minimum_stability);
 
         $this->installWebserver();
 
@@ -152,7 +160,6 @@ class Production extends Command
         $this->setupSupervisor();
 
         $this->io->success('Installation complete!');
-        $this->io->text('Remember to set an admin password with \'php artisan seat:admin:reset\'');
 
     }
 
@@ -342,6 +349,9 @@ class Production extends Command
 
     }
 
+    /**
+     *
+     */
     protected function configureRedis()
     {
 
@@ -366,12 +376,12 @@ class Production extends Command
     /**
      * Install SeAT.
      */
-    protected function installSeat()
+    protected function installSeat($minimum_stability)
     {
 
         $seat = new Seat($this->io);
         $seat->setPath($this->seat_destination);
-        $seat->install();
+        $seat->install($minimum_stability);
         $seat->configure($this->mysql_credentials);
         $seat->updateConfigCache();
 
