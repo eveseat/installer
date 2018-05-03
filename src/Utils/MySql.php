@@ -81,8 +81,8 @@ class MySql extends AbstractUtil
         ],
         'debian' => [
             '8' => [
-                'systemctl enable mysql.service',
-                'systemctl restart mysql.service',
+                'systemctl enable mariadb.service',
+                'systemctl restart mariadb.service',
             ],
             '9' => [
                 'systemctl enable mariadb.service',

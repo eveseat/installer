@@ -78,6 +78,9 @@ class Supervisor extends AbstractUtil
 
     /**
      * @var array
+     * Note: Debian 8 by default has a bugged init script and restarting via
+     * 'systemctl restart supervisor.service' will not work half the time.
+     * The commands below for it are a workaround for this.
      */
     protected $restart_commands = [
         'ubuntu' => [
@@ -98,7 +101,9 @@ class Supervisor extends AbstractUtil
         ],
         'debian' => [
             '8' => [
-                'systemctl restart supervisor.service',
+                '/etc/init.d/supervisor force-stop',
+                '/etc/init.d/supervisor stop',
+                '/etc/init.d/supervisor start',
             ],
             '9' => [
                 'systemctl restart supervisor.service',

@@ -67,18 +67,36 @@ class Nginx extends AbstractUtil implements WebServer
      * @var array
      */
     protected $fpm_sockets = [
-        'ubuntu' => '/var/run/php/php7.0-fpm.sock',
-        'centos' => '/var/run/php-fpm/php-fpm.sock',
-        'debian' => '/var/run/php/php7.0-fpm.sock',
+        'ubuntu' => [
+            '16.04' => '/var/run/php/php7.1-fpm.sock',
+            '16.10' => '/var/run/php/php7.1-fpm.sock',
+        ],
+        'centos' => [
+            '6' => '/var/run/php-fpm/php-fpm.sock',
+            '7' => '/var/run/php-fpm/php-fpm.sock',
+        ],
+        'debian' => [
+            '8' => '/var/run/php/php7.1-fpm.sock',
+            '9' => '/var/run/php/php7.1-fpm.sock',
+        ],
     ];
 
     /**
      * @var array
      */
     protected $phpini_locations = [
-        'ubuntu' => '/etc/php/7.0/fpm/php.ini',
-        'centos' => '/etc/php.ini',
-        'debian' => '/etc/php/7.0/fpm/php.ini',
+        'ubuntu' => [
+            '16.04' => '/etc/php/7.1/fpm/php.ini',
+            '16.10' => '/etc/php/7.1/fpm/php.ini',
+        ],
+        'centos' => [
+            '6' => '/etc/php.ini',
+            '7' => '/etc/php.ini',
+        ],
+        'debian' => [
+            '8' => '/etc/php/7.1/fpm/php.ini',
+            '9' => '/etc/php/7.1/fpm/php.ini',
+        ],
     ];
 
     /**
@@ -88,15 +106,18 @@ class Nginx extends AbstractUtil implements WebServer
         'ubuntu' => [
             '16.04' => [
                 'systemctl restart nginx.service',
-                'systemctl restart php7.0-fpm.service',
+                'systemctl restart php7.1-fpm.service',
             ],
             '16.10' => [
                 'systemctl restart nginx.service',
-                'systemctl restart php7.0-fpm.service',
+                'systemctl restart php7.1-fpm.service',
             ],
         ],
         'centos' => [
-            '6' => [],
+            '6' => [
+                'systemctl restart nginx.service',
+                'systemctl restart php-fpm.service',
+            ],
             '7' => [
                 'systemctl restart nginx.service',
                 'systemctl restart php-fpm.service',
@@ -105,7 +126,7 @@ class Nginx extends AbstractUtil implements WebServer
         'debian' => [
             '8' => [
                 'systemctl restart nginx.service',
-                'systemctl restart php7.0-fpm.service',
+                'systemctl restart php7.1-fpm.service',
             ],
             '9' => [
                 'systemctl restart nginx.service',
@@ -153,7 +174,7 @@ class Nginx extends AbstractUtil implements WebServer
 
         // Set the path and the fpm socket location
         $server_block = str_replace(':seatpath:', rtrim($path, '/'), $server_block);
-        $server_block = str_replace('#socket', $this->fpm_sockets[$os], $server_block);
+        $server_block = str_replace('#socket', $this->fpm_sockets[$os][$version], $server_block);
 
         // Write the serverblock config
         file_put_contents($this->serverblock_locations[$os], $server_block);
@@ -224,8 +245,11 @@ class Nginx extends AbstractUtil implements WebServer
     protected function fixCgiPath()
     {
 
+        $os = $this->getOperatingSystem()['os'];
+        $version = $this->getOperatingSystem()['version'];
+
         $this->io->text('Configuring php-fpm cgi.fix_pathinfo');
-        $file = $this->phpini_locations[$this->getOperatingSystem()['os']];
+        $file = $this->phpini_locations[$os][$version];
         $php_ini = file_get_contents($file);
         $php_ini = str_replace(';cgi.fix_pathinfo=1', 'cgi.fix_pathinfo=0', $php_ini);
         file_put_contents($file, $php_ini);
