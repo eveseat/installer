@@ -51,7 +51,6 @@ class Nginx extends AbstractUtil implements WebServer
     protected $webserver_users = [
         'ubuntu' => [
             '16.04' => 'www-data',
-            '16.10' => 'www-data',
         ],
         'centos' => [
             '6' => 'nginx',
@@ -69,7 +68,6 @@ class Nginx extends AbstractUtil implements WebServer
     protected $fpm_sockets = [
         'ubuntu' => [
             '16.04' => '/var/run/php/php7.1-fpm.sock',
-            '16.10' => '/var/run/php/php7.1-fpm.sock',
         ],
         'centos' => [
             '6' => '/var/run/php-fpm/php-fpm.sock',
@@ -87,7 +85,6 @@ class Nginx extends AbstractUtil implements WebServer
     protected $phpini_locations = [
         'ubuntu' => [
             '16.04' => '/etc/php/7.1/fpm/php.ini',
-            '16.10' => '/etc/php/7.1/fpm/php.ini',
         ],
         'centos' => [
             '6' => '/etc/php.ini',
@@ -105,10 +102,6 @@ class Nginx extends AbstractUtil implements WebServer
     protected $restart_commands = [
         'ubuntu' => [
             '16.04' => [
-                'systemctl restart nginx.service',
-                'systemctl restart php7.1-fpm.service',
-            ],
-            '16.10' => [
                 'systemctl restart nginx.service',
                 'systemctl restart php7.1-fpm.service',
             ],

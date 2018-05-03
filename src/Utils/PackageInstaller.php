@@ -57,10 +57,6 @@ class PackageInstaller extends AbstractUtil
                 'pdo_mysql' => 'php7.1-mysql',
                 'posix'     => 'php7.1-common',
             ],
-            '16.10' => [
-                'pdo_mysql' => 'php7.1-mysql',
-                'posix'     => 'php7.1-common',
-            ],
         ],
 
         'centos' => [
@@ -94,11 +90,6 @@ class PackageInstaller extends AbstractUtil
         // Ubuntu
         'ubuntu' => [
             '16.04' => [
-                'unzip'     => 'unzip',
-                'git'       => 'git',
-                'pdo_mysql' => 'php7.1-mysql',
-            ],
-            '16.10' => [
                 'unzip'     => 'unzip',
                 'git'       => 'git',
                 'pdo_mysql' => 'php7.1-mysql',
@@ -143,28 +134,6 @@ class PackageInstaller extends AbstractUtil
         'ubuntu' => [
             // Ubuntu 16.04 LTS
             '16.04' => [
-                'mysql'      => [
-                    'mysql-server', 'expect',
-                ],
-                'php'        => [
-                    'php7.1-cli', 'php7.1-mcrypt', 'php7.1-intl',
-                    'php7.1-mysql', 'php7.1-curl', 'php7.1-gd',
-                    'php7.1-mbstring', 'php7.1-bz2', 'php7.1-dom',
-                ],
-                'apache'     => [
-                    'apache2', 'libapache2-mod-php7.1',
-                ],
-                'nginx'      => [
-                    'nginx', 'php7.1-fpm',
-                ],
-                'redis'      => [
-                    'redis-server',
-                ],
-                'supervisor' => [
-                    'supervisor',
-                ],
-            ],
-            '16.10' => [
                 'mysql'      => [
                     'mysql-server', 'expect',
                 ],
