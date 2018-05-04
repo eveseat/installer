@@ -39,12 +39,8 @@ class Redis extends AbstractUtil
     protected $enable_restart_commands = [
         'ubunutu' => [
             '16.04' => [
-                'systemctl enable redis.service',
-                'systemctl restart redis.service',
-            ],
-            '16.10' => [
-                'systemctl enable redis.service',
-                'systemctl restart redis.service',
+                'systemctl enable redis-server.service',
+                'systemctl restart redis-server.service',
             ],
         ],
 
@@ -61,8 +57,12 @@ class Redis extends AbstractUtil
 
         'debian' => [
             '8' => [
-                'systemctl enable redis.service',
-                'systemctl restart redis.service',
+                'systemctl enable redis-server.service',
+                'systemctl restart redis-server.service',
+            ],
+            '9' => [
+                'systemctl enable redis-server.service',
+                'systemctl restart redis-server.service',
             ],
         ],
     ];

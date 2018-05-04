@@ -54,9 +54,6 @@ class Supervisor extends AbstractUtil
             '16.04' => [
                 'systemctl enable supervisor.service',
             ],
-            '16.10' => [
-                'systemctl enable supervisor.service',
-            ],
         ],
         'centos' => [
             '7' => [
@@ -70,18 +67,21 @@ class Supervisor extends AbstractUtil
             '8' => [
                 'systemctl enable supervisor.service',
             ],
+            '9' => [
+                'systemctl enable supervisor.service',
+            ],
         ],
     ];
 
     /**
      * @var array
+     * Note: Debian 8 by default has a bugged init script and restarting via
+     * 'systemctl restart supervisor.service' will not work half the time.
+     * The commands below for it are a workaround for this.
      */
     protected $restart_commands = [
         'ubuntu' => [
             '16.04' => [
-                'systemctl restart supervisor.service',
-            ],
-            '16.10' => [
                 'systemctl restart supervisor.service',
             ],
         ],
@@ -95,6 +95,11 @@ class Supervisor extends AbstractUtil
         ],
         'debian' => [
             '8' => [
+                '/etc/init.d/supervisor force-stop',
+                '/etc/init.d/supervisor stop',
+                '/etc/init.d/supervisor start',
+            ],
+            '9' => [
                 'systemctl restart supervisor.service',
             ],
         ],
@@ -106,7 +111,6 @@ class Supervisor extends AbstractUtil
     protected $seat_config_locations = [
         'ubuntu' => [
             '16.04' => '/etc/supervisor/conf.d/seat.conf',
-            '16.10' => '/etc/supervisor/conf.d/seat.conf',
         ],
         'centos' => [
             '7' => '/etc/supervisord.d/seat.ini',
@@ -114,6 +118,7 @@ class Supervisor extends AbstractUtil
         ],
         'debian' => [
             '8' => '/etc/supervisor/conf.d/seat.conf',
+            '9' => '/etc/supervisor/conf.d/seat.conf',
         ],
     ];
 
@@ -123,7 +128,6 @@ class Supervisor extends AbstractUtil
     protected $supervisor_config_locations = [
         'ubuntu' => [
             '16.04' => '/etc/supervisor/supervisord.conf',
-            '16.10' => '/etc/supervisor/supervisord.conf',
         ],
         'centos' => [
             '7' => '/etc/supervisord.conf',
@@ -131,6 +135,7 @@ class Supervisor extends AbstractUtil
         ],
         'debian' => [
             '8' => '/etc/supervisor/supervisord.conf',
+            '9' => '/etc/supervisor/supervisord.conf',
         ],
     ];
 

@@ -63,10 +63,6 @@ class MySql extends AbstractUtil
                 'systemctl enable mysql.service',
                 'systemctl restart mysql.service',
             ],
-            '16.10' => [
-                'systemctl enable mysql.service',
-                'systemctl restart mysql.service',
-            ],
         ],
 
         'centos' => [
@@ -81,8 +77,12 @@ class MySql extends AbstractUtil
         ],
         'debian' => [
             '8' => [
-                'systemctl enable mysql.service',
-                'systemctl restart mysql.service',
+                'systemctl enable mariadb.service',
+                'systemctl restart mariadb.service',
+            ],
+            '9' => [
+                'systemctl enable mariadb.service',
+                'systemctl restart mariadb.service',
             ],
         ],
     ];
