@@ -350,7 +350,7 @@ class Production extends Command
     }
 
     /**
-     *
+     * Get Redis installed and enabled.
      */
     protected function configureRedis()
     {
