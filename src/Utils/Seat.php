@@ -163,7 +163,7 @@ class Seat extends AbstractUtil
     {
 
         // Prep the path to php artisan
-        $command = $this->getArtisan() . ' eve:update-sde -n';
+        $command = $this->getArtisan() . ' eve:update:sde -n';
 
         // Run the setup command
         $success = $this->runCommandWithOutput($command, '');
