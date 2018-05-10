@@ -54,7 +54,7 @@ class Nginx extends AbstractUtil implements WebServer
         ],
         'centos' => [
             '6' => 'nginx',
-            '7' => 'apache',
+            '7' => 'nginx',
         ],
         'debian' => [
             '8' => 'www-data',
@@ -135,7 +135,6 @@ class Nginx extends AbstractUtil implements WebServer
      */
     public function install()
     {
-
         $installer = new PackageInstaller($this->io);
         $installer->installPackageGroup('nginx');
     }
@@ -149,7 +148,6 @@ class Nginx extends AbstractUtil implements WebServer
      */
     public function configure(string $path)
     {
-
         $this->io->text('Writing the Nginx Server block configuration');
 
         // Get the OS that will be used to determine where the config will be
@@ -174,7 +172,6 @@ class Nginx extends AbstractUtil implements WebServer
 
         // Remove the default server block if we are on a deb based os
         if ($os == 'ubuntu' || $os == 'debian') {
-
             $this->io->text('Removing default nginx server block');
             $fs = new Filesystem();
             $fs->remove('/etc/nginx/sites-enabled/default');
@@ -182,11 +179,14 @@ class Nginx extends AbstractUtil implements WebServer
 
         // Configure SELinux if this is CentOS
         if ($os == 'centos') {
-
             $this->io->text('Configuring SELinux');
             $this->runCommand('chcon -R --reference=/var/www ' . $path);
             $this->runCommand('setsebool -P httpd_can_network_connect 1');
             $this->runCommand('setsebool -P httpd_unified 1');
+        }
+
+        if ($os == 'centos' && $version = '7') {
+            $this->fixFpmUser();
         }
 
         // Configure some more things.
@@ -204,12 +204,10 @@ class Nginx extends AbstractUtil implements WebServer
      */
     protected function fixPermissions(string $path)
     {
-
         $this->io->text('Configuring permissions');
         $user = $this->getuser();
         $this->runCommand('chown -R ' . $user . ':' . $user . ' ' . $path);
         $this->runCommand('chmod -R guo+w ' . $path . '/storage/');
-
     }
 
     /**
@@ -219,7 +217,6 @@ class Nginx extends AbstractUtil implements WebServer
      */
     public function getuser()
     {
-
         $os = $this->getOperatingSystem()['os'];
         $ver = $this->getOperatingSystem()['version'];
 
@@ -237,7 +234,6 @@ class Nginx extends AbstractUtil implements WebServer
      */
     protected function fixCgiPath()
     {
-
         $os = $this->getOperatingSystem()['os'];
         $version = $this->getOperatingSystem()['version'];
 
@@ -246,7 +242,19 @@ class Nginx extends AbstractUtil implements WebServer
         $php_ini = file_get_contents($file);
         $php_ini = str_replace(';cgi.fix_pathinfo=1', 'cgi.fix_pathinfo=0', $php_ini);
         file_put_contents($file, $php_ini);
+    }
 
+    /**
+     * Apply the FPM user fix.
+     */
+    protected function fixFpmUser()
+    {
+        $this->io->text('Updating PHP-FPM user');
+        $fpm_file = '/etc/php-fpm.d/www.conf';
+        $phpfpm_ini = file_get_contents($fpm_file);
+        $phpfpm_ini = str_replace('user = apache', 'user = nginx', $phpfpm_ini);
+        $phpfpm_ini = str_replace('group = apache', 'group = nginx', $phpfpm_ini);
+        file_put_contents($fpm_file, $phpfpm_ini);
     }
 
     /**
