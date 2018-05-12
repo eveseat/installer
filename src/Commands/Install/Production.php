@@ -435,6 +435,12 @@ class Production extends Command
         $supervisor->install();
         $supervisor->setup();
         $supervisor->setupIntegration($this->seat_destination);
+
+        // Terminate Horizon
+        $seat = new Seat($this->io);
+        $seat->setPath($this->seat_destination);
+        $seat->terminateHorizon();
+
         $supervisor->restart();
 
     }
