@@ -157,7 +157,6 @@ class Supervisor extends AbstractUtil
 
         $this->writeConfig();
         $this->enable();
-        $this->restart();
     }
 
     /**

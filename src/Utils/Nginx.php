@@ -108,8 +108,8 @@ class Nginx extends AbstractUtil implements WebServer
         ],
         'centos' => [
             '6' => [
-                'systemctl restart nginx.service',
-                'systemctl restart php-fpm.service',
+                '/etc/init.d/nginx restart',
+                '/etc/init.d/php-fpm restart',
             ],
             '7' => [
                 'systemctl restart nginx.service',
@@ -177,16 +177,19 @@ class Nginx extends AbstractUtil implements WebServer
             $fs->remove('/etc/nginx/sites-enabled/default');
         }
 
-        // Configure SELinux if this is CentOS
+        // Configure SELinux & Fix FPM User if this is CentOS
         if ($os == 'centos') {
             $this->io->text('Configuring SELinux');
             $this->runCommand('chcon -R --reference=/var/www ' . $path);
             $this->runCommand('setsebool -P httpd_can_network_connect 1');
             $this->runCommand('setsebool -P httpd_unified 1');
+            $this->fixFpmUser();
         }
 
-        if ($os == 'centos' && $version = '7') {
-            $this->fixFpmUser();
+        if ($os == 'centos' && $version == '6') {
+            $this->io->text('Removing default nginx server block');
+            $fs = new Filesystem();
+            $fs->remove('/etc/nginx/conf.d/default.conf');
         }
 
         // Configure some more things.

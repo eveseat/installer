@@ -184,7 +184,7 @@ class PackageInstaller extends AbstractUtil
             // CentOS 6
             '6' => [
                 'mysql'      => [
-                    'mysql', 'mysql-server', 'expect',
+                    'MariaDB-server', 'expect',
                 ],
                 'php'        => [
                     'php-mysql', 'php-cli', 'php-mcrypt', 'php-process',
