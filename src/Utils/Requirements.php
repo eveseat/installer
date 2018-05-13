@@ -46,7 +46,7 @@ class Requirements extends AbstractUtil
      * @var array
      */
     protected $supported_os = [
-        'ubuntu' => ['16.04'],
+        'ubuntu' => ['16.04', '18.04'],
         'centos' => ['6', '7'],
         'debian' => ['8', '9'],
     ];
