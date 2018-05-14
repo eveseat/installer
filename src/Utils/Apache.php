@@ -51,6 +51,7 @@ class Apache extends AbstractUtil implements WebServer
     protected $webserver_users = [
         'ubuntu' => [
             '16.04' => 'www-data',
+            '18.04' => 'www-data',
         ],
         'centos' => [
             '6' => 'apache',

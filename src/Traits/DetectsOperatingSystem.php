@@ -50,6 +50,10 @@ trait DetectsOperatingSystem
                 'version'   => '16.04',
                 'signature' => 'Ubuntu 16.04',
             ],
+            [
+                'version'   => '18.04',
+                'signature' => 'Ubuntu 18.04',
+            ],
         ],
         'centos' => [
             [

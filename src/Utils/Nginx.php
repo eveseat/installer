@@ -51,6 +51,7 @@ class Nginx extends AbstractUtil implements WebServer
     protected $webserver_users = [
         'ubuntu' => [
             '16.04' => 'www-data',
+            '18.04' => 'www-data',
         ],
         'centos' => [
             '6' => 'nginx',
@@ -68,6 +69,7 @@ class Nginx extends AbstractUtil implements WebServer
     protected $fpm_sockets = [
         'ubuntu' => [
             '16.04' => '/var/run/php/php7.1-fpm.sock',
+            '18.04' => '/var/run/php/php7.1-fpm.sock',
         ],
         'centos' => [
             '6' => '/var/run/php-fpm/php-fpm.sock',
@@ -85,6 +87,7 @@ class Nginx extends AbstractUtil implements WebServer
     protected $phpini_locations = [
         'ubuntu' => [
             '16.04' => '/etc/php/7.1/fpm/php.ini',
+            '18.04' => '/etc/php/7.1/fpm/php.ini',
         ],
         'centos' => [
             '6' => '/etc/php.ini',
@@ -105,11 +108,15 @@ class Nginx extends AbstractUtil implements WebServer
                 'systemctl restart nginx.service',
                 'systemctl restart php7.1-fpm.service',
             ],
+            '18.04' => [
+                'systemctl restart nginx.service',
+                'systemctl restart php7.1-fpm.service',
+            ],
         ],
         'centos' => [
             '6' => [
-                'systemctl restart nginx.service',
-                'systemctl restart php-fpm.service',
+                '/etc/init.d/nginx restart',
+                '/etc/init.d/php-fpm restart',
             ],
             '7' => [
                 'systemctl restart nginx.service',
@@ -177,16 +184,19 @@ class Nginx extends AbstractUtil implements WebServer
             $fs->remove('/etc/nginx/sites-enabled/default');
         }
 
-        // Configure SELinux if this is CentOS
+        // Configure SELinux & Fix FPM User if this is CentOS
         if ($os == 'centos') {
             $this->io->text('Configuring SELinux');
             $this->runCommand('chcon -R --reference=/var/www ' . $path);
             $this->runCommand('setsebool -P httpd_can_network_connect 1');
             $this->runCommand('setsebool -P httpd_unified 1');
+            $this->fixFpmUser();
         }
 
-        if ($os == 'centos' && $version = '7') {
-            $this->fixFpmUser();
+        if ($os == 'centos' && $version == '6') {
+            $this->io->text('Removing default nginx server block');
+            $fs = new Filesystem();
+            $fs->remove('/etc/nginx/conf.d/default.conf');
         }
 
         // Configure some more things.

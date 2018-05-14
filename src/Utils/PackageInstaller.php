@@ -57,6 +57,10 @@ class PackageInstaller extends AbstractUtil
                 'pdo_mysql' => 'php7.1-mysql',
                 'posix'     => 'php7.1-common',
             ],
+            '18.04' => [
+                'pdo_mysql' => 'php7.1-mysql',
+                'posix'     => 'php7.1-common',
+            ],
         ],
 
         'centos' => [
@@ -90,6 +94,11 @@ class PackageInstaller extends AbstractUtil
         // Ubuntu
         'ubuntu' => [
             '16.04' => [
+                'unzip'     => 'unzip',
+                'git'       => 'git',
+                'pdo_mysql' => 'php7.1-mysql',
+            ],
+            '18.04' => [
                 'unzip'     => 'unzip',
                 'git'       => 'git',
                 'pdo_mysql' => 'php7.1-mysql',
@@ -155,6 +164,29 @@ class PackageInstaller extends AbstractUtil
                     'supervisor',
                 ],
             ],
+            // Ubuntu 18.04 LTS
+            '18.04' => [
+                'mysql'      => [
+                    'mysql-server', 'expect',
+                ],
+                'php'        => [
+                    'php7.1-cli', 'php7.1-mcrypt', 'php7.1-intl',
+                    'php7.1-mysql', 'php7.1-curl', 'php7.1-gd',
+                    'php7.1-mbstring', 'php7.1-bz2', 'php7.1-dom',
+                ],
+                'apache'     => [
+                    'apache2', 'libapache2-mod-php7.1',
+                ],
+                'nginx'      => [
+                    'nginx', 'php7.1-fpm',
+                ],
+                'redis'      => [
+                    'redis-server',
+                ],
+                'supervisor' => [
+                    'supervisor',
+                ],
+            ],
         ],
 
         // CentOS
@@ -184,7 +216,7 @@ class PackageInstaller extends AbstractUtil
             // CentOS 6
             '6' => [
                 'mysql'      => [
-                    'mysql', 'mysql-server', 'expect',
+                    'MariaDB-server', 'expect',
                 ],
                 'php'        => [
                     'php-mysql', 'php-cli', 'php-mcrypt', 'php-process',
@@ -199,8 +231,10 @@ class PackageInstaller extends AbstractUtil
                 'redis'      => [
                     'redis',
                 ],
+                // We want to enable gf-plus repo only for supervisor, otherwise
+                // it starts updating things we do not want it to.
                 'supervisor' => [
-                    'supervisor',
+                    'supervisor --enablerepo=gf-plus',
                 ],
             ],
         ],

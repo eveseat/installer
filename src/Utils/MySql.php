@@ -63,16 +63,19 @@ class MySql extends AbstractUtil
                 'systemctl enable mysql.service',
                 'systemctl restart mysql.service',
             ],
+            '18.04' => [
+                'systemctl enable mysql.service',
+                'systemctl restart mysql.service',
+            ],
         ],
-
         'centos' => [
             '7' => [
                 'systemctl enable mariadb.service',
                 'systemctl restart mariadb.service',
             ],
             '6' => [
-                'chkconfig mysqld on',
-                '/etc/init.d/mysqld restart',
+                'chkconfig mysql on',
+                '/etc/init.d/mysql restart',
             ],
         ],
         'debian' => [

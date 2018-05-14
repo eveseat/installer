@@ -226,4 +226,17 @@ class Seat extends AbstractUtil
         if (! $success)
             throw new ArtisanCommandFailed('Unable to update the config cache');
     }
+
+    /**
+     * @throws \Seat\Installer\Exceptions\ArtisanCommandFailed
+     */
+    public function terminateHorizon()
+    {
+
+        $success = $this->runCommandWithOutput($this->getArtisan() .
+            ' horizon:terminate');
+
+        if (! $success)
+            throw new ArtisanCommandFailed('Unable to terminate Horizon');
+    }
 }
