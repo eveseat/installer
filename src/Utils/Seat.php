@@ -119,7 +119,7 @@ class Seat extends AbstractUtil
     }
 
     /**
-     * @throws \Seat\Installer\Exceptions\PackageInstallationFailedException
+     * @throws \Seat\Installer\Exceptions\ArtisanCommandFailed
      */
     public function runArtisanCommands()
     {
@@ -132,7 +132,6 @@ class Seat extends AbstractUtil
             $artisan . ' vendor:publish --force --all',
             $artisan . ' migrate',
             $artisan . ' db:seed --class=Seat\\\Notifications\\\database\\\seeds\\\ScheduleSeeder',
-            $artisan . ' db:seed --class=Seat\\\Services\\\database\\\seeds\\\NotificationTypesSeeder',
             $artisan . ' db:seed --class=Seat\\\Services\\\database\\\seeds\\\ScheduleSeeder',
         ];
 
