@@ -421,7 +421,7 @@ class Diagnose extends Command
 
         $this->io->text('Checking connectivity to the EVE Online API server');
 
-        $url = 'https://api.eveonline.com/server/serverstatus.xml.aspx';
+        $url = 'https://esi.evetech.net/ping';
 
         $client = new GuzzleClient();
         $response = $client->get($url);
