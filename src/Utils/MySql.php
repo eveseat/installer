@@ -67,6 +67,10 @@ class MySql extends AbstractUtil
                 'systemctl enable mysql.service',
                 'systemctl restart mysql.service',
             ],
+            '20.04' => [
+                'systemctl enable mysql.service',
+                'systemctl restart mysql.service',
+            ],
         ],
         'centos' => [
             '7' => [

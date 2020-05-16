@@ -61,6 +61,10 @@ class PackageInstaller extends AbstractUtil
                 'pdo_mysql' => 'php7.1-mysql',
                 'posix'     => 'php7.1-common',
             ],
+            '20.04' => [
+                'pdo_mysql' => 'php7.4-mysql',
+                'posix'     => 'php7.4-common',
+            ],
         ],
 
         'centos' => [
@@ -102,6 +106,11 @@ class PackageInstaller extends AbstractUtil
                 'unzip'     => 'unzip',
                 'git'       => 'git',
                 'pdo_mysql' => 'php7.1-mysql',
+            ],
+            '20.04' => [
+                'unzip'     => 'unzip',
+                'git'       => 'git',
+                'pdo_mysql' => 'php7.4-mysql',
             ],
         ],
 
@@ -181,6 +190,29 @@ class PackageInstaller extends AbstractUtil
                     'nginx', 'php7.1-fpm',
                 ],
                 'redis'      => [
+                    'redis-server',
+                ],
+                'supervisor' => [
+                    'supervisor',
+                ],
+            ],
+            // Ubuntu 20.04 LTS
+            '20.04' => [
+                'mysql' => [
+                    'mysql-server', 'expect',
+                ],
+                'php' => [
+                    'php7.4-cli', 'php7.4-intl',
+                    'php7.4-mysql', 'php7.4-curl', 'php7.4-gd',
+                    'php7.4-mbstring', 'php7.4-bz2', 'php7.4-dom',
+                ],
+                'apache' => [
+                    'apache2', 'libapache2-mod-php7.4',
+                ],
+                'nginx' => [
+                    'nginx', 'php7.4-fpm',
+                ],
+                'redis' => [
                     'redis-server',
                 ],
                 'supervisor' => [

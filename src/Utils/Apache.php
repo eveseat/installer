@@ -52,6 +52,7 @@ class Apache extends AbstractUtil implements WebServer
         'ubuntu' => [
             '16.04' => 'www-data',
             '18.04' => 'www-data',
+            '20.04' => 'www-data',
         ],
         'centos' => [
             '6' => 'apache',
