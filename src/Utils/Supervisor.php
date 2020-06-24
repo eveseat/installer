@@ -124,7 +124,7 @@ class Supervisor extends AbstractUtil
         'ubuntu' => [
             '16.04' => '/etc/supervisor/conf.d/seat.conf',
             '18.04' => '/etc/supervisor/conf.d/seat.conf',
-            '20.04' => '/etc/supervisor.conf.d/seat.conf',
+            '20.04' => '/etc/supervisor/conf.d/seat.conf',
         ],
         'centos' => [
             '7' => '/etc/supervisord.d/seat.ini',
